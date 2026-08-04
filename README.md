@@ -39,6 +39,12 @@ Both keys are free tier, no card required:
 Without the keys the site runs fine; the demo shows a "not configured" message
 instead of an agent run.
 
+`NEXT_PUBLIC_GA_ID` is optional. Leave it empty and no analytics script loads;
+set it to a GA4 measurement ID (`G-XXXXXXXXXX`) and Google Analytics is enabled.
+Keep it unset locally so development traffic stays out of the reports. Because
+the whole site is one route, pane changes are reported as virtual page views
+(`/`, `/contact`, `/projects/<id>`) — see `lib/analytics.ts`.
+
 A note on the Gemini model: the spec called for Gemini 2.5 Flash, but Google now
 returns 404 "no longer available to new users" for it, so a freshly created AI
 Studio key cannot call it. The pipeline uses `gemini-3.6-flash` instead. It is a

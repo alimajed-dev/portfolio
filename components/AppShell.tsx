@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RightPanel, type PanelTab } from "./RightPanel";
 import { Sidebar } from "./Sidebar";
 import { ContactPane } from "./panes/ContactPane";
 import { HomePane } from "./panes/HomePane";
 import { ProjectPane } from "./panes/ProjectPane";
+import { trackPageView, viewToPage } from "@/lib/analytics";
 import { PROJECTS } from "@/lib/site";
 import { useAgentRun } from "@/lib/useAgentRun";
 import { useMediaQuery } from "@/lib/useMediaQuery";
@@ -21,6 +22,17 @@ export function AppShell() {
   const isNarrow = useMediaQuery("(max-width: 1023px)");
   const [collapsedOverride, setCollapsedOverride] = useState<boolean | null>(null);
   const collapsed = collapsedOverride ?? isNarrow;
+
+  // GA's own script already reports the initial load, so only report changes
+  // after mount — otherwise the first pane is counted twice.
+  const trackedInitialView = useRef(false);
+  useEffect(() => {
+    if (!trackedInitialView.current) {
+      trackedInitialView.current = true;
+      return;
+    }
+    trackPageView(viewToPage(view));
+  }, [view]);
 
   useEffect(() => {
     if (!panelOpen) return;
