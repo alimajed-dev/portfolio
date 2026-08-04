@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<!--
+  Reference mockup exported from Claude Design. Static reference only — inline
+  styles below are the SOURCE OF TRUTH for colors/spacing/radius/typography.
+  Ignore any other design-system token files if present elsewhere; this file's
+  inline values are what was actually approved for the 5 screens.
+-->
+<div style="background:#d7d3d3;min-height:100vh;padding:64px 0;display:flex;flex-direction:column;align-items:center;gap:56px;font-family:'Archivo',system-ui,sans-serif;">
+
+  <!-- ============ SCREEN 1 — DEFAULT / LANDING ============ -->
+  <div style="display:flex;flex-direction:column;gap:10px;">
+    <div style="font-weight:700;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:#605d5d;">1 — Default (nothing selected)</div>
+    <div id="screen-1" data-screen-label="01 Default" style="width:1440px;height:900px;background:#f3f2f2;box-shadow:0 1px 3px rgba(32,30,29,0.08);border-radius:12px;display:flex;overflow:hidden;">
+
+      <div style="width:264px;min-width:264px;height:100%;background:#eae9e9;border-right:1px solid rgba(32,30,29,0.10);display:flex;flex-direction:column;padding:24px 16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:32px;height:32px;border-radius:8px;background:#201e1d;color:#f3f2f2;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;">AM</div>
+            <div style="font-weight:700;font-size:15px;">Ali Majed</div>
+          </div>
+          <button style="width:32px;height:32px;border-radius:8px;border:none;background:transparent;color:#605d5d;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s ease,color .15s ease,background-color .15s ease;" title="Collapse sidebar">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="3"/><path d="M9 3v18"/></svg>
+          </button>
+        </div>
+
+        <a href="#screen-4" style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;font-weight:600;font-size:14px;color:#201e1d;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg>
+          Contact
+        </a>
+
+        <div style="margin-top:28px;">
+          <h6 style="margin:0 0 8px 10px;color:#7d7979;font-size:11px;font-weight:600;letter-spacing:0.07em;">Projects</h6>
+          <a href="#screen-2" style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;font-weight:600;font-size:14px;color:#201e1d;text-decoration:none;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Agent Orchestration Demo
+          </a>
+        </div>
+      </div>
+
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;padding:72px 80px;overflow:auto;">
+        <div style="max-width:600px;">
+          <h6 style="color:#3F5BD9;margin-bottom:12px;font-size:11px;font-weight:600;letter-spacing:0.08em;">Portfolio</h6>
+          <h1 style="margin-bottom:18px;font-size:40px;font-weight:700;letter-spacing:-0.02em;">Ali Majed</h1>
+          <p style="font-size:16px;line-height:1.6;color:#201e1d;opacity:0.85;max-width:560px;">I build software end-to-end — from scoping the problem to shipping and running it in production — with a focus on two things: agentic AI systems that coordinate multiple models to get real work done, and frontend-first web development that doesn't lose sight of the whole lifecycle.</p>
+
+          <div style="display:flex;gap:16px;margin-top:32px;">
+            <div style="flex:1;padding:20px;border-radius:12px;border:1px solid rgba(32,30,29,0.10);background:#f3f2f2;display:flex;flex-direction:column;gap:6px;">
+              <div style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#3F5BD9;">Agentic AI</div>
+              <div style="font-weight:600;font-size:16px;">Multi-model orchestration</div>
+              <p style="margin:0;font-size:13px;line-height:1.55;color:#201e1d;opacity:0.72;">Planning, routing and reviewing work across a team of models — picking the right one for each sub-task, not defaulting to one.</p>
+            </div>
+            <div style="flex:1;padding:20px;border-radius:12px;border:1px solid rgba(32,30,29,0.10);background:#f3f2f2;display:flex;flex-direction:column;gap:6px;">
+              <div style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#3F5BD9;">Web Development</div>
+              <div style="font-weight:600;font-size:16px;">Full lifecycle, frontend-first</div>
+              <p style="margin:0;font-size:13px;line-height:1.55;color:#201e1d;opacity:0.72;">Scoping, designing, building and deploying real products — with the frontend craft to make the result feel right.</p>
+            </div>
+          </div>
+
+          <div style="height:1px;background:rgba(32,30,29,0.10);margin:40px 0 24px;"></div>
+          <a href="#screen-4" style="display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:8px;background:#3F5BD9;color:#fff;font-weight:600;font-size:14px;text-decoration:none;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg>
+            Get in touch
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 2 — PROJECT / LIVE ============ -->
+  <div style="display:flex;flex-direction:column;gap:10px;">
+    <div style="font-weight:700;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:#605d5d;">2 — Project: Live mode</div>
+    <div id="screen-2" data-screen-label="02 Project Live" style="width:1440px;height:900px;background:#f3f2f2;box-shadow:0 1px 3px rgba(32,30,29,0.08);border-radius:12px;display:flex;overflow:hidden;">
+
+      <div style="width:264px;min-width:264px;height:100%;background:#eae9e9;border-right:1px solid rgba(32,30,29,0.10);display:flex;flex-direction:column;padding:24px 16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:32px;height:32px;border-radius:8px;background:#201e1d;color:#f3f2f2;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;">AM</div>
+            <div style="font-weight:700;font-size:15px;">Ali Majed</div>
+          </div>
+          <button style="width:32px;height:32px;border-radius:8px;border:none;background:transparent;color:#605d5d;cursor:pointer;display:flex;align-items:center;justify-content:center;" title="Collapse sidebar">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="3"/><path d="M9 3v18"/></svg>
+          </button>
+        </div>
+
+        <a href="#screen-4" style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;font-weight:600;font-size:14px;color:#201e1d;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg>
+          Contact
+        </a>
+
+        <div style="margin-top:28px;">
+          <h6 style="margin:0 0 8px 10px;color:#7d7979;font-size:11px;font-weight:600;letter-spacing:0.07em;">Projects</h6>
+          <a href="#screen-2" style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;font-weight:600;font-size:14px;color:#33449E;background:#EEF1FE;text-decoration:none;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Agent Orchestration Demo
+          </a>
+        </div>
+      </div>
+
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;">
+        <div style="padding:24px 32px;border-bottom:1px solid rgba(32,30,29,0.10);">
+          <h4 style="margin-bottom:2px;font-size:18px;font-weight:600;">Agent Orchestration Demo</h4>
+          <div style="font-size:13px;color:#605d5d;">Multi-agent workflow demo</div>
+        </div>
+        <div style="flex:1;padding:32px;display:flex;flex-direction:column;gap:16px;overflow:auto;">
+          <div style="align-self:flex-end;max-width:65%;background:#eae9e9;padding:12px 16px;border-radius:12px 12px 2px 12px;font-size:14px;line-height:1.55;">
+            Research the top 3 competitors for a Swiss watch startup and draft a positioning summary.
+          </div>
+          <div style="align-self:flex-start;max-width:75%;display:flex;flex-direction:column;gap:6px;">
+            <div style="font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:#7d7979;font-weight:600;">Assistant</div>
+            <div style="font-size:14px;line-height:1.6;color:#201e1d;opacity:0.75;display:flex;align-items:baseline;gap:8px;">
+              <span style="width:6px;height:6px;border-radius:50%;background:#3F5BD9;flex:none;position:relative;top:-1px;"></span>
+              Coordinating agents to research and draft your positioning summary…
+            </div>
+          </div>
+        </div>
+        <div style="padding:20px 32px;border-top:1px solid rgba(32,30,29,0.10);display:flex;gap:12px;align-items:center;">
+          <input style="flex:1;border-radius:10px;border:1px solid rgba(32,30,29,0.14);padding:6px 10px;" placeholder="Message the agent…" disabled>
+          <button style="width:40px;height:40px;border-radius:10px;border:none;background:#3F5BD9;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div style="width:360px;min-width:360px;height:100%;border-left:1px solid rgba(32,30,29,0.10);padding:24px;display:flex;flex-direction:column;gap:20px;overflow:auto;">
+        <div style="display:inline-flex;align-self:flex-start;border:1px solid rgba(32,30,29,0.12);border-radius:9px;overflow:hidden;">
+          <div style="padding:7px 16px;font-size:13px;font-weight:600;background:#3F5BD9;color:#fff;">Live</div>
+          <div style="padding:7px 16px;font-size:13px;font-weight:600;color:#605d5d;cursor:pointer;">Process</div>
+        </div>
+        <h6 style="margin:0;color:#7d7979;font-size:11px;font-weight:600;letter-spacing:0.07em;">Agent trace</h6>
+
+        <div style="display:flex;flex-direction:column;">
+          <div style="padding:14px 0;border-bottom:1px solid rgba(32,30,29,0.08);">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:18px;height:18px;flex:none;border-radius:6px;background:#201e1d;color:#f3f2f2;display:flex;align-items:center;justify-content:center;">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              </div>
+              <div style="font-weight:600;font-size:14px;flex:1;">Planner</div>
+              <span style="display:inline-flex;align-items:center;font-size:11px;padding:3px 9px;border-radius:6px;background:#f8f4f4;color:#444141;">Gemini 2.5 Flash</span>
+            </div>
+            <div style="margin-top:6px;margin-left:28px;font-size:13px;color:#201e1d;opacity:0.85;">Breaking your request into sub-tasks</div>
+            <div style="margin-top:2px;margin-left:28px;font-size:11px;font-style:italic;color:#7d7979;">Reason: needs reasoning, not speed</div>
+          </div>
+
+          <div style="padding:14px 0;border-bottom:1px solid rgba(32,30,29,0.08);">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:18px;height:18px;flex:none;border-radius:6px;background:#201e1d;color:#f3f2f2;display:flex;align-items:center;justify-content:center;">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              </div>
+              <div style="font-weight:600;font-size:14px;flex:1;">Researcher</div>
+              <span style="display:inline-flex;align-items:center;font-size:11px;padding:3px 9px;border-radius:6px;background:#f8f4f4;color:#444141;">Groq / Llama 3.3 70B</span>
+            </div>
+            <div style="margin-top:6px;margin-left:28px;font-size:13px;color:#201e1d;opacity:0.85;">Gathering and summarizing sources</div>
+            <div style="margin-top:2px;margin-left:28px;font-size:11px;font-style:italic;color:#7d7979;">Reason: fast, parallel-friendly</div>
+          </div>
+
+          <div style="padding:14px 0;border-bottom:1px solid rgba(32,30,29,0.08);">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:18px;height:18px;flex:none;border-radius:50%;border:2px solid #3F5BD9;border-top-color:transparent;"></div>
+              <div style="font-weight:600;font-size:14px;flex:1;">Critic</div>
+              <span style="display:inline-flex;align-items:center;font-size:11px;padding:3px 9px;border-radius:6px;background:#EEF1FE;color:#33449E;">Gemini 2.5 Flash</span>
+            </div>
+            <div style="margin-top:6px;margin-left:28px;font-size:13px;color:#201e1d;opacity:0.85;">Checking the draft for gaps</div>
+            <div style="margin-top:2px;margin-left:28px;font-size:11px;font-style:italic;color:#7d7979;">Reason: quality check</div>
+          </div>
+
+          <div style="padding:14px 0;opacity:0.45;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:18px;height:18px;flex:none;border-radius:6px;border:1.5px solid #bab6b6;"></div>
+              <div style="font-weight:600;font-size:14px;flex:1;">Writer</div>
+              <span style="display:inline-flex;align-items:center;font-size:11px;padding:3px 9px;border-radius:6px;background:#f8f4f4;color:#444141;">Gemini 2.5 Flash</span>
+            </div>
+            <div style="margin-top:6px;margin-left:28px;font-size:13px;color:#201e1d;opacity:0.85;">Compiling the final answer</div>
+            <div style="margin-top:2px;margin-left:28px;font-size:11px;font-style:italic;color:#7d7979;">Reason: user-facing quality</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 3 — PROJECT / PROCESS ============ -->
+  <div style="display:flex;flex-direction:column;gap:10px;">
+    <div style="font-weight:700;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:#605d5d;">3 — Project: Process mode</div>
+    <div id="screen-3" data-screen-label="03 Project Process" style="width:1440px;height:900px;background:#f3f2f2;box-shadow:0 1px 3px rgba(32,30,29,0.08);border-radius:12px;display:flex;overflow:hidden;">
+
+      <div style="width:264px;min-width:264px;height:100%;background:#eae9e9;border-right:1px solid rgba(32,30,29,0.10);display:flex;flex-direction:column;padding:24px 16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:32px;height:32px;border-radius:8px;background:#201e1d;color:#f3f2f2;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;">AM</div>
+            <div style="font-weight:700;font-size:15px;">Ali Majed</div>
+          </div>
+        </div>
+
+        <a href="#screen-4" style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;font-weight:600;font-size:14px;color:#201e1d;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg>
+          Contact
+        </a>
+
+        <div style="margin-top:28px;">
+          <h6 style="margin:0 0 8px 10px;color:#7d7979;font-size:11px;font-weight:600;letter-spacing:0.07em;">Projects</h6>
+          <a href="#screen-3" style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;font-weight:600;font-size:14px;color:#33449E;background:#EEF1FE;text-decoration:none;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Agent Orchestration Demo
+          </a>
+        </div>
+      </div>
+
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;">
+        <div style="padding:24px 32px;border-bottom:1px solid rgba(32,30,29,0.10);">
+          <h4 style="margin-bottom:2px;font-size:18px;font-weight:600;">Agent Orchestration Demo</h4>
+          <div style="font-size:13px;color:#605d5d;">Multi-agent workflow demo</div>
+        </div>
+        <div style="flex:1;padding:32px;display:flex;flex-direction:column;gap:16px;overflow:auto;">
+          <div style="align-self:flex-end;max-width:65%;background:#eae9e9;padding:12px 16px;border-radius:12px 12px 2px 12px;font-size:14px;line-height:1.55;">
+            Research the top 3 competitors for a Swiss watch startup and draft a positioning summary.
+          </div>
+          <div style="align-self:flex-start;max-width:75%;display:flex;flex-direction:column;gap:6px;">
+            <div style="font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:#7d7979;font-weight:600;">Assistant</div>
+            <div style="font-size:14px;line-height:1.6;color:#201e1d;opacity:0.85;">
+              Here's a positioning summary comparing the three closest competitors, with a recommended angle for launch.
+            </div>
+          </div>
+        </div>
+        <div style="padding:20px 32px;border-top:1px solid rgba(32,30,29,0.10);display:flex;gap:12px;align-items:center;">
+          <input style="flex:1;border-radius:10px;border:1px solid rgba(32,30,29,0.14);padding:6px 10px;" placeholder="Message the agent…" disabled>
+          <button style="width:40px;height:40px;border-radius:10px;border:none;background:#3F5BD9;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div style="width:360px;min-width:360px;height:100%;border-left:1px solid rgba(32,30,29,0.10);padding:24px;display:flex;flex-direction:column;gap:20px;overflow:auto;">
+        <div style="display:inline-flex;align-self:flex-start;border:1px solid rgba(32,30,29,0.12);border-radius:9px;overflow:hidden;">
+          <div style="padding:7px 16px;font-size:13px;font-weight:600;color:#605d5d;cursor:pointer;">Live</div>
+          <div style="padding:7px 16px;font-size:13px;font-weight:600;background:#3F5BD9;color:#fff;">Process</div>
+        </div>
+        <h6 style="margin:0;color:#7d7979;font-size:11px;font-weight:600;letter-spacing:0.07em;">Case study</h6>
+
+        <div style="display:flex;flex-direction:column;">
+          <div style="padding:14px 0;border-bottom:1px solid rgba(32,30,29,0.08);">
+            <div style="font-size:10px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#3F5BD9;margin-bottom:4px;">Requirements</div>
+            <div style="font-weight:600;font-size:14px;margin-bottom:3px;">Claude (conversation)</div>
+            <div style="font-size:13px;color:#201e1d;opacity:0.72;">Scoped through a Claude conversation.</div>
+          </div>
+          <div style="padding:14px 0;border-bottom:1px solid rgba(32,30,29,0.08);">
+            <div style="font-size:10px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#3F5BD9;margin-bottom:4px;">Design</div>
+            <div style="font-weight:600;font-size:14px;margin-bottom:3px;">Claude Design</div>
+            <div style="font-size:13px;color:#201e1d;opacity:0.72;">Layout and states designed directly from the brief.</div>
+          </div>
+          <div style="padding:14px 0;border-bottom:1px solid rgba(32,30,29,0.08);">
+            <div style="font-size:10px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#3F5BD9;margin-bottom:4px;">Implementation</div>
+            <div style="font-weight:600;font-size:14px;margin-bottom:3px;">Claude Code</div>
+            <div style="font-size:13px;color:#201e1d;opacity:0.72;">Built the working multi-agent demo.</div>
+          </div>
+          <div style="padding:14px 0;border-bottom:1px solid rgba(32,30,29,0.08);">
+            <div style="font-size:10px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#3F5BD9;margin-bottom:4px;">Review</div>
+            <div style="font-weight:600;font-size:14px;margin-bottom:3px;">Automated review agent</div>
+            <div style="font-size:13px;color:#201e1d;opacity:0.72;">An automated review-agent pass before merge.</div>
+          </div>
+          <div style="padding:14px 0;">
+            <div style="font-size:10px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#3F5BD9;margin-bottom:4px;">Deployment</div>
+            <div style="font-weight:600;font-size:14px;margin-bottom:3px;">GitHub → Railway</div>
+            <div style="font-size:13px;color:#201e1d;opacity:0.72;">Pushed to GitHub, deployed on Railway.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 4 — CONTACT ============ -->
+  <div style="display:flex;flex-direction:column;gap:10px;">
+    <div style="font-weight:700;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:#605d5d;">4 — Contact</div>
+    <div id="screen-4" data-screen-label="04 Contact" style="width:1440px;height:900px;background:#f3f2f2;box-shadow:0 1px 3px rgba(32,30,29,0.08);border-radius:12px;display:flex;overflow:hidden;">
+
+      <div style="width:264px;min-width:264px;height:100%;background:#eae9e9;border-right:1px solid rgba(32,30,29,0.10);display:flex;flex-direction:column;padding:24px 16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:32px;height:32px;border-radius:8px;background:#201e1d;color:#f3f2f2;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;">AM</div>
+            <div style="font-weight:700;font-size:15px;">Ali Majed</div>
+          </div>
+        </div>
+
+        <a href="#screen-4" style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;font-weight:600;font-size:14px;color:#33449E;background:#EEF1FE;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg>
+          Contact
+        </a>
+
+        <div style="margin-top:28px;">
+          <h6 style="margin:0 0 8px 10px;color:#7d7979;font-size:11px;font-weight:600;letter-spacing:0.07em;">Projects</h6>
+          <a href="#screen-2" style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;font-weight:600;font-size:14px;color:#201e1d;text-decoration:none;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Agent Orchestration Demo
+          </a>
+        </div>
+      </div>
+
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;padding:72px 80px;overflow:auto;">
+        <div style="max-width:520px;">
+          <h6 style="color:#3F5BD9;margin-bottom:12px;font-size:11px;font-weight:600;letter-spacing:0.08em;">Get in touch</h6>
+          <h1 style="margin-bottom:14px;font-size:36px;font-weight:700;letter-spacing:-0.02em;">Let's build something.</h1>
+          <p style="font-size:15px;line-height:1.6;color:#201e1d;opacity:0.8;margin-bottom:28px;">Best reached by email — happy to talk through contract or freelance work.</p>
+
+          <a href="mailto:alimajed93@gmail.com" style="display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:8px;background:#3F5BD9;color:#fff;font-weight:600;font-size:14px;text-decoration:none;margin-bottom:32px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg>
+            Send an email
+          </a>
+
+          <a href="mailto:alimajed93@gmail.com" style="display:flex;align-items:center;gap:14px;padding:14px 8px;border-radius:10px;border-top:1px solid rgba(32,30,29,0.08);color:#201e1d;text-decoration:none;">
+            <span style="width:32px;height:32px;border-radius:8px;background:#eae9e9;display:flex;align-items:center;justify-content:center;flex:none;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg>
+            </span>
+            <span style="flex:1;font-size:14px;">alimajed93@gmail.com</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:#9b9797;"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+          </a>
+
+          <a href="https://www.linkedin.com/in/ali-majed/" style="display:flex;align-items:center;gap:14px;padding:14px 8px;border-radius:10px;border-top:1px solid rgba(32,30,29,0.08);color:#201e1d;text-decoration:none;">
+            <span style="width:32px;height:32px;border-radius:8px;background:#eae9e9;display:flex;align-items:center;justify-content:center;flex:none;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+            </span>
+            <span style="flex:1;font-size:14px;">linkedin.com/in/ali-majed</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:#9b9797;"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+          </a>
+          <a href="https://x.com/AliMajed93" style="display:flex;align-items:center;gap:14px;padding:14px 8px;border-radius:10px;border-top:1px solid rgba(32,30,29,0.08);color:#201e1d;text-decoration:none;">
+            <span style="width:32px;height:32px;border-radius:8px;background:#eae9e9;display:flex;align-items:center;justify-content:center;flex:none;font-weight:700;font-size:13px;">X</span>
+            <span style="flex:1;font-size:14px;">x.com/AliMajed93</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:#9b9797;"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+          </a>
+          <a href="https://www.youtube.com/@alimajed93" style="display:flex;align-items:center;gap:14px;padding:14px 8px;border-radius:10px;border-top:1px solid rgba(32,30,29,0.08);border-bottom:1px solid rgba(32,30,29,0.08);color:#201e1d;text-decoration:none;">
+            <span style="width:32px;height:32px;border-radius:8px;background:#eae9e9;display:flex;align-items:center;justify-content:center;flex:none;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><path d="m10 15 5-3-5-3z"/></svg>
+            </span>
+            <span style="flex:1;font-size:14px;">youtube.com/@alimajed93</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:#9b9797;"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+          </a>
+          <a href="https://github.com/alimajed-dev" style="display:flex;align-items:center;gap:14px;padding:14px 8px;border-radius:10px;border-top:1px solid rgba(32,30,29,0.08);color:#201e1d;text-decoration:none;">
+            <span style="width:32px;height:32px;border-radius:8px;background:#eae9e9;display:flex;align-items:center;justify-content:center;flex:none;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+            </span>
+            <span style="flex:1;font-size:14px;">github.com/alimajed-dev</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:#9b9797;"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 5 — SIDEBAR COLLAPSED ============ -->
+  <div style="display:flex;flex-direction:column;gap:10px;">
+    <div style="font-weight:700;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:#605d5d;">5 — Sidebar collapsed</div>
+    <div id="screen-5" data-screen-label="05 Sidebar collapsed" style="width:1440px;height:900px;background:#f3f2f2;box-shadow:0 1px 3px rgba(32,30,29,0.08);border-radius:12px;display:flex;overflow:hidden;">
+
+      <div style="width:72px;min-width:72px;height:100%;background:#eae9e9;border-right:1px solid rgba(32,30,29,0.10);display:flex;flex-direction:column;align-items:center;padding:24px 0;gap:24px;">
+        <div style="width:32px;height:32px;border-radius:8px;background:#201e1d;color:#f3f2f2;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;">AM</div>
+
+        <button style="width:36px;height:36px;border-radius:8px;border:none;background:transparent;color:#605d5d;cursor:pointer;display:flex;align-items:center;justify-content:center;" title="Expand sidebar">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="3"/><path d="M15 3v18"/></svg>
+        </button>
+
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:center;">
+          <a href="#screen-4" title="Contact" style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#201e1d;">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg>
+          </a>
+          <a href="#screen-2" title="Agent Orchestration Demo" style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#201e1d;">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;padding:72px 80px;overflow:auto;">
+        <div style="max-width:600px;">
+          <h6 style="color:#3F5BD9;margin-bottom:12px;font-size:11px;font-weight:600;letter-spacing:0.08em;">Portfolio</h6>
+          <h1 style="margin-bottom:18px;font-size:40px;font-weight:700;letter-spacing:-0.02em;">Ali Majed</h1>
+          <p style="font-size:16px;line-height:1.6;color:#201e1d;opacity:0.85;max-width:560px;">I build software end-to-end — from scoping the problem to shipping and running it in production — with a focus on two things: agentic AI systems that coordinate multiple models to get real work done, and frontend-first web development that doesn't lose sight of the whole lifecycle.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
