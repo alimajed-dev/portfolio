@@ -39,17 +39,24 @@ Both keys are free tier, no card required:
 Without the keys the site runs fine; the demo shows a "not configured" message
 instead of an agent run.
 
+A note on the Gemini model: the spec called for Gemini 2.5 Flash, but Google now
+returns 404 "no longer available to new users" for it, so a freshly created AI
+Studio key cannot call it. The pipeline uses `gemini-3.6-flash` instead. It is a
+thinking model, which is why the token budgets in `lib/orchestrator.ts` look
+generous — most of each budget goes to reasoning tokens, not visible output, and
+trimming them truncates results silently rather than erroring.
+
 ## The agent pipeline
 
 `POST /api/agent` streams SSE events while four agents run for real:
 
-1. **Planner** — Gemini 2.5 Flash — splits the request into up to 3 sub-tasks.
+1. **Planner** — Gemini 3.6 Flash — splits the request into up to 3 sub-tasks.
    *Needs reasoning, not speed.*
 2. **Researchers** — Groq / Llama 3.3 70B — one worker per sub-task, in parallel.
    *Fast, parallel-friendly.*
-3. **Critic** — Gemini 2.5 Flash — reviews the notes for gaps before write-up.
+3. **Critic** — Gemini 3.6 Flash — reviews the notes for gaps before write-up.
    *Quality check.*
-4. **Writer** — Gemini 2.5 Flash, streamed — compiles the final answer.
+4. **Writer** — Gemini 3.6 Flash, streamed — compiles the final answer.
    *User-facing quality.*
 
 The one-line reasons are pre-written per role, never generated — free, instant,

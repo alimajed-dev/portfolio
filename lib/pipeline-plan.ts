@@ -3,7 +3,7 @@ import type { TraceStep } from "./agent-types";
 /** Dependency-free so both the server pipeline and the Live panel can import it. */
 
 export const MODEL_LABELS = {
-  gemini: "Gemini 2.5 Flash",
+  gemini: "Gemini 3.6 Flash",
   groq: "Groq / Llama 3.3 70B",
 } as const;
 

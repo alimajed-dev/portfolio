@@ -43,7 +43,7 @@ was built using Claude tools end to end.
   server→browser. No WebSockets needed.
 - **Rate limiting:** in-memory store keyed by IP, no database. Hard cap on
   runs per visitor per day (pick something reasonable, e.g. 5) to protect
-  the free model quotas (Gemini 2.5 Flash free tier, Groq free tier).
+  the free model quotas (Gemini free tier, Groq free tier).
 - **Icons:** Lucide (`lucide-react`) — matches the mockup exactly.
 - **Font:** Archivo (Google Fonts).
 - **No database, no auth, no payments** — out of scope for v1, see
@@ -85,7 +85,7 @@ not any conflicting values in other design-system export files.)
   Process toggle at top.
   - **Live** (default): real-time agent trace. Each entry: small icon
     (checkmark = done, spinner = in progress, empty box = pending), agent
-    name, a model badge (e.g. "Gemini 2.5 Flash", "Groq / Llama 3.3 70B"),
+    name, a model badge (e.g. "Gemini 3.6 Flash", "Groq / Llama 3.3 70B"),
     one-line action description, and an italic one-line "Reason:" note.
     These reason strings are **pre-written per agent role, not generated
     live** (see Agent pipeline below) — free, instant, always accurate.
@@ -98,15 +98,23 @@ not any conflicting values in other design-system export files.)
 ## Agent pipeline (the actual working demo, not just UI)
 Real multi-agent orchestration behind the chat interface. Sample flow to
 implement:
-1. **Planner** — Gemini 2.5 Flash — breaks the user's request into sub-tasks.
+1. **Planner** — Gemini 3.6 Flash — breaks the user's request into sub-tasks.
    Reason shown to user: "needs reasoning, not speed."
 2. **Researcher** (may run as 1+ parallel workers) — Groq / Llama 3.3 70B —
    gathers/summarizes information relevant to the sub-tasks. Reason:
    "fast, parallel-friendly."
-3. **Critic** — Gemini 2.5 Flash — reviews the draft output for gaps/errors.
+3. **Critic** — Gemini 3.6 Flash — reviews the draft output for gaps/errors.
    Reason: "quality check."
-4. **Writer** — Gemini 2.5 Flash — compiles the final user-facing answer.
+4. **Writer** — Gemini 3.6 Flash — compiles the final user-facing answer.
    Reason: "user-facing quality."
+
+**Model note (changed during implementation):** this spec originally said
+Gemini 2.5 Flash. Google now returns 404 "no longer available to new users"
+for `gemini-2.5-flash`, so a newly created AI Studio key cannot call it at
+all — verified against the live API. Switched to `gemini-3.6-flash`. It is a
+thinking model, so most of each call's token budget goes to reasoning rather
+than visible output; the budgets in `lib/orchestrator.ts` are sized for that,
+and cutting them causes silently truncated output rather than an error.
 
 Each step should emit an SSE event the frontend uses to update the Live
 trace panel in real time (status: pending → in-progress → done, plus the

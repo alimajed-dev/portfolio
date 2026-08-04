@@ -20,8 +20,13 @@ export function missingKeys(): string[] {
 const google = createGoogleGenerativeAI({ apiKey: googleApiKey });
 const groq = createGroq({ apiKey: groqApiKey });
 
-/** Reasoning-heavy steps: planning, critique, final write-up. */
-export const geminiModel: LanguageModel = google("gemini-2.5-flash");
+/**
+ * Reasoning-heavy steps: planning, critique, final write-up.
+ * Not 2.5 Flash: Google returns 404 "no longer available to new users" for it,
+ * so a fresh AI Studio key can't call it at all. Keep MODEL_LABELS in sync —
+ * the badge text in the Live panel is the model that actually ran.
+ */
+export const geminiModel: LanguageModel = google("gemini-3.6-flash");
 
 /** Speed-visible steps: parallel research workers. */
 export const groqModel: LanguageModel = groq("llama-3.3-70b-versatile");

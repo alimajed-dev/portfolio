@@ -6,11 +6,24 @@ import { MODEL_LABELS, REASONS, initialSteps, makeStep } from "./pipeline-plan";
 export type Emit = (event: AgentEvent) => void;
 
 /** Per-model-call ceiling, so one hung provider can't stall the whole run. */
-const CALL_TIMEOUT_MS = 45_000;
+const CALL_TIMEOUT_MS = 60_000;
 const MAX_RESEARCHERS = 3;
 
 function timeoutSignal(outer: AbortSignal): AbortSignal {
   return AbortSignal.any([outer, AbortSignal.timeout(CALL_TIMEOUT_MS)]);
+}
+
+/**
+ * Each stage degrades instead of aborting, so without this the cause of a
+ * failed step never leaves the process — which is exactly how a retired model
+ * id looked like "the demo is just broken" instead of a 404.
+ */
+function logStepFailure(step: string, error: unknown) {
+  const err = error as { name?: string; statusCode?: number; message?: string };
+  console.error(
+    `[agent] ${step} failed:`,
+    [err?.name, err?.statusCode, err?.message].filter(Boolean).join(" | ") || error,
+  );
 }
 
 async function callModel(opts: {
@@ -33,28 +46,45 @@ async function callModel(opts: {
 
 /** Pulls a JSON array of strings out of a model response without trusting its formatting. */
 function parseSubTasks(raw: string, fallback: string): string[] {
+  const clean = (values: string[]) =>
+    values
+      .map((t) => t.trim())
+      .filter(Boolean)
+      .slice(0, MAX_RESEARCHERS);
+
+  // 1. A well-formed array, with or without surrounding prose/fences.
   const match = raw.match(/\[[\s\S]*\]/);
   if (match) {
     try {
       const parsed: unknown = JSON.parse(match[0]);
       if (Array.isArray(parsed)) {
-        const tasks = parsed
-          .filter((t): t is string => typeof t === "string")
-          .map((t) => t.trim())
-          .filter(Boolean)
-          .slice(0, MAX_RESEARCHERS);
+        const tasks = clean(parsed.filter((t): t is string => typeof t === "string"));
         if (tasks.length > 0) return tasks;
       }
     } catch {
-      // fall through to the line-based parse below
+      // fall through
     }
   }
 
-  const lines = raw
-    .split("\n")
-    .map((line) => line.replace(/^\s*(?:[-*•]|\d+[.)])\s*/, "").replace(/^["']|["']$/g, "").trim())
-    .filter((line) => line.length > 3)
-    .slice(0, MAX_RESEARCHERS);
+  // 2. An array cut off by the token cap — salvage the complete string literals
+  //    rather than letting `["Identify the top 3` become a "sub-task".
+  if (raw.trimStart().startsWith("[")) {
+    const salvaged = clean([...raw.matchAll(/"((?:[^"\\]|\\.)*)"/g)].map((m) => m[1]));
+    return salvaged.length > 0 ? salvaged : [fallback];
+  }
+
+  // 3. Plain prose or a bulleted list.
+  const lines = clean(
+    raw
+      .split("\n")
+      .map((line) =>
+        line
+          .replace(/^\s*(?:[-*•]|\d+[.)])\s*/, "")
+          .replace(/^["']|["'],?$/g, "")
+          .trim(),
+      )
+      .filter((line) => line.length > 3),
+  );
 
   return lines.length > 0 ? lines : [fallback];
 }
@@ -94,12 +124,13 @@ export async function runPipeline(
         "Reply with ONLY a JSON array of short strings. No prose, no markdown fences.",
       prompt: userMessage,
       signal,
-      maxOutputTokens: 300,
+      maxOutputTokens: 1500,
     });
     subTasks = parseSubTasks(raw, userMessage);
     setStatus("planner", "done", `Split the request into ${subTasks.length} sub-task${subTasks.length === 1 ? "" : "s"}`);
-  } catch {
+  } catch (error) {
     // Degrade to a single sub-task rather than aborting the whole run.
+    logStepFailure("planner", error);
     setStatus("planner", "error", "Planning failed — researching the request as-is");
     subTasks = [userMessage];
   }
@@ -143,7 +174,8 @@ export async function runPipeline(
         });
         setStatus(id, "done");
         return { task, notes };
-      } catch {
+      } catch (error) {
+        logStepFailure(id, error);
         setStatus(id, "error", `${truncate(task, 70)} — no result`);
         return { task, notes: "" };
       }
@@ -170,10 +202,11 @@ export async function runPipeline(
           "must be careful about. At most 5 short bullets. If the notes are solid, say so briefly.",
         prompt: `User's request:\n${userMessage}\n\nResearch notes:\n${research}`,
         signal,
-        maxOutputTokens: 400,
+        maxOutputTokens: 1500,
       });
       setStatus("critic", "done");
-    } catch {
+    } catch (error) {
+      logStepFailure("critic", error);
       setStatus("critic", "error", "Review step failed — writing up without it");
     }
   }
@@ -200,12 +233,13 @@ export async function runPipeline(
   let emitted = 0;
 
   const streamAnswer = async (model: LanguageModel) => {
+    const before = emitted;
     const result = streamText({
       model,
       system: writerSystem,
       prompt: writerPrompt,
       temperature: 0.5,
-      maxOutputTokens: 1200,
+      maxOutputTokens: 4000,
       abortSignal: timeoutSignal(signal),
     });
     for await (const chunk of result.textStream) {
@@ -214,6 +248,11 @@ export async function runPipeline(
         emit({ type: "delta", text: chunk });
       }
     }
+    // An empty stream is a failure, not a success: streamText resolves without
+    // throwing when the provider rejects the request mid-stream.
+    if (emitted === before) {
+      throw new Error("model produced no output");
+    }
   };
 
   try {
@@ -221,6 +260,7 @@ export async function runPipeline(
     setStatus("writer", "done");
   } catch (primaryError) {
     if (signal.aborted) throw primaryError;
+    logStepFailure("writer", primaryError);
 
     if (emitted > 0) {
       // Already streamed part of an answer — retrying would duplicate text.
@@ -248,7 +288,8 @@ export async function runPipeline(
           : s,
       );
       publish();
-    } catch {
+    } catch (fallbackError) {
+      logStepFailure("writer/groq-fallback", fallbackError);
       setStatus("writer", "error", "Both models failed to produce an answer");
       emit({
         type: "error",
