@@ -113,7 +113,7 @@ export function Sidebar({ view, onSelect, collapsed, onToggleCollapsed, inert }:
                 <button
                   type="button"
                   onClick={() => onSelect({ kind: "project", projectId: project.id })}
-                  className={`${itemClass(active)} w-full text-left`}
+                  className={`${itemClass(active)} ${collapsed ? "" : "w-full"} text-left`}
                   aria-label={project.name}
                   aria-current={active ? "page" : undefined}
                   title={collapsed ? project.name : undefined}
