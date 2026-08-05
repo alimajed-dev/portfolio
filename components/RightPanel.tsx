@@ -1,7 +1,9 @@
 "use client";
 
 import { X } from "lucide-react";
+import { useEffect, useRef } from "react";
 import type { TraceStep } from "@/lib/agent-types";
+import { useMediaQuery } from "@/lib/useMediaQuery";
 import { LiveTrace } from "./LiveTrace";
 import { ProcessPanel } from "./ProcessPanel";
 
@@ -22,7 +24,63 @@ const TABS: { id: PanelTab; label: string }[] = [
   { id: "process", label: "Process" },
 ];
 
+/** `summary` is included because the Process tab's "Why" disclosures are focusable. */
+const FOCUSABLE = [
+  "a[href]",
+  "button:not([disabled])",
+  "textarea:not([disabled])",
+  "input:not([disabled])",
+  "select:not([disabled])",
+  "summary",
+  '[tabindex]:not([tabindex="-1"])',
+].join(",");
+
 export function RightPanel({ tab, onTabChange, steps, running, open, onClose }: Props) {
+  const asideRef = useRef<HTMLElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  // The panel is visually modal only while it is an overlay. On `lg` and up it
+  // is an ordinary third column, and trapping focus there would be a bug.
+  const isDrawer = useMediaQuery("(max-width: 1023px)");
+  const modal = open && isDrawer;
+
+  useEffect(() => {
+    if (!modal) return;
+
+    const opener = document.activeElement as HTMLElement | null;
+    closeRef.current?.focus();
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Tab" || !asideRef.current) return;
+
+      // Read the focusables on every keypress: switching tabs swaps the panel's
+      // contents, so a list captured when the drawer opened would go stale.
+      const focusable = Array.from(asideRef.current.querySelectorAll<HTMLElement>(FOCUSABLE));
+      if (focusable.length === 0) {
+        event.preventDefault();
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const inside = asideRef.current.contains(document.activeElement);
+      const atEdge = document.activeElement === (event.shiftKey ? first : last);
+
+      if (atEdge || !inside) {
+        event.preventDefault();
+        (event.shiftKey ? last : first).focus();
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      // Hand focus back to whatever opened the drawer — unless navigation has
+      // already removed it from the document.
+      if (opener?.isConnected) opener.focus();
+    };
+  }, [modal]);
+
   return (
     <>
       {open && (
@@ -30,7 +88,10 @@ export function RightPanel({ tab, onTabChange, steps, running, open, onClose }: 
         <div aria-hidden onClick={onClose} className="fixed inset-0 z-20 bg-ink/20 lg:hidden" />
       )}
       <aside
+        ref={asideRef}
         aria-label="Agent panel"
+        role={modal ? "dialog" : undefined}
+        aria-modal={modal || undefined}
         className={[
           "fixed inset-y-0 right-0 z-30 flex w-[360px] max-w-[88vw] flex-col gap-5 overflow-auto border-l border-line bg-bg p-6 transition-transform duration-200 ease-out",
           "lg:visible lg:static lg:z-auto lg:max-w-none lg:shrink-0 lg:translate-x-0 lg:shadow-none",
@@ -67,6 +128,7 @@ export function RightPanel({ tab, onTabChange, steps, running, open, onClose }: 
             })}
           </div>
           <button
+            ref={closeRef}
             type="button"
             onClick={onClose}
             aria-label="Close panel"

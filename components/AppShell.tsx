@@ -49,7 +49,15 @@ export function AppShell() {
   const select = (next: View) => {
     setView(next);
     setPanelOpen(false);
+    // Live is the documented default for a project's panel. Without this reset,
+    // visiting Process and coming back later reopens the demo on the case study
+    // and hides the live trace the visitor came to see.
+    if (next.kind === "project") setTab("live");
   };
+
+  // Below `lg` the open panel is a modal overlay, so everything behind it must
+  // leave the tab order and the accessibility tree.
+  const backgroundInert = panelOpen && isNarrow;
 
   return (
     <div className="flex h-dvh overflow-hidden bg-bg shadow-frame">
@@ -58,9 +66,10 @@ export function AppShell() {
         onSelect={select}
         collapsed={collapsed}
         onToggleCollapsed={() => setCollapsedOverride(!collapsed)}
+        inert={backgroundInert}
       />
 
-      <main className="flex min-w-0 flex-1 flex-col">
+      <main inert={backgroundInert} className="flex min-w-0 flex-1 flex-col">
         {project ? (
           <ProjectPane
             project={project}

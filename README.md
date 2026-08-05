@@ -15,16 +15,22 @@ Live: [majedali.com](https://majedali.com)
 | Model calls | Vercel AI SDK (`ai`) with `@ai-sdk/google` and `@ai-sdk/groq` |
 | Streaming | Server-Sent Events, server → browser only |
 | Icons | `lucide-react` (brand marks inlined — lucide v1 dropped them) |
-| Font | Archivo via `next/font/google` |
-| Hosting | Railway |
+| Font | Archivo, self-hosted via `next/font/local` |
+| Tests | Vitest + React Testing Library, all provider calls mocked |
+| Hosting | Railway (single instance) |
 
-No database, no auth, no payments. Rate limiting is an in-memory per-IP counter,
-which is why this needs a long-lived process rather than serverless functions —
-and why the free tier's ~60s function cap would cut off a streamed agent run.
+No database, no auth, no payments. Rate limiting is an in-memory counter, which
+is why this needs a long-lived process rather than serverless functions — and
+why the free tier's ~60s function cap would cut off a streamed agent run.
+
+The font is checked in rather than fetched from Google at build time: a build
+that reaches the network before it compiles any app code fails behind a proxy or
+during a Fonts outage, for no benefit on a one-font site.
 
 ## Running locally
 
 ```bash
+nvm use                      # Node 22, per .nvmrc
 npm install
 cp .env.example .env.local   # then fill in the two keys
 npm run dev
@@ -73,9 +79,31 @@ researching the request as-is, failed researchers drop out of the notes, a
 failed critic is skipped, and a failed writer retries on Groq (unless it already
 streamed text, in which case the answer is truncated with a visible note).
 
+Each model call is capped at 60 seconds and the whole run at 180 seconds
+(`AGENT_RUN_TIMEOUT_MS`). A run that hits the ceiling stops, says so, and keeps
+whatever text had already streamed rather than replacing it with an error.
+
 Input is open — no topic restriction. `lib/content-filter.ts` blocks only
-clearly abusive requests, and `lib/rate-limit.ts` caps each visitor at 5 runs
-per day with one concurrent run.
+clearly abusive requests. `lib/rate-limit.ts` caps each visitor at 5 runs per
+day with one concurrent run, and all visitors together at 200 runs per day with
+6 concurrent. The per-visitor key is the *rightmost* `X-Forwarded-For` entry —
+the hop Railway's proxy appends, and the only one a caller can't forge — so the
+global ceilings are what bound spend if someone rotates addresses anyway. Both
+counters live in process memory, so **the service must run as a single
+instance**; more replicas multiply every cap.
+
+## Validation
+
+```bash
+npm run lint
+npx tsc --noEmit --incremental false
+npm test
+npm run build
+```
+
+`.github/workflows/ci.yml` runs the same set plus `npm audit` on every push and
+pull request. Tests never call Gemini or Groq: `ai` and `lib/models.ts` are
+mocked, so a run is deterministic and free.
 
 ## Layout
 
@@ -90,12 +118,15 @@ Single client-side app, three panes, no page reloads:
 ## Where things live
 
 ```
-app/api/agent/route.ts   SSE endpoint: filter → rate limit → pipeline
+app/api/agent/route.ts   SSE endpoint: filter → rate limit → run budget → pipeline
 lib/orchestrator.ts      the four-agent pipeline and its failure handling
 lib/pipeline-plan.ts     model labels, pre-written reasons, idle trace shape
 lib/models.ts            provider setup and env-var checks
+lib/rate-limit.ts        per-IP and global run caps, trusted-proxy IP extraction
+lib/agent-transport.ts   client-side SSE parsing and response validation
 lib/site.ts              all site copy, links, projects, case study
 components/              AppShell, Sidebar, RightPanel, panes
+tests/                   Vitest specs — providers mocked, never called
 docs/                    requirements, design brief, approved mockup
 ```
 
@@ -106,5 +137,16 @@ initials on its own if the file is missing.
 ## Deployment
 
 Railway builds with `next build` and serves with `next start`, binding the
-`PORT` it injects. Set `GEMINI_API_KEY` and `GROQ_API_KEY` in the project's
-variables. Pushes to `main` auto-deploy.
+`PORT` it injects. It reads the Node major from `.nvmrc`, so local, CI and
+production agree. Set `GEMINI_API_KEY` and `GROQ_API_KEY` in the project's
+variables. Pushes to `main` auto-deploy, so treat CI as reporting rather than
+gating and run the validation set before pushing.
+
+Keep the service at **one instance**: the rate limiter's counters are per
+process.
+
+`next.config.ts` sets baseline security headers (`nosniff`, `Referrer-Policy`,
+frame denial, `Permissions-Policy`, HSTS) on every route. A full `script-src`
+CSP is deliberately not there yet — Next and Google Analytics both inject inline
+scripts, so a real policy needs nonces and a smoke test to prove the page still
+boots.

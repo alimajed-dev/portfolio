@@ -22,9 +22,15 @@ was built using Claude tools end to end.
 - Requirements: done (`docs/requirements.md`)
 - Design: done, approved by user (`docs/design-brief.md`, `docs/design/mockup.html`)
 - Tech stack: decided (below)
-- Implementation: **your job, starting now**
-- Review: automated review pass required before pushing (see "Review" below)
-- Deployment: Railway (user is creating the account)
+- Implementation: **done and live** — the sections below now describe what
+  exists, not what to build. Treat them as the contract to preserve.
+- Review: cross-model review pass done; findings implemented, with automated
+  tests and CI added (see "Review" and "Validation" below)
+- Deployment: live on Railway at majedali.com
+
+Note for other coding agents: `AGENTS.md` is a pointer to this file, not a
+second handoff. Keep it that way — two divergent handoffs is exactly the
+problem it was collapsed to fix.
 
 ## Tech stack (already decided, do not deviate without asking)
 - **Framework:** Next.js (React, TypeScript). Runs as a normal persistent
@@ -41,11 +47,23 @@ was built using Claude tools end to end.
   library; using it doesn't imply Vercel hosting.)
 - **Live transport:** Server-Sent Events (SSE), one-directional
   server→browser. No WebSockets needed.
-- **Rate limiting:** in-memory store keyed by IP, no database. Hard cap on
-  runs per visitor per day (pick something reasonable, e.g. 5) to protect
-  the free model quotas (Gemini free tier, Groq free tier).
+- **Rate limiting:** in-memory store, no database (`lib/rate-limit.ts`). Per IP:
+  5 runs/day, 1 concurrent. Across all visitors: 200 runs/day, 6 concurrent —
+  the per-IP key is only as trustworthy as the proxy chain, so the global caps
+  are what actually bound free-tier spend. The IP is read from the *rightmost*
+  `X-Forwarded-For` entry (the hop Railway appends); `TRUSTED_PROXY_HOPS`
+  adjusts that if another proxy is ever put in front.
+  **This assumes exactly one Railway instance** — scaling horizontally
+  multiplies every cap by the replica count.
+- **Run budget:** each model call is capped at 60s (`lib/orchestrator.ts`) and
+  the whole run at 180s (`AGENT_RUN_TIMEOUT_MS`, in `app/api/agent/route.ts`).
 - **Icons:** Lucide (`lucide-react`) — matches the mockup exactly.
-- **Font:** Archivo (Google Fonts).
+- **Font:** Archivo, **self-hosted** at `app/fonts/archivo-latin-variable.woff2`
+  via `next/font/local`. Not `next/font/google`: that fetches from Google at
+  build time, so a restricted CI runner or a Fonts outage fails the build before
+  app code compiles. Keep it local.
+- **Node:** pinned by `.nvmrc` (22, the LTS CI and Railway use). `engines` in
+  `package.json` is the compatibility floor, not the pin.
 - **No database, no auth, no payments** — out of scope for v1, see
   `docs/requirements.md`.
 
@@ -89,11 +107,16 @@ not any conflicting values in other design-system export files.)
     one-line action description, and an italic one-line "Reason:" note.
     These reason strings are **pre-written per agent role, not generated
     live** (see Agent pipeline below) — free, instant, always accurate.
-  - **Process**: the case study. Five entries: Requirements (Claude —
-    conversation), Design (Claude Design), Implementation (Claude Code),
-    Review (automated review agent), Deployment (GitHub → Railway). Each
-    with a one-line description (already drafted in the mockup, reuse
-    verbatim or refine).
+  - **Process**: the case study of how this site was built. The copy lives in
+    `PROCESS_STEPS` in `lib/site.ts` and is the single public record of which
+    tool ran which phase — it has since grown past the mockup's five entries to
+    seven, including the cross-model review passes. Edit it there; don't
+    re-describe the process anywhere else.
+
+  Entering a project always opens the panel on **Live**, even if the visitor
+  last left it on Process. Below `lg` the panel is a modal drawer: focus moves
+  into it, Tab is trapped inside it, Escape and the backdrop close it, and focus
+  returns to the button that opened it.
 
 ## Agent pipeline (the actual working demo, not just UI)
 Real multi-agent orchestration behind the chat interface. Sample flow to
@@ -129,6 +152,23 @@ Google AI Studio and console.groq.com (free tier, no card needed). Put
 placeholders in `.env.example`, real keys go in `.env.local` (gitignored)
 and later in Railway's environment variable settings — never commit real keys.
 
+## Validation (run all of these before every push)
+```
+npm run lint
+npx tsc --noEmit --incremental false
+npm test
+npm run build
+```
+`npm test` is Vitest (`vitest.config.ts`, specs in `tests/`). Node is the
+default environment; component and hook specs opt into jsdom with a
+`@vitest-environment jsdom` docblock. **Provider calls are always mocked** —
+`ai` and `@/lib/models` are replaced in tests, and nothing may reach the real
+Gemini or Groq APIs. Every behavioural change needs a test.
+
+`.github/workflows/ci.yml` runs the same four commands plus `npm audit` on
+pushes and PRs. It runs *after* the push, and Railway deploys from `main` on its
+own, so the local run is still the real gate.
+
 ## Review step (required before every push)
 Before pushing to GitHub, do a self-review pass as a distinct step — re-read
 the diff with fresh eyes for: broken layout vs the mockup, accessibility
@@ -136,7 +176,7 @@ the diff with fresh eyes for: broken layout vs the mockup, accessibility
 committed, and whether the SSE streaming actually degrades gracefully if a
 model call fails. Fix what you find, then push. Mention in the commit
 message or a short summary that this review pass happened — it's part of
-what the "Process" tab on the live site will describe.
+what the "Process" tab on the live site describes.
 
 ## Git / GitHub
 Repo does not exist yet. Target: `https://github.com/alimajed-dev` (user's

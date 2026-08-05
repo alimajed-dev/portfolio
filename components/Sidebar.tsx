@@ -10,12 +10,14 @@ type Props = {
   onSelect: (view: View) => void;
   collapsed: boolean;
   onToggleCollapsed: () => void;
+  /** Set while the mobile agent drawer is open, so the sidebar leaves the tab order. */
+  inert?: boolean;
 };
 
 const itemBase =
   "flex items-center gap-2.5 rounded-lg text-sm font-semibold transition-[background-color,color,transform] duration-150 ease-out active:scale-[0.98]";
 
-export function Sidebar({ view, onSelect, collapsed, onToggleCollapsed }: Props) {
+export function Sidebar({ view, onSelect, collapsed, onToggleCollapsed, inert }: Props) {
   const isContact = view.kind === "contact";
 
   const itemClass = (active: boolean) =>
@@ -30,6 +32,7 @@ export function Sidebar({ view, onSelect, collapsed, onToggleCollapsed }: Props)
   return (
     <nav
       aria-label="Main"
+      inert={inert}
       className={[
         "flex h-full shrink-0 flex-col border-r border-line bg-surface transition-[width] duration-200 ease-out",
         collapsed ? "w-[72px] items-center gap-6 px-0 py-6" : "w-[264px] px-4 py-6",

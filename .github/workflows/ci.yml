@@ -1,0 +1,42 @@
+name: CI
+
+# Railway auto-deploys every push to main, so these are the only gates between a
+# broken change and production. Keep this list in sync with the commands in
+# README.md § Validation.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # .nvmrc is the one place the Node major is declared; package.json's
+          # `engines` range is the compatibility floor, not the pin.
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run lint
+
+      # Non-incremental so a stale tsbuildinfo can never mask an error.
+      - name: Type check
+        run: npx tsc --noEmit --incremental false
+
+      - run: npm test
+
+      # `high` rather than `low`: a portfolio should not fail its deploy gate on
+      # a transient advisory in a dev-only transitive dependency. Run
+      # `npm audit --audit-level=low` locally to see everything.
+      - name: Audit dependencies
+        run: npm audit --audit-level=high
+
+      # No secrets needed: the font is self-hosted and model keys are only read
+      # per-request, so the production build must pass with an empty env.
+      - run: npm run build
