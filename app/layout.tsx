@@ -13,7 +13,7 @@ const archivo = Archivo({
 });
 
 export const metadata: Metadata = {
-  title: "Ali Majed — Portfolio",
+  title: "Ali Majed",
   description:
     "Ali Majed builds software end-to-end: agentic AI systems that coordinate multiple models, and frontend-first web development across the whole lifecycle.",
 };

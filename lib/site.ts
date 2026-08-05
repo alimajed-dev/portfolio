@@ -9,21 +9,30 @@ export const OWNER = {
    * If the file is missing the avatar falls back to `initials` on its own.
    */
   avatarSrc: "/avatar.png",
-  bio: "I build software end-to-end — from scoping the problem to shipping and running it in production — with a focus on two things: agentic AI systems that coordinate multiple models to get real work done, and frontend-first web development that doesn't lose sight of the whole lifecycle.",
+  bio: "I build software end-to-end and I'm at home anywhere in the stack — data, backend, frontend, and the part where it actually goes live and stays up. Two things I keep coming back to: AI agents that get real work done instead of just planning it, and web apps that feel good to use.",
 } as const;
 
-export const SKILLS = [
+export type Skill = {
+  eyebrow: string;
+  title: string;
+  body: string;
+  /** Optional tag row rendered under the body. */
+  stack?: string[];
+};
+
+export const SKILLS: Skill[] = [
   {
     eyebrow: "Agentic AI",
-    title: "Multi-model orchestration",
-    body: "Planning, routing and reviewing work across a team of models — picking the right one for each sub-task, not defaulting to one.",
+    title: "Orchestration that ships work",
+    body: "Planning, routing and reviewing across a team of models — then actually doing the thing. Agents that call tools, run tasks in parallel and hand off to each other, with the right model on each step instead of one model for everything.",
   },
   {
     eyebrow: "Web Development",
-    title: "Full lifecycle, frontend-first",
-    body: "Scoping, designing, building and deploying real products — with the frontend craft to make the result feel right.",
+    title: "Full stack, scope to production",
+    body: "Comfortable across the whole thing — API and data layer, interface, deployment, and keeping it running afterwards.",
+    stack: ["TypeScript", "React", "Next.js", "Node", "Tailwind", "PostgreSQL", "REST APIs", "CI/CD"],
   },
-] as const;
+];
 
 export type SocialLink = {
   id: string;

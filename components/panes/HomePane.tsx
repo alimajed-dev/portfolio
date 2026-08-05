@@ -22,6 +22,18 @@ export function HomePane({ onContact }: { onContact: () => void }) {
               </p>
               <h2 className="text-[16px] font-semibold">{skill.title}</h2>
               <p className="text-[13px]/[1.55] text-ink/[0.72]">{skill.body}</p>
+              {skill.stack && (
+                <ul className="mt-1.5 flex flex-wrap gap-1.5">
+                  {skill.stack.map((tech) => (
+                    <li
+                      key={tech}
+                      className="rounded-md bg-badge px-2 py-[3px] text-[11px] text-neutral-800"
+                    >
+                      {tech}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           ))}
         </div>

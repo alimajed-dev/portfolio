@@ -1,4 +1,5 @@
 import { ExternalLink, Mail } from "lucide-react";
+import { CopyEmailButton } from "@/components/CopyEmailButton";
 import { OWNER, SOCIAL_LINKS, type SocialLink } from "@/lib/site";
 
 /**
@@ -57,7 +58,8 @@ export function ContactPane() {
           Let&apos;s build something.
         </h1>
         <p className="mb-7 text-[15px]/[1.6] text-ink/80">
-          Best reached by email — happy to talk through contract or freelance work.
+          Email is the easiest way to reach me — whether it&apos;s actual work, a half-formed idea,
+          or you just want to talk shop.
         </p>
 
         <a
@@ -71,6 +73,29 @@ export function ContactPane() {
         <ul className="border-b border-line-soft">
           {SOCIAL_LINKS.map((link) => {
             const external = !link.href.startsWith("mailto:");
+
+            // The email row keeps its mailto but pairs it with a copy button, so
+            // it still works on desktops with no mail client configured.
+            if (link.icon === "mail") {
+              return (
+                <li
+                  key={link.id}
+                  className="flex items-center gap-2 border-t border-line-soft pr-2"
+                >
+                  <a
+                    href={link.href}
+                    className="group flex min-w-0 flex-1 items-center gap-3.5 rounded-[10px] px-2 py-3.5 text-ink transition-colors duration-150 ease-out hover:bg-[rgb(32_30_29_/_0.04)]"
+                  >
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-surface transition-transform duration-150 ease-out group-hover:scale-105">
+                      <LinkIcon icon={link.icon} />
+                    </span>
+                    <span className="truncate text-sm">{link.label}</span>
+                  </a>
+                  <CopyEmailButton value={OWNER.email} />
+                </li>
+              );
+            }
+
             return (
               <li key={link.id} className="border-t border-line-soft">
                 <a
