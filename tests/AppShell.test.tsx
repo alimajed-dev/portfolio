@@ -5,13 +5,40 @@ import { cleanup, fireEvent, render, screen, within } from "@testing-library/rea
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AppShell } from "@/components/AppShell";
+import { PROJECTS } from "@/lib/site";
+import { ProjectPageClient } from "@/app/projects/[projectId]/project-page-client";
 
 const NARROW_QUERY = "max-width: 1023px";
+const PROJECT = PROJECTS[0];
+const PROJECT_PATH = `/projects/${PROJECT.id}`;
 
 /**
- * jsdom has no layout engine and no `matchMedia`, so the breakpoint the drawer
- * depends on is stubbed explicitly per test.
+ * AppShell reads the route via `usePathname()` and no longer decides which
+ * pane to render — that's real Next.js routing now (F- URLs are shareable).
+ * A unit test has no router to swap `children` on navigation, so each test
+ * sets this before rendering, and `rerender` simulates a route change by
+ * updating it and re-rendering with the children the *new* route would have
+ * mounted — mirroring what `app/page.tsx`, `app/contact/page.tsx`, and
+ * `app/projects/[projectId]/page.tsx` actually render.
  */
+let mockPathname = "/";
+vi.mock("next/navigation", () => ({
+  usePathname: () => mockPathname,
+}));
+// Real `next/link` requires an App Router context this test harness doesn't
+// provide. An anchor is all these tests need: real href, real aria-current.
+vi.mock("next/link", () => ({
+  default: ({
+    href,
+    children,
+    ...props
+  }: React.AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) => (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  ),
+}));
+
 function setViewport(size: "narrow" | "wide") {
   vi.stubGlobal("matchMedia", (query: string) => ({
     matches: query.includes(NARROW_QUERY) && size === "narrow",
@@ -25,8 +52,14 @@ function setViewport(size: "narrow" | "wide") {
   }));
 }
 
-const openProject = async (user: ReturnType<typeof userEvent.setup>) =>
-  user.click(screen.getByRole("button", { name: "Agent Orchestration Demo" }));
+const HOME = <div>Home content</div>;
+const CONTACT = <div>Contact content</div>;
+const PROJECT_PAGE = <ProjectPageClient project={PROJECT} />;
+
+function renderAt(pathname: string, children: React.ReactNode) {
+  mockPathname = pathname;
+  return render(<AppShell>{children}</AppShell>);
+}
 
 const panel = () => screen.getByRole("complementary", { name: "Agent panel" });
 const dialog = () => screen.getByRole("dialog", { name: "Agent panel" });
@@ -42,42 +75,100 @@ afterEach(() => {
   // Vitest runs without `globals`, so RTL cannot install its own auto-cleanup.
   cleanup();
   vi.unstubAllGlobals();
+  mockPathname = "/";
+});
+
+describe("Sidebar — real, shareable per-route URLs", () => {
+  beforeEach(() => setViewport("wide"));
+
+  it("links home, contact and the project to their own URLs", () => {
+    renderAt("/", HOME);
+
+    expect(screen.getByRole("link", { name: "Ali Majed — home" }).getAttribute("href")).toBe("/");
+    expect(screen.getByRole("link", { name: "Contact" }).getAttribute("href")).toBe("/contact");
+    expect(screen.getByRole("link", { name: PROJECT.name }).getAttribute("href")).toBe(
+      PROJECT_PATH,
+    );
+  });
+
+  it("marks the current route with aria-current, and only that one", () => {
+    renderAt(PROJECT_PATH, PROJECT_PAGE);
+
+    expect(screen.getByRole("link", { name: PROJECT.name }).getAttribute("aria-current")).toBe(
+      "page",
+    );
+    expect(screen.getByRole("link", { name: "Contact" }).hasAttribute("aria-current")).toBe(false);
+    expect(
+      screen.getByRole("link", { name: "Ali Majed — home" }).hasAttribute("aria-current"),
+    ).toBe(false);
+  });
+
+  it("marks Contact current on /contact", () => {
+    renderAt("/contact", CONTACT);
+    expect(screen.getByRole("link", { name: "Contact" }).getAttribute("aria-current")).toBe(
+      "page",
+    );
+  });
+});
+
+describe("AppShell — right panel only exists on a project route", () => {
+  beforeEach(() => setViewport("wide"));
+
+  it("renders no panel on the home route", () => {
+    renderAt("/", HOME);
+    expect(screen.queryByRole("complementary", { name: "Agent panel" })).toBeNull();
+  });
+
+  it("renders no panel on the contact route", () => {
+    renderAt("/contact", CONTACT);
+    expect(screen.queryByRole("complementary", { name: "Agent panel" })).toBeNull();
+  });
+
+  it("renders the panel on a project route", () => {
+    renderAt(PROJECT_PATH, PROJECT_PAGE);
+    expect(panel()).toBeDefined();
+  });
+
+  it("404s (renders nothing project-shaped) for an unknown project id — handled by notFound() in the real route", () => {
+    // ProjectPageClient itself assumes a valid project; the unknown-id case is
+    // rejected one level up, in app/projects/[projectId]/page.tsx, before this
+    // component is ever reached. Confirm AppShell alone doesn't render a panel
+    // for a path it doesn't recognise as a real project.
+    renderAt("/projects/does-not-exist", <div>never rendered by the real route</div>);
+    expect(screen.queryByRole("complementary", { name: "Agent panel" })).toBeNull();
+  });
 });
 
 describe("AppShell — panel tab default (F-007)", () => {
   beforeEach(() => setViewport("wide"));
 
-  it("opens a project on Live", async () => {
-    const user = userEvent.setup();
-    render(<AppShell />);
-    await openProject(user);
-
+  it("opens a project on Live", () => {
+    renderAt(PROJECT_PATH, PROJECT_PAGE);
     expect(activeTabName()).toBe("Live");
     expect(within(panel()).getByRole("heading", { name: "Agent trace" })).toBeDefined();
   });
 
-  it("keeps Process selected while the visitor stays in the project", async () => {
+  it("keeps Process selected while the visitor stays on the same project route", async () => {
     const user = userEvent.setup();
-    render(<AppShell />);
-    await openProject(user);
+    renderAt(PROJECT_PATH, PROJECT_PAGE);
     await user.click(tab("Process"));
 
     expect(activeTabName()).toBe("Process");
     expect(within(panel()).getByRole("heading", { name: "Case study" })).toBeDefined();
   });
 
-  it("resets to Live after leaving the project and coming back", async () => {
+  it("resets to Live after navigating away and back to the project", async () => {
     const user = userEvent.setup();
-    render(<AppShell />);
-
-    await openProject(user);
+    const { rerender } = renderAt(PROJECT_PATH, PROJECT_PAGE);
     await user.click(tab("Process"));
     expect(activeTabName()).toBe("Process");
 
-    await user.click(screen.getByRole("button", { name: "Contact" }));
+    mockPathname = "/contact";
+    rerender(<AppShell>{CONTACT}</AppShell>);
     expect(screen.queryByRole("tab", { name: "Live" })).toBeNull();
 
-    await openProject(user);
+    mockPathname = PROJECT_PATH;
+    rerender(<AppShell>{PROJECT_PAGE}</AppShell>);
     expect(activeTabName()).toBe("Live");
     expect(within(panel()).getByRole("heading", { name: "Agent trace" })).toBeDefined();
   });
@@ -86,20 +177,16 @@ describe("AppShell — panel tab default (F-007)", () => {
 describe("AppShell — desktop panel is not modal", () => {
   beforeEach(() => setViewport("wide"));
 
-  it("renders the panel as a plain column with no dialog semantics", async () => {
-    const user = userEvent.setup();
-    render(<AppShell />);
-    await openProject(user);
+  it("renders the panel as a plain column with no dialog semantics", () => {
+    renderAt(PROJECT_PATH, PROJECT_PAGE);
 
     expect(screen.queryByRole("dialog")).toBeNull();
     expect(panel().hasAttribute("aria-modal")).toBe(false);
     expect(screen.getByRole("navigation", { name: "Main" }).hasAttribute("inert")).toBe(false);
   });
 
-  it("does not trap Tab in the panel", async () => {
-    const user = userEvent.setup();
-    render(<AppShell />);
-    await openProject(user);
+  it("does not trap Tab in the panel", () => {
+    renderAt(PROJECT_PATH, PROJECT_PAGE);
 
     const closeButton = within(panel()).getByRole("button", { name: "Close panel" });
     closeButton.focus();
@@ -119,8 +206,7 @@ describe("AppShell — mobile drawer focus management (F-006)", () => {
 
   it("announces itself as a modal dialog and moves focus into it", async () => {
     const user = userEvent.setup();
-    render(<AppShell />);
-    await openProject(user);
+    renderAt(PROJECT_PATH, PROJECT_PAGE);
     await openDrawer(user);
 
     const drawer = dialog();
@@ -132,8 +218,7 @@ describe("AppShell — mobile drawer focus management (F-006)", () => {
 
   it("takes the background out of the tab order and the accessibility tree", async () => {
     const user = userEvent.setup();
-    render(<AppShell />);
-    await openProject(user);
+    renderAt(PROJECT_PATH, PROJECT_PAGE);
 
     const nav = screen.getByRole("navigation", { name: "Main" });
     const main = document.querySelector("main") as HTMLElement;
@@ -146,8 +231,7 @@ describe("AppShell — mobile drawer focus management (F-006)", () => {
 
   it("wraps Tab from the last control back to the first", async () => {
     const user = userEvent.setup();
-    render(<AppShell />);
-    await openProject(user);
+    renderAt(PROJECT_PATH, PROJECT_PAGE);
     await openDrawer(user);
 
     const drawer = dialog();
@@ -161,8 +245,7 @@ describe("AppShell — mobile drawer focus management (F-006)", () => {
 
   it("wraps Shift+Tab from the first control back to the last", async () => {
     const user = userEvent.setup();
-    render(<AppShell />);
-    await openProject(user);
+    renderAt(PROJECT_PATH, PROJECT_PAGE);
     await openDrawer(user);
 
     const drawer = dialog();
@@ -176,8 +259,7 @@ describe("AppShell — mobile drawer focus management (F-006)", () => {
 
   it("pulls focus back in if it somehow lands outside the drawer", async () => {
     const user = userEvent.setup();
-    render(<AppShell />);
-    await openProject(user);
+    renderAt(PROJECT_PATH, PROJECT_PAGE);
     await openDrawer(user);
 
     document.body.focus();
@@ -189,8 +271,7 @@ describe("AppShell — mobile drawer focus management (F-006)", () => {
   // live DOM rather than a list captured when the drawer opened.
   it("keeps trapping after the panel switches tabs", async () => {
     const user = userEvent.setup();
-    render(<AppShell />);
-    await openProject(user);
+    renderAt(PROJECT_PATH, PROJECT_PAGE);
     await openDrawer(user);
     await user.click(tab("Process"));
 
@@ -205,8 +286,7 @@ describe("AppShell — mobile drawer focus management (F-006)", () => {
 
   it("closes on Escape and returns focus to the control that opened it", async () => {
     const user = userEvent.setup();
-    render(<AppShell />);
-    await openProject(user);
+    renderAt(PROJECT_PATH, PROJECT_PAGE);
     const opener = await openDrawer(user);
 
     await user.keyboard("{Escape}");
@@ -218,8 +298,7 @@ describe("AppShell — mobile drawer focus management (F-006)", () => {
 
   it("closes on a backdrop click and returns focus to the opener", async () => {
     const user = userEvent.setup();
-    render(<AppShell />);
-    await openProject(user);
+    renderAt(PROJECT_PATH, PROJECT_PAGE);
     const opener = await openDrawer(user);
 
     const backdrop = document.querySelector('[aria-hidden="true"].fixed.inset-0') as HTMLElement;
@@ -231,8 +310,7 @@ describe("AppShell — mobile drawer focus management (F-006)", () => {
 
   it("closes on the close button and returns focus to the opener", async () => {
     const user = userEvent.setup();
-    render(<AppShell />);
-    await openProject(user);
+    renderAt(PROJECT_PATH, PROJECT_PAGE);
     const opener = await openDrawer(user);
 
     await user.click(within(dialog()).getByRole("button", { name: "Close panel" }));
@@ -241,16 +319,13 @@ describe("AppShell — mobile drawer focus management (F-006)", () => {
     expect(document.activeElement).toBe(opener);
   });
 
-  it("closes the drawer when navigating away, without leaving focus stranded", async () => {
+  it("closes the drawer when the route changes, without leaving focus stranded", async () => {
     const user = userEvent.setup();
-    render(<AppShell />);
-    await openProject(user);
+    const { rerender } = renderAt(PROJECT_PATH, PROJECT_PAGE);
     await openDrawer(user);
 
-    // The sidebar is inert while the drawer is open, so close it the way a
-    // visitor would before navigating.
-    await user.keyboard("{Escape}");
-    await user.click(screen.getByRole("button", { name: "Contact" }));
+    mockPathname = "/contact";
+    rerender(<AppShell>{CONTACT}</AppShell>);
 
     expect(screen.queryByRole("dialog")).toBeNull();
     expect(screen.queryByRole("complementary", { name: "Agent panel" })).toBeNull();

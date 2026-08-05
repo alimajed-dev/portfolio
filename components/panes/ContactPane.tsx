@@ -51,15 +51,14 @@ function LinkIcon({ icon }: { icon: SocialLink["icon"] }) {
 
 export function ContactPane() {
   return (
-    <div className="flex-1 overflow-auto px-6 py-12 sm:px-12 lg:px-20 lg:py-[72px]">
-      <div className="max-w-[520px]">
+    <div className="flex flex-1 overflow-auto px-6 py-10 sm:px-12 lg:px-20">
+      <div className="m-auto w-full max-w-[520px]">
         <p className="mb-3 text-[11px] font-semibold tracking-[0.08em] text-accent">Get in touch</p>
         <h1 className="mb-3.5 text-[30px] font-bold tracking-[-0.02em] sm:text-[36px]">
           Let&apos;s build something.
         </h1>
         <p className="mb-7 text-[15px]/[1.6] text-ink/80">
-          Email is the easiest way to reach me — whether it&apos;s actual work, a half-formed idea,
-          or you just want to talk shop.
+          Got something on your mind? Send me a message. I&apos;m always happy to hear from new people.
         </p>
 
         <a

@@ -1,5 +1,5 @@
-import { AppShell } from "@/components/AppShell";
+import { HomePane } from "@/components/panes/HomePane";
 
 export default function Page() {
-  return <AppShell />;
+  return <HomePane />;
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { AppShell } from "@/components/AppShell";
 import "./globals.css";
 
 /** Unset in dev and in any environment that hasn't been given an ID — GA is then simply not loaded. */
@@ -34,7 +35,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={archivo.variable}>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <AppShell>{children}</AppShell>
+      </body>
       {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
     </html>
   );

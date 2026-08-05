@@ -1,13 +1,12 @@
 "use client";
 
 import { Mail, MessageSquare, PanelLeft, PanelRight } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Avatar } from "./Avatar";
 import { OWNER, PROJECTS } from "@/lib/site";
-import type { View } from "@/lib/view";
 
 type Props = {
-  view: View;
-  onSelect: (view: View) => void;
   collapsed: boolean;
   onToggleCollapsed: () => void;
   /** Set while the mobile agent drawer is open, so the sidebar leaves the tab order. */
@@ -17,8 +16,10 @@ type Props = {
 const itemBase =
   "flex items-center gap-2.5 rounded-lg text-sm font-semibold transition-[background-color,color,transform] duration-150 ease-out active:scale-[0.98]";
 
-export function Sidebar({ view, onSelect, collapsed, onToggleCollapsed, inert }: Props) {
-  const isContact = view.kind === "contact";
+export function Sidebar({ collapsed, onToggleCollapsed, inert }: Props) {
+  const pathname = usePathname();
+  const isHome = pathname === "/";
+  const isContact = pathname === "/contact";
 
   const itemClass = (active: boolean) =>
     [
@@ -40,16 +41,15 @@ export function Sidebar({ view, onSelect, collapsed, onToggleCollapsed, inert }:
     >
       {collapsed ? (
         <>
-          <button
-            type="button"
-            onClick={() => onSelect({ kind: "home" })}
+          <Link
+            href="/"
             title={`${OWNER.name} — home`}
             aria-label={`${OWNER.name} — home`}
-            aria-current={view.kind === "home" ? "page" : undefined}
+            aria-current={isHome ? "page" : undefined}
             className="rounded-lg transition-transform duration-150 ease-out hover:scale-105 active:scale-95"
           >
             <Avatar src={OWNER.avatarSrc} initials={OWNER.initials} name={OWNER.name} />
-          </button>
+          </Link>
           <button
             type="button"
             onClick={onToggleCollapsed}
@@ -63,16 +63,15 @@ export function Sidebar({ view, onSelect, collapsed, onToggleCollapsed, inert }:
         </>
       ) : (
         <div className="mb-8 flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => onSelect({ kind: "home" })}
+          <Link
+            href="/"
             aria-label={`${OWNER.name} — home`}
-            aria-current={view.kind === "home" ? "page" : undefined}
+            aria-current={isHome ? "page" : undefined}
             className="flex items-center gap-2.5 rounded-lg text-left transition-transform duration-150 ease-out active:scale-[0.98]"
           >
             <Avatar src={OWNER.avatarSrc} initials={OWNER.initials} name={OWNER.name} />
             <span className="text-[15px] font-bold">{OWNER.name}</span>
-          </button>
+          </Link>
           <button
             type="button"
             onClick={onToggleCollapsed}
@@ -86,16 +85,15 @@ export function Sidebar({ view, onSelect, collapsed, onToggleCollapsed, inert }:
         </div>
       )}
 
-      <button
-        type="button"
-        onClick={() => onSelect({ kind: "contact" })}
+      <Link
+        href="/contact"
         className={itemClass(isContact)}
         aria-current={isContact ? "page" : undefined}
         title={collapsed ? "Contact" : undefined}
       >
         <Mail size={collapsed ? 17 : 16} strokeWidth={1.6} aria-hidden className="shrink-0" />
         {collapsed ? <span className="sr-only">Contact</span> : "Contact"}
-      </button>
+      </Link>
 
       <div className={collapsed ? "flex flex-col items-center gap-2" : "mt-7"}>
         {collapsed ? (
@@ -107,12 +105,11 @@ export function Sidebar({ view, onSelect, collapsed, onToggleCollapsed, inert }:
         )}
         <ul className={collapsed ? "flex flex-col items-center gap-2" : "flex flex-col gap-1"}>
           {PROJECTS.map((project) => {
-            const active = view.kind === "project" && view.projectId === project.id;
+            const active = pathname === `/projects/${project.id}`;
             return (
               <li key={project.id}>
-                <button
-                  type="button"
-                  onClick={() => onSelect({ kind: "project", projectId: project.id })}
+                <Link
+                  href={`/projects/${project.id}`}
                   className={`${itemClass(active)} ${collapsed ? "" : "w-full"} text-left`}
                   aria-label={project.name}
                   aria-current={active ? "page" : undefined}
@@ -129,7 +126,7 @@ export function Sidebar({ view, onSelect, collapsed, onToggleCollapsed, inert }:
                   ) : (
                     <span className="truncate">{project.name}</span>
                   )}
-                </button>
+                </Link>
               </li>
             );
           })}

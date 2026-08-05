@@ -9,7 +9,7 @@ export const OWNER = {
    * If the file is missing the avatar falls back to `initials` on its own.
    */
   avatarSrc: "/avatar.png",
-  bio: "I build software end-to-end and I'm at home anywhere in the stack — data, backend, frontend, and the part where it actually goes live and stays up. Two things I keep coming back to: AI agents that get real work done instead of just planning it, and web apps that feel good to use.",
+  bio: "I'm a full-stack software engineer with a passion for building practical AI systems. I enjoy turning complex ideas into reliable products, whether that's orchestrating AI agents, designing scalable architectures, or shipping web applications people actually use.",
 } as const;
 
 export type Skill = {
@@ -23,14 +23,13 @@ export type Skill = {
 export const SKILLS: Skill[] = [
   {
     eyebrow: "Agentic AI",
-    title: "Orchestration that ships work",
-    body: "Planning, routing and reviewing across a team of models — then actually doing the thing. Agents that call tools, run tasks in parallel and hand off to each other, with the right model on each step instead of one model for everything.",
+    title: "AI that gets work done",
+    body: "I build AI systems that plan, use tools, collaborate, and execute real tasks to get the job done.",
   },
   {
     eyebrow: "Web Development",
-    title: "Full stack, scope to production",
-    body: "Comfortable across the whole thing — API and data layer, interface, deployment, and keeping it running afterwards.",
-    stack: ["TypeScript", "React", "Next.js", "Node", "Tailwind", "PostgreSQL", "REST APIs", "CI/CD"],
+    title: "From idea to production",
+    body: "I build modern web applications across the full stack—from APIs and databases to intuitive interfaces, deployment, and everything needed to keep them running smoothly.",
   },
 ];
 
@@ -73,6 +72,9 @@ export type Project = {
   id: string;
   name: string;
   subtitle: string;
+  cardEyebrow: string;
+  cardTitle: string;
+  cardBody: string;
 };
 
 /** v1 has exactly one project; the sidebar renders one nav item per entry here. */
@@ -81,6 +83,10 @@ export const PROJECTS: Project[] = [
     id: "agent-orchestration-demo",
     name: "Agent Orchestration Demo",
     subtitle: "Multi-agent workflow demo",
+    cardEyebrow: "Project",
+    cardTitle: "Agent orchestration in action",
+    cardBody:
+      "Use the demo to see how agents are orchestrated across planning, research, review, and writing, with the right model chosen for each step.",
   },
 ];
 
