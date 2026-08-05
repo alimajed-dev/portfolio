@@ -84,31 +84,66 @@ export const PROJECTS: Project[] = [
   },
 ];
 
+export type ProcessStep = {
+  phase: string;
+  /** The tool used, e.g. "Claude Code". */
+  tool: string;
+  /** Model badge — same styling as the Live trace badges. */
+  model: string;
+  description: string;
+  /** First-person aside, revealed on demand. Written to be read, not skimmed. */
+  why: string;
+};
+
 /** The "Process" tab — the case study of how this site itself was built. */
-export const PROCESS_STEPS = [
+export const PROCESS_STEPS: ProcessStep[] = [
   {
     phase: "Requirements",
-    tool: "Claude (conversation)",
-    description: "Scoped through a Claude conversation.",
+    tool: "Claude",
+    model: "Sonnet 5",
+    description: "Scoped in conversation before any code.",
+    why: "I talked it through like a normal conversation — what the site had to prove, who'd actually be reading it, what wasn't worth building for v1. Scoping is thinking out loud, not a hard reasoning problem, so there was no reason to reach for anything heavier.",
   },
   {
     phase: "Design",
     tool: "Claude Design",
-    description: "Layout and states designed directly from the brief.",
+    model: "Opus 4.7",
+    description: "Brief turned into the five screens.",
+    why: "Going from a written brief to screens that actually look right is the one step where I wanted the strongest vision model available. It came back with all five states, and those mockups became the source of truth for every colour and spacing value in the code.",
   },
   {
     phase: "Implementation",
     tool: "Claude Code",
-    description: "Built the working multi-agent demo.",
+    model: "Sonnet 5 + Opus 5",
+    description: "Built the site and the multi-agent backend.",
+    why: "Sonnet 5 did most of the building. I switched to Opus 5 for the genuinely tricky parts — the multi-agent orchestration and the streaming — where the extra capability earns its keep. No point paying for it to write a nav bar.",
   },
   {
-    phase: "Review",
-    tool: "Automated review agent",
-    description: "An automated review-agent pass before merge.",
+    phase: "Cross-model review",
+    tool: "ChatGPT",
+    model: "GPT-5.5 Thinking",
+    description: "Reviewed by a model from a different lab.",
+    why: "Instead of asking Claude to grade its own homework, I brought in ChatGPT as a second, unrelated opinion — different company, different training, so it actually catches different things.",
+  },
+  {
+    phase: "Fixes",
+    tool: "Claude Code",
+    model: "Sonnet 5 + Opus 5",
+    description: "Worked through everything the review flagged.",
+    why: "Back to Claude Code to actually fix what came out of the review. Having the thing that wrote the code fix the code is fine — it's the reviewing you don't want it marking itself on.",
+  },
+  {
+    phase: "Validation",
+    tool: "ChatGPT",
+    model: "GPT-5.5 Thinking",
+    description: "Re-checked the fixes against the original notes.",
+    why: "Same reviewer, second pass. I wanted it to confirm the fixes actually solved what it flagged, rather than just making the warning go away — it's easy to patch the symptom and call it done.",
   },
   {
     phase: "Deployment",
-    tool: "GitHub → Railway",
-    description: "Pushed to GitHub, deployed on Railway.",
+    tool: "Claude",
+    model: "Sonnet 5",
+    description: "GitHub to Railway, plus domain DNS.",
+    why: "Pushing to GitHub, wiring up Railway, setting the env vars and usage caps, then pointing the domain's DNS at it. Mostly careful step-by-step work rather than hard problems, so Sonnet was the right call.",
   },
-] as const;
+];
