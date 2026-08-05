@@ -8,6 +8,8 @@ export type ChatMessage = {
   id: string;
   role: "user" | "assistant";
   content: string;
+  /** Identifies the agent contribution or final response. */
+  label?: string;
   /** Shown in place of content while the pipeline runs and nothing has streamed yet. */
   status?: string;
   error?: boolean;
@@ -46,6 +48,14 @@ export function useAgentRun() {
           prev.map((m) => (m.id === assistantId ? { ...m, ...patch } : m)),
         );
 
+      const appendAssistant = (message: Omit<ChatMessage, "id" | "role">) =>
+        setMessages((prev) => [
+          ...prev,
+          { id: nextId(), role: "assistant", ...message },
+        ]);
+
+      let hasVisibleProgress = false;
+
       try {
         const response = await fetch("/api/agent", {
           method: "POST",
@@ -67,6 +77,21 @@ export function useAgentRun() {
 
         let streamed = false;
         let failed = false;
+        let finalId: string | null = null;
+        let latestStatus = "Coordinating agents to work through your request…";
+        let statusSettled = false;
+
+        const settleStatus = () => {
+          if (statusSettled) return;
+          statusSettled = true;
+          hasVisibleProgress = true;
+          patchAssistant({ content: latestStatus, status: undefined, label: "Agent team" });
+        };
+
+        const showError = (message: string) => {
+          if (statusSettled) appendAssistant({ content: message, error: true });
+          else patchAssistant({ content: message, status: undefined, error: true });
+        };
 
         for await (const event of readEvents(response.body)) {
           switch (event.type) {
@@ -74,21 +99,33 @@ export function useAgentRun() {
               setSteps(event.steps);
               break;
             case "status":
-              if (!streamed) patchAssistant({ status: event.text });
+              latestStatus = event.text;
+              if (!statusSettled) patchAssistant({ status: event.text });
+              break;
+            case "agent_output":
+              settleStatus();
+              appendAssistant({ label: event.label, content: event.text });
               break;
             case "delta":
+              settleStatus();
               streamed = true;
-              setMessages((prev) =>
-                prev.map((m) =>
-                  m.id === assistantId
-                    ? { ...m, content: m.content + event.text, status: undefined }
-                    : m,
-                ),
-              );
+              if (!finalId) {
+                finalId = nextId();
+                const id = finalId;
+                setMessages((prev) => [
+                  ...prev,
+                  { id, role: "assistant", label: "Final answer", content: event.text },
+                ]);
+              } else {
+                const id = finalId;
+                setMessages((prev) =>
+                  prev.map((m) => (m.id === id ? { ...m, content: m.content + event.text } : m)),
+                );
+              }
               break;
             case "error":
               failed = true;
-              patchAssistant({ content: event.message, status: undefined, error: true });
+              showError(event.message);
               break;
             case "done":
               break;
@@ -96,19 +133,13 @@ export function useAgentRun() {
         }
 
         if (!streamed && !failed) {
-          patchAssistant({
-            content: "The agents finished without producing an answer. Try rephrasing your request.",
-            status: undefined,
-            error: true,
-          });
+          showError("The agents finished without producing an answer. Try rephrasing your request.");
         }
       } catch (error) {
         if ((error as Error)?.name !== "AbortError") {
-          patchAssistant({
-            content: "Couldn't reach the agents — check your connection and try again.",
-            status: undefined,
-            error: true,
-          });
+          const message = "Couldn't reach the agents — check your connection and try again.";
+          if (hasVisibleProgress) appendAssistant({ content: message, error: true });
+          else patchAssistant({ content: message, status: undefined, error: true });
         }
       } finally {
         abortRef.current = null;

@@ -94,6 +94,10 @@ function truncate(text: string, max = 90): string {
   return clean.length <= max ? clean : `${clean.slice(0, max - 1)}…`;
 }
 
+function listSubTasks(tasks: string[]): string {
+  return tasks.map((task, index) => `${index + 1}. ${task}`).join("\n");
+}
+
 export async function runPipeline(
   userMessage: string,
   emit: Emit,
@@ -128,14 +132,24 @@ export async function runPipeline(
     });
     subTasks = parseSubTasks(raw, userMessage);
     setStatus("planner", "done", `Split the request into ${subTasks.length} sub-task${subTasks.length === 1 ? "" : "s"}`);
+    emit({
+      type: "agent_output",
+      label: "Planner",
+      text: `I broke the request into ${subTasks.length} step${subTasks.length === 1 ? "" : "s"}:\n${listSubTasks(subTasks)}`,
+    });
   } catch (error) {
     // Degrade to a single sub-task rather than aborting the whole run.
     logStepFailure("planner", error);
     setStatus("planner", "error", "Planning failed — researching the request as-is");
     subTasks = [userMessage];
+    emit({
+      type: "agent_output",
+      label: "Planner",
+      text: "The planning model was unavailable, so the request will be researched as one complete task.",
+    });
   }
 
-  // ---- 2. Researchers (Groq, in parallel) --------------------------------
+  // ---- 2. Researchers (Groq, sequential so every result is visible) -------
   const researcherSteps: TraceStep[] = subTasks.map((task, i) => ({
     ...makeStep(
       `researcher-${i + 1}`,
@@ -144,7 +158,7 @@ export async function runPipeline(
       truncate(task),
       REASONS.researcher,
     ),
-    status: "running" as StepStatus,
+    status: "pending" as StepStatus,
   }));
 
   const researcherIndex = steps.findIndex((s) => s.id === "researcher");
@@ -158,29 +172,36 @@ export async function runPipeline(
         ];
   publish();
 
-  const findings = await Promise.all(
-    subTasks.map(async (task, i) => {
-      const id = `researcher-${i + 1}`;
-      try {
-        const notes = await callModel({
-          model: groqModel,
-          system:
-            "You are a research worker in a multi-agent system. Answer the sub-task with dense, " +
-            "factual notes in at most 6 short bullet points. State plainly when you are unsure. " +
-            "No preamble, no conclusion.",
-          prompt: `Overall request: ${userMessage}\n\nYour sub-task: ${task}`,
-          signal,
-          maxOutputTokens: 500,
-        });
-        setStatus(id, "done");
-        return { task, notes };
-      } catch (error) {
-        logStepFailure(id, error);
-        setStatus(id, "error", `${truncate(task, 70)} — no result`);
-        return { task, notes: "" };
-      }
-    }),
-  );
+  const findings: { task: string; notes: string }[] = [];
+  for (const [i, task] of subTasks.entries()) {
+    const id = `researcher-${i + 1}`;
+    const label = subTasks.length === 1 ? "Researcher" : `Researcher ${i + 1}`;
+    setStatus(id, "running");
+    try {
+      const notes = await callModel({
+        model: groqModel,
+        system:
+          "You are a research worker in a multi-agent system. Answer the sub-task with dense, " +
+          "factual notes in at most 6 short bullet points. State plainly when you are unsure. " +
+          "No preamble, no conclusion.",
+        prompt: `Overall request: ${userMessage}\n\nYour sub-task: ${task}`,
+        signal,
+        maxOutputTokens: 500,
+      });
+      findings.push({ task, notes });
+      setStatus(id, "done");
+      emit({ type: "agent_output", label, text: notes });
+    } catch (error) {
+      logStepFailure(id, error);
+      setStatus(id, "error", `${truncate(task, 70)} — no result`);
+      findings.push({ task, notes: "" });
+      emit({
+        type: "agent_output",
+        label,
+        text: "This research step could not return a result. The remaining agents will continue with the available information.",
+      });
+    }
+  }
 
   const research = findings
     .filter((f) => f.notes)
@@ -192,6 +213,11 @@ export async function runPipeline(
   let critique = "";
   if (!research) {
     setStatus("critic", "error", "Nothing to review — research produced no notes");
+    emit({
+      type: "agent_output",
+      label: "Critic",
+      text: "There were no research notes to review, so the writer will produce a best-effort answer from the original request.",
+    });
   } else {
     try {
       critique = await callModel({
@@ -205,9 +231,15 @@ export async function runPipeline(
         maxOutputTokens: 1500,
       });
       setStatus("critic", "done");
+      emit({ type: "agent_output", label: "Critic", text: critique });
     } catch (error) {
       logStepFailure("critic", error);
       setStatus("critic", "error", "Review step failed — writing up without it");
+      emit({
+        type: "agent_output",
+        label: "Critic",
+        text: "The review step was unavailable, so the writer will continue using the research notes directly.",
+      });
     }
   }
 
@@ -283,7 +315,7 @@ export async function runPipeline(
               model: MODEL_LABELS.groq,
               status: "done",
               description: "Compiled the final answer",
-              reason: "Gemini was unavailable — rerouted to keep the run alive",
+              reason: "Selected as a fast fallback when Gemini was unavailable",
             }
           : s,
       );

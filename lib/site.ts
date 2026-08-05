@@ -101,7 +101,7 @@ export type ProcessStep = {
   why: string;
 };
 
-/** The "Process" tab — the case study of how this site itself was built. */
+/** The "Step by step" tab — the case study of how this site itself was built. */
 export const PROCESS_STEPS: ProcessStep[] = [
   {
     phase: "Requirements",

@@ -100,21 +100,21 @@ not any conflicting values in other design-system export files.)
   - Project selected: chat-style interface — message bubbles, input box at
     bottom, "Message the agent…" placeholder.
 - **Right panel** (360px, only visible when a project is selected): Live /
-  Process toggle at top.
+  Step by step toggle at top.
   - **Live** (default): real-time agent trace. Each entry: small icon
     (checkmark = done, spinner = in progress, empty box = pending), agent
     name, a model badge (e.g. "Gemini 3.6 Flash", "Groq / Llama 3.3 70B"),
-    one-line action description, and an italic one-line "Reason:" note.
+    one-line action description, and an italic one-line "Why this model:" note.
     These reason strings are **pre-written per agent role, not generated
     live** (see Agent pipeline below) — free, instant, always accurate.
-  - **Process**: the case study of how this site was built. The copy lives in
+  - **Step by step**: the case study of how this site was built. The copy lives in
     `PROCESS_STEPS` in `lib/site.ts` and is the single public record of which
     tool ran which phase — it has since grown past the mockup's five entries to
     seven, including the cross-model review passes. Edit it there; don't
     re-describe the process anywhere else.
 
   Entering a project always opens the panel on **Live**, even if the visitor
-  last left it on Process. Below `lg` the panel is a modal drawer: focus moves
+  last left it on Step by step. Below `lg` the panel is a modal drawer: focus moves
   into it, Tab is trapped inside it, Escape and the backdrop close it, and focus
   returns to the button that opened it.
 
@@ -122,14 +122,15 @@ not any conflicting values in other design-system export files.)
 Real multi-agent orchestration behind the chat interface. Sample flow to
 implement:
 1. **Planner** — Gemini 3.6 Flash — breaks the user's request into sub-tasks.
-   Reason shown to user: "needs reasoning, not speed."
-2. **Researcher** (may run as 1+ parallel workers) — Groq / Llama 3.3 70B —
-   gathers/summarizes information relevant to the sub-tasks. Reason:
-   "fast, parallel-friendly."
+   Why this model: "Selected for strong reasoning during task planning."
+2. **Researcher** (one worker per sub-task, run sequentially) — Groq / Llama
+   3.3 70B — gathers/summarizes information relevant to the sub-tasks. Each
+   result is sent to the chat before the next worker starts. Why this model:
+   "Selected for fast, focused research."
 3. **Critic** — Gemini 3.6 Flash — reviews the draft output for gaps/errors.
-   Reason: "quality check."
+   Why this model: "Selected for careful review and error checking."
 4. **Writer** — Gemini 3.6 Flash — compiles the final user-facing answer.
-   Reason: "user-facing quality."
+   Why this model: "Selected for clear, high-quality final writing."
 
 **Model note (changed during implementation):** this spec originally said
 Gemini 2.5 Flash. Google now returns 404 "no longer available to new users"
@@ -139,12 +140,12 @@ thinking model, so most of each call's token budget goes to reasoning rather
 than visible output; the budgets in `lib/orchestrator.ts` are sized for that,
 and cutting them causes silently truncated output rather than an error.
 
-Each step should emit an SSE event the frontend uses to update the Live
-trace panel in real time (status: pending → in-progress → done, plus the
-description/model/reason for that step). No topic restriction on user
-input — genuinely open text, like talking to Claude — just a basic
-content-filter check server-side before running the pipeline (block clearly
-abusive input, nothing more restrictive).
+Each step emits SSE events that update the Live trace in real time (status:
+pending → in-progress → done, plus the description/model/reason) and add the
+completed agent's output to the chat before the next agent starts. No topic
+restriction on user input — genuinely open text, like talking to Claude — just
+a basic content-filter check server-side before running the pipeline (block
+clearly abusive input, nothing more restrictive).
 
 API keys needed as env vars: `GEMINI_API_KEY` (or `GOOGLE_GENERATIVE_AI_API_KEY`
 per the AI SDK's expected var name) and `GROQ_API_KEY`. Get both from
@@ -176,7 +177,7 @@ the diff with fresh eyes for: broken layout vs the mockup, accessibility
 committed, and whether the SSE streaming actually degrades gracefully if a
 model call fails. Fix what you find, then push. Mention in the commit
 message or a short summary that this review pass happened — it's part of
-what the "Process" tab on the live site describes.
+what the "Step by step" tab on the live site describes.
 
 ## Git / GitHub
 Repo does not exist yet. Target: `https://github.com/alimajed-dev` (user's

@@ -10,14 +10,18 @@ function StepIcon({ status }: { status: TraceStep["status"] }) {
   switch (status) {
     case "done":
       return (
-        <span className="flex size-[18px] shrink-0 items-center justify-center rounded-md bg-ink text-bg">
+        <span
+          data-step-status="done"
+          className="flex size-[18px] shrink-0 items-center justify-center rounded-md bg-emerald-600 text-white"
+        >
           <Check size={10} strokeWidth={3} aria-hidden />
         </span>
       );
     case "running":
       return (
         <span
-          className="size-[18px] shrink-0 animate-spin rounded-full border-2 border-accent border-t-transparent"
+          data-step-status="running"
+          className="size-[18px] shrink-0 animate-spin rounded-full border-2 border-orange-600 border-t-transparent"
           aria-hidden
         />
       );
@@ -90,7 +94,7 @@ export function LiveTrace({ steps, running }: { steps: TraceStep[]; running: boo
                 className={[
                   "inline-flex shrink-0 items-center rounded-md px-2.5 py-[3px] text-[11px]",
                   step.status === "running"
-                    ? "bg-accent-tint text-accent-ink"
+                    ? "bg-orange-50 text-orange-800"
                     : "bg-badge text-neutral-800",
                 ].join(" ")}
               >
@@ -98,7 +102,9 @@ export function LiveTrace({ steps, running }: { steps: TraceStep[]; running: boo
               </span>
             </div>
             <p className="mt-1.5 ml-7 text-[13px] text-ink/[0.85]">{step.description}</p>
-            <p className="mt-0.5 ml-7 text-[11px] text-neutral-600 italic">Reason: {step.reason}</p>
+            <p className="mt-0.5 ml-7 text-[11px] text-neutral-600 italic">
+              Why this model: {step.reason}
+            </p>
             <span className="sr-only">Status: {STATUS_LABEL[step.status]}</span>
           </li>
         ))}

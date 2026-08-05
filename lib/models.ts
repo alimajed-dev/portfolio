@@ -28,5 +28,5 @@ const groq = createGroq({ apiKey: groqApiKey });
  */
 export const geminiModel: LanguageModel = google("gemini-3.6-flash");
 
-/** Speed-visible steps: parallel research workers. */
+/** Fast, focused research steps whose outputs are shown one at a time. */
 export const groqModel: LanguageModel = groq("llama-3.3-70b-versatile");

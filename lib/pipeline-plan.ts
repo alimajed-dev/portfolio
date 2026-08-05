@@ -12,10 +12,10 @@ export const MODEL_LABELS = {
  * instant, and always accurate about the routing decision that was made.
  */
 export const REASONS = {
-  planner: "needs reasoning, not speed",
-  researcher: "fast, parallel-friendly",
-  critic: "quality check",
-  writer: "user-facing quality",
+  planner: "Selected for strong reasoning during task planning",
+  researcher: "Selected for fast, focused research",
+  critic: "Selected for careful review and error checking",
+  writer: "Selected for clear, high-quality final writing",
 } as const;
 
 export function makeStep(

@@ -63,7 +63,7 @@ function renderAt(pathname: string, children: React.ReactNode) {
 
 const panel = () => screen.getByRole("complementary", { name: "Agent panel" });
 const dialog = () => screen.getByRole("dialog", { name: "Agent panel" });
-const tab = (name: "Live" | "Process") => screen.getByRole("tab", { name });
+const tab = (name: "Live" | "Step by step") => screen.getByRole("tab", { name });
 const activeTabName = () =>
   screen.getAllByRole("tab").find((t) => t.getAttribute("aria-selected") === "true")?.textContent;
 
@@ -148,20 +148,22 @@ describe("AppShell — panel tab default (F-007)", () => {
     expect(within(panel()).getByRole("heading", { name: "Agent trace" })).toBeDefined();
   });
 
-  it("keeps Process selected while the visitor stays on the same project route", async () => {
+  it("keeps Step by step selected while the visitor stays on the same project route", async () => {
     const user = userEvent.setup();
     renderAt(PROJECT_PATH, PROJECT_PAGE);
-    await user.click(tab("Process"));
+    await user.click(tab("Step by step"));
 
-    expect(activeTabName()).toBe("Process");
-    expect(within(panel()).getByRole("heading", { name: "Case study" })).toBeDefined();
+    expect(activeTabName()).toBe("Step by step");
+    expect(
+      within(panel()).getByRole("heading", { name: "How this site was built" }),
+    ).toBeDefined();
   });
 
   it("resets to Live after navigating away and back to the project", async () => {
     const user = userEvent.setup();
     const { rerender } = renderAt(PROJECT_PATH, PROJECT_PAGE);
-    await user.click(tab("Process"));
-    expect(activeTabName()).toBe("Process");
+    await user.click(tab("Step by step"));
+    expect(activeTabName()).toBe("Step by step");
 
     mockPathname = "/contact";
     rerender(<AppShell>{CONTACT}</AppShell>);
@@ -267,13 +269,13 @@ describe("AppShell — mobile drawer focus management (F-006)", () => {
     expect(dialog().contains(document.activeElement)).toBe(true);
   });
 
-  // The Process tab swaps the drawer's contents, so the trap has to look at the
+  // The Step by step tab swaps the drawer's contents, so the trap has to look at the
   // live DOM rather than a list captured when the drawer opened.
   it("keeps trapping after the panel switches tabs", async () => {
     const user = userEvent.setup();
     renderAt(PROJECT_PATH, PROJECT_PAGE);
     await openDrawer(user);
-    await user.click(tab("Process"));
+    await user.click(tab("Step by step"));
 
     const drawer = dialog();
     const disclosures = within(drawer).getAllByText("Why");

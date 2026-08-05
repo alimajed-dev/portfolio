@@ -63,16 +63,19 @@ trimming them truncates results silently rather than erroring.
 `POST /api/agent` streams SSE events while four agents run for real:
 
 1. **Planner** — Gemini 3.6 Flash — splits the request into up to 3 sub-tasks.
-   *Needs reasoning, not speed.*
-2. **Researchers** — Groq / Llama 3.3 70B — one worker per sub-task, in parallel.
-   *Fast, parallel-friendly.*
+   *Selected for strong reasoning during task planning.*
+2. **Researchers** — Groq / Llama 3.3 70B — one focused worker per sub-task,
+   run sequentially so every result is visible before the next begins.
+   *Selected for fast, focused research.*
 3. **Critic** — Gemini 3.6 Flash — reviews the notes for gaps before write-up.
-   *Quality check.*
+   *Selected for careful review and error checking.*
 4. **Writer** — Gemini 3.6 Flash, streamed — compiles the final answer.
-   *User-facing quality.*
+   *Selected for clear, high-quality final writing.*
 
 The one-line reasons are pre-written per role, never generated — free, instant,
 and always accurate about the routing decision that was actually made.
+Each completed agent also streams its contribution into the chat before the
+next agent begins, followed by the writer's final answer.
 
 Every stage degrades rather than aborting: a failed planner falls back to
 researching the request as-is, failed researchers drop out of the notes, a
@@ -112,7 +115,7 @@ Single client-side app, three panes, no page reloads:
 - **Left** — collapsible sidebar (264px / 72px): Contact, then one nav item per
   project. Collapsed by default under 1024px.
 - **Middle** — bio and skills by default, contact links, or the project chat.
-- **Right** (360px, projects only) — Live agent trace, or the Process case
+- **Right** (360px, projects only) — Live agent trace, or the Step by step case
   study. Becomes an overlay drawer under 1024px.
 
 ## Where things live

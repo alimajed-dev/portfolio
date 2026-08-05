@@ -93,6 +93,18 @@ describe("runPipeline — happy path", () => {
     expect(events.at(-1)).toEqual({ type: "done" });
     expect(events.some((e) => e.type === "status")).toBe(true);
 
+    const outputs = events.filter(
+      (event): event is Extract<AgentEvent, { type: "agent_output" }> =>
+        event.type === "agent_output",
+    );
+    expect(outputs.map((output) => output.label)).toEqual([
+      "Planner",
+      "Researcher 1",
+      "Researcher 2",
+      "Critic",
+    ]);
+    expect(outputs[1].text).toContain("notes for");
+
     const final = steps();
     expect(final.map((s) => s.id)).toEqual([
       "planner",
@@ -129,6 +141,39 @@ describe("runPipeline — happy path", () => {
     happyPath(["a", "b", "c", "d", "e"]);
     const { steps } = await run();
     expect(steps().filter((s) => s.id.startsWith("researcher-"))).toHaveLength(3);
+  });
+
+  it("finishes and publishes each researcher before starting the next one", async () => {
+    let researchersInFlight = 0;
+    let maxResearchersInFlight = 0;
+    generateText.mockImplementation(async (opts: CallOpts) => {
+      if (opts.system.startsWith("You are the planner")) return { text: '["one","two"]' };
+      if (opts.system.startsWith("You are a research")) {
+        researchersInFlight += 1;
+        maxResearchersInFlight = Math.max(maxResearchersInFlight, researchersInFlight);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        researchersInFlight -= 1;
+        return { text: `notes for ${opts.prompt}` };
+      }
+      return { text: "critique" };
+    });
+    streamText.mockReturnValue(stream(["answer"]));
+
+    const { events } = await run();
+    expect(maxResearchersInFlight).toBe(1);
+
+    const firstOutput = events.findIndex(
+      (event) => event.type === "agent_output" && event.label === "Researcher 1",
+    );
+    const secondStarts = events.findIndex(
+      (event) =>
+        event.type === "trace" &&
+        event.steps.some(
+          (candidate) => candidate.id === "researcher-2" && candidate.status === "running",
+        ),
+    );
+    expect(firstOutput).toBeGreaterThan(-1);
+    expect(secondStarts).toBeGreaterThan(firstOutput);
   });
 });
 
@@ -282,7 +327,7 @@ describe("runPipeline — writer degradation", () => {
     expect(writer?.status).toBe("done");
     // The badge has to name the model that actually ran.
     expect(writer?.model).toBe(MODEL_LABELS.groq);
-    expect(writer?.reason).toMatch(/rerouted/i);
+    expect(writer?.reason).toMatch(/fallback/i);
   });
 
   it("treats an empty Gemini stream as a failure, not a successful blank answer", async () => {

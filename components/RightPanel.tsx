@@ -21,10 +21,10 @@ type Props = {
 
 const TABS: { id: PanelTab; label: string }[] = [
   { id: "live", label: "Live" },
-  { id: "process", label: "Process" },
+  { id: "process", label: "Step by step" },
 ];
 
-/** `summary` is included because the Process tab's "Why" disclosures are focusable. */
+/** `summary` is included because the step-by-step tab's "Why" disclosures are focusable. */
 const FOCUSABLE = [
   "a[href]",
   "button:not([disabled])",

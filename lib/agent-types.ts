@@ -20,6 +20,8 @@ export type AgentEvent =
   | { type: "trace"; steps: TraceStep[] }
   /** Short status line shown in the chat bubble while the pipeline runs. */
   | { type: "status"; text: string }
+  /** A completed agent's visible contribution, shown before the next agent starts. */
+  | { type: "agent_output"; label: string; text: string }
   /** Streamed chunk of the final answer. */
   | { type: "delta"; text: string }
   /** Pipeline finished successfully. */

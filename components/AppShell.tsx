@@ -57,7 +57,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   // Live is the documented default for a project's panel. Keyed on the project
-  // id rather than the raw pathname so switching Live/Process tabs within one
+  // id rather than the raw pathname so switching panel tabs within one
   // project doesn't re-trigger this — only *entering* a project (including
   // switching from one project straight into another) does.
   const [prevProjectId, setPrevProjectId] = useState(activeProjectId);

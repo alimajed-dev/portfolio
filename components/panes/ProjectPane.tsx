@@ -60,7 +60,7 @@ export function ProjectPane({ project, messages, running, onSend, onOpenPanel }:
           <div className="m-auto max-w-[420px] text-center">
             <p className="mb-2 text-[15px] font-semibold">Ask the agents anything.</p>
             <p className="mb-5 text-[13px]/[1.55] text-ink/[0.7]">
-              A planner, parallel researchers, a critic and a writer run across two model providers.
+              A planner, focused researchers, a critic and a writer run across two model providers.
               Watch them work in the Live panel.
             </p>
             <button
@@ -87,7 +87,7 @@ export function ProjectPane({ project, messages, running, onSend, onOpenPanel }:
                 className="flex max-w-full flex-col gap-1.5 self-start sm:max-w-[75%]"
               >
                 <p className="text-[11px] font-semibold tracking-[0.06em] text-neutral-600 uppercase">
-                  Assistant
+                  {message.label ?? "Assistant"}
                 </p>
                 {message.status ? (
                   <p className="flex items-baseline gap-2 text-sm/[1.6] text-ink/[0.75]">

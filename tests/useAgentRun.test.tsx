@@ -24,6 +24,23 @@ function sseResponse(events: AgentEvent[], init: { status?: number } = {}): Resp
   });
 }
 
+function interruptedSseResponse(events: AgentEvent[]): Response {
+  const encoder = new TextEncoder();
+  let sent = false;
+  const body = new ReadableStream<Uint8Array>({
+    pull(controller) {
+      if (!sent) {
+        sent = true;
+        const frames = events.map((event) => `data: ${JSON.stringify(event)}\n\n`).join("");
+        controller.enqueue(encoder.encode(frames));
+        return;
+      }
+      controller.error(new Error("stream interrupted"));
+    },
+  });
+  return new Response(body, { headers: { "Content-Type": SSE } });
+}
+
 let fetchMock: ReturnType<typeof vi.fn>;
 
 beforeEach(() => {
@@ -51,12 +68,15 @@ describe("useAgentRun", () => {
               name: "Planner",
               model: "Gemini 3.6 Flash",
               description: "Breaking your request into sub-tasks",
-              reason: "needs reasoning, not speed",
+              reason: "Selected for strong reasoning during task planning",
               status: "running",
             },
           ],
         },
         { type: "status", text: "Coordinating agents…" },
+        { type: "agent_output", label: "Planner", text: "1. Find the facts" },
+        { type: "agent_output", label: "Researcher", text: "- The facts" },
+        { type: "agent_output", label: "Critic", text: "- Looks solid" },
         { type: "delta", text: "Hello" },
         { type: "delta", text: ", world." },
         { type: "done" },
@@ -68,14 +88,25 @@ describe("useAgentRun", () => {
       await result.current.send("  tell me something  ");
     });
 
-    expect(result.current.messages).toHaveLength(2);
+    expect(result.current.messages).toHaveLength(6);
     expect(result.current.messages[0]).toMatchObject({ role: "user", content: "tell me something" });
+    expect(result.current.messages.slice(1).map((message) => message.label)).toEqual([
+      "Agent team",
+      "Planner",
+      "Researcher",
+      "Critic",
+      "Final answer",
+    ]);
     expect(result.current.messages[1]).toMatchObject({
       role: "assistant",
-      content: "Hello, world.",
+      content: "Coordinating agents…",
       status: undefined,
     });
-    expect(result.current.messages[1].error).toBeFalsy();
+    expect(result.current.messages.at(-1)).toMatchObject({
+      role: "assistant",
+      content: "Hello, world.",
+    });
+    expect(result.current.messages.at(-1)?.error).toBeFalsy();
     expect(result.current.steps).toHaveLength(1);
     expect(result.current.running).toBe(false);
 
@@ -167,6 +198,32 @@ describe("useAgentRun", () => {
     expect(result.current.running).toBe(false);
   });
 
+  it("keeps completed agent outputs visible when the stream disconnects", async () => {
+    fetchMock.mockResolvedValue(
+      interruptedSseResponse([
+        { type: "status", text: "Coordinating agents…" },
+        { type: "agent_output", label: "Planner", text: "1. Research the topic" },
+      ]),
+    );
+
+    const { result } = renderHook(() => useAgentRun());
+    await act(async () => {
+      await result.current.send("hi");
+    });
+
+    expect(result.current.messages.map((message) => message.label)).toEqual([
+      undefined,
+      "Agent team",
+      "Planner",
+      undefined,
+    ]);
+    expect(result.current.messages[2].content).toBe("1. Research the topic");
+    expect(result.current.messages.at(-1)).toMatchObject({
+      content: expect.stringMatching(/couldn't reach the agents/i),
+      error: true,
+    });
+  });
+
   it("stays quiet when the run is aborted", async () => {
     const abortError = new Error("aborted");
     abortError.name = "AbortError";
@@ -203,7 +260,7 @@ describe("useAgentRun", () => {
       release(sseResponse([{ type: "delta", text: "done" }, { type: "done" }]));
       await first;
     });
-    expect(result.current.messages).toHaveLength(2);
+    expect(result.current.messages).toHaveLength(3);
   });
 
   it("ignores blank input without calling the API", async () => {

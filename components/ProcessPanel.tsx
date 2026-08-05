@@ -4,7 +4,9 @@ import { PROCESS_STEPS } from "@/lib/site";
 export function ProcessPanel() {
   return (
     <>
-      <h3 className="text-[11px] font-semibold tracking-[0.07em] text-neutral-600">Case study</h3>
+      <h3 className="text-[11px] font-semibold tracking-[0.07em] text-neutral-600">
+        How this site was built
+      </h3>
       <ol className="flex flex-col">
         {PROCESS_STEPS.map((step, index) => (
           <li
