@@ -39,8 +39,8 @@ export function ProjectPane({ project, messages, running, onSend, onOpenPanel }:
   };
 
   return (
-    <div className="flex min-w-0 flex-1 flex-col">
-      <header className="flex items-center gap-3 border-b border-line px-6 py-6 sm:px-8">
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+      <header className="flex shrink-0 items-center gap-3 border-b border-line px-6 py-6 sm:px-8">
         <div className="min-w-0 flex-1">
           <h1 className="mb-0.5 truncate text-lg font-semibold">{project.name}</h1>
           <p className="text-[13px] text-neutral-700">{project.subtitle}</p>
@@ -55,7 +55,7 @@ export function ProjectPane({ project, messages, running, onSend, onOpenPanel }:
         </button>
       </header>
 
-      <div ref={scrollRef} className="flex flex-1 flex-col gap-4 overflow-auto p-6 sm:p-8">
+      <div ref={scrollRef} className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-6 sm:p-8">
         {messages.length === 0 ? (
           <div className="m-auto max-w-[420px] text-center">
             <p className="mb-2 text-[15px] font-semibold">Ask the agents anything.</p>
@@ -111,7 +111,7 @@ export function ProjectPane({ project, messages, running, onSend, onOpenPanel }:
       </div>
 
       <form
-        className="flex items-end gap-3 border-t border-line px-6 py-5 sm:px-8"
+        className="flex shrink-0 items-end gap-3 border-t border-line px-6 py-5 sm:px-8"
         onSubmit={(event) => {
           event.preventDefault();
           submit();

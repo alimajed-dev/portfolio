@@ -11,12 +11,13 @@ type Props = {
   onToggleCollapsed: () => void;
   /** Set while the mobile agent drawer is open, so the sidebar leaves the tab order. */
   inert?: boolean;
+  onNavigate?: () => void;
 };
 
 const itemBase =
   "flex items-center gap-2.5 rounded-lg text-sm font-semibold transition-[background-color,color,transform] duration-150 ease-out active:scale-[0.98]";
 
-export function Sidebar({ collapsed, onToggleCollapsed, inert }: Props) {
+export function Sidebar({ collapsed, onToggleCollapsed, inert, onNavigate }: Props) {
   const pathname = usePathname();
   const isHome = pathname === "/";
   const isContact = pathname === "/contact";
@@ -43,6 +44,7 @@ export function Sidebar({ collapsed, onToggleCollapsed, inert }: Props) {
         <>
           <Link
             href="/"
+            onClick={onNavigate}
             title={`${OWNER.name} — home`}
             aria-label={`${OWNER.name} — home`}
             aria-current={isHome ? "page" : undefined}
@@ -65,6 +67,7 @@ export function Sidebar({ collapsed, onToggleCollapsed, inert }: Props) {
         <div className="mb-8 flex items-center justify-between">
           <Link
             href="/"
+            onClick={onNavigate}
             aria-label={`${OWNER.name} — home`}
             aria-current={isHome ? "page" : undefined}
             className="flex items-center gap-2.5 rounded-lg text-left transition-transform duration-150 ease-out active:scale-[0.98]"
@@ -87,6 +90,7 @@ export function Sidebar({ collapsed, onToggleCollapsed, inert }: Props) {
 
       <Link
         href="/contact"
+        onClick={onNavigate}
         className={itemClass(isContact)}
         aria-current={isContact ? "page" : undefined}
         title={collapsed ? "Contact" : undefined}
@@ -110,6 +114,7 @@ export function Sidebar({ collapsed, onToggleCollapsed, inert }: Props) {
               <li key={project.id}>
                 <Link
                   href={`/projects/${project.id}`}
+                  onClick={onNavigate}
                   className={`${itemClass(active)} ${collapsed ? "" : "w-full"} text-left`}
                   aria-label={project.name}
                   aria-current={active ? "page" : undefined}

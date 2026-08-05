@@ -22,12 +22,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [tab, setTab] = useState<PanelTab>("live");
   const [panelOpen, setPanelOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const { messages, steps, running, send } = useAgentRun();
 
-  // Narrow viewports default to a collapsed sidebar; an explicit toggle wins.
   const isNarrow = useMediaQuery("(max-width: 1023px)");
   const [collapsedOverride, setCollapsedOverride] = useState<boolean | null>(null);
-  const collapsed = collapsedOverride ?? isNarrow;
+  const collapsed = collapsedOverride ?? false;
 
   const activeProjectId = pathname.match(/^\/projects\/([^/]+)/)?.[1];
   const project = activeProjectId ? PROJECTS.find((p) => p.id === activeProjectId) : undefined;
@@ -53,6 +53,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     setPrevPathname(pathname);
     // Every navigation closes the mobile drawer, whatever it was showing.
     setPanelOpen(false);
+    setSidebarOpen(false);
   }
 
   // Live is the documented default for a project's panel. Keyed on the project
@@ -66,28 +67,48 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
-    if (!panelOpen) return;
+    if (!panelOpen && !sidebarOpen) return;
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") setPanelOpen(false);
+      if (event.key === "Escape") setSidebarOpen(false);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [panelOpen]);
+  }, [panelOpen, sidebarOpen]);
 
-  // Below `lg` the open panel is a modal overlay, so everything behind it must
+  // Below `lg` open drawers are modal overlays, so everything behind them must
   // leave the tab order and the accessibility tree.
-  const backgroundInert = panelOpen && isNarrow;
+  const backgroundInert = isNarrow && (panelOpen || sidebarOpen);
 
   return (
     <div className="flex h-dvh overflow-hidden bg-bg shadow-frame">
-      <Sidebar
-        collapsed={collapsed}
-        onToggleCollapsed={() => setCollapsedOverride(!collapsed)}
-        inert={backgroundInert}
-      />
+      <div className="hidden lg:block">
+        <Sidebar
+          collapsed={collapsed}
+          onToggleCollapsed={() => setCollapsedOverride(!collapsed)}
+          inert={backgroundInert}
+        />
+      </div>
 
-      <main inert={backgroundInert} className="flex min-w-0 flex-1 flex-col">
-        <TopHeader />
+      {sidebarOpen && (
+        <>
+          <div
+            aria-hidden
+            onClick={() => setSidebarOpen(false)}
+            className="fixed inset-0 z-20 bg-ink/20 lg:hidden"
+          />
+          <div className="fixed inset-y-0 left-0 z-30 w-[264px] max-w-[86vw] lg:hidden">
+            <Sidebar
+              collapsed={false}
+              onToggleCollapsed={() => setSidebarOpen(false)}
+              onNavigate={() => setSidebarOpen(false)}
+            />
+          </div>
+        </>
+      )}
+
+      <main inert={backgroundInert} className="flex min-h-0 min-w-0 flex-1 flex-col">
+        <TopHeader onOpenSidebar={() => setSidebarOpen(true)} />
         <AgentRunContextProvider
           value={{ messages, running, send, openPanel: () => setPanelOpen(true) }}
         >
