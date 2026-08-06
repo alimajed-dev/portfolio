@@ -65,7 +65,7 @@ const panel = () => screen.getByRole("complementary", { name: "Agent panel" });
 const dialog = () => screen.getByRole("dialog", { name: "Agent panel" });
 const tab = (name: "Live" | "Step by step") => screen.getByRole("tab", { name });
 const activeTabName = () =>
-  screen.getAllByRole("tab").find((t) => t.getAttribute("aria-selected") === "true")?.textContent;
+  screen.getAllByRole("tab").find((t) => t.getAttribute("aria-selected") === "true")?.getAttribute("aria-label");
 
 beforeEach(() => {
   vi.stubGlobal("fetch", vi.fn(() => new Promise(() => {})));
@@ -278,8 +278,8 @@ describe("AppShell — mobile drawer focus management (F-006)", () => {
     await user.click(tab("Step by step"));
 
     const drawer = dialog();
-    const disclosures = within(drawer).getAllByText("Why");
-    const last = disclosures[disclosures.length - 1].closest("summary") as HTMLElement;
+    const disclosures = Array.from(drawer.querySelectorAll("summary"));
+    const last = disclosures[disclosures.length - 1] as HTMLElement;
 
     last.focus();
     expect(fireEvent.keyDown(document, { key: "Tab" })).toBe(false);

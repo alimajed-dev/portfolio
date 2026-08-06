@@ -95,22 +95,27 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div
             aria-hidden
             onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 z-20 bg-ink/20 lg:hidden"
+            className="fixed inset-0 z-20 bg-black/70 lg:hidden"
           />
-          <div className="fixed inset-y-0 left-0 z-30 w-[264px] max-w-[86vw] lg:hidden">
+          <div className="fixed inset-y-0 left-0 z-30 w-[280px] max-w-[86vw] lg:hidden">
             <Sidebar
               collapsed={false}
               onToggleCollapsed={() => setSidebarOpen(false)}
               onNavigate={() => setSidebarOpen(false)}
+              mobile
             />
           </div>
         </>
       )}
 
       <main inert={backgroundInert} className="flex min-h-0 min-w-0 flex-1 flex-col">
-        <TopHeader onOpenSidebar={() => setSidebarOpen(true)} />
+        <TopHeader
+          onOpenSidebar={() => setSidebarOpen(true)}
+          onOpenPanel={() => setPanelOpen(true)}
+          running={running}
+        />
         <AgentRunContextProvider
-          value={{ messages, running, send, openPanel: () => setPanelOpen(true) }}
+          value={{ messages, running, send }}
         >
           {children}
         </AgentRunContextProvider>

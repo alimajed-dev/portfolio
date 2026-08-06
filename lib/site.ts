@@ -9,7 +9,7 @@ export const OWNER = {
    * If the file is missing the avatar falls back to `initials` on its own.
    */
   avatarSrc: "/avatar.png",
-  bio: "I'm a full-stack software engineer with a passion for building practical AI systems. I enjoy turning complex ideas into reliable products, whether that's orchestrating AI agents, designing scalable architectures, or shipping web applications people actually use.",
+  bio: "I'm a full-stack software engineer and a solutions architect with a passion for building practical AI systems. I enjoy turning complex ideas into reliable products, whether that's orchestrating AI agents, designing scalable architectures, or shipping web applications people actually use.",
 } as const;
 
 export type Skill = {
@@ -112,10 +112,10 @@ export const PROCESS_STEPS: ProcessStep[] = [
   },
   {
     phase: "Design",
-    tool: "Claude Design",
-    model: "Opus 4.7",
-    description: "Brief turned into the five screens.",
-    why: "Going from a written brief to screens that actually look right is the one step where I wanted the strongest vision model available. It came back with all five states, and those mockups became the source of truth for every colour and spacing value in the code.",
+    tool: "Claude + Figma AI",
+    model: "Figma MCP",
+    description: "Prompted with Claude, designed in Figma AI, and implemented through Figma MCP.",
+    why: "1. After agreeing on the design direction, colour palette, and look and feel, I asked Claude to write the detailed design prompt. 2. I used that prompt in Figma AI to generate the design. 3. I connected Claude to Figma through MCP so it could inspect the approved frames and implement the design accurately.",
   },
   {
     phase: "Implementation",

@@ -14,17 +14,15 @@ type Props = {
   onTabChange: (tab: PanelTab) => void;
   steps: TraceStep[];
   running: boolean;
-  /** Below `lg` the panel is an overlay drawer instead of a third column. */
   open: boolean;
   onClose: () => void;
 };
 
-const TABS: { id: PanelTab; label: string }[] = [
-  { id: "live", label: "Live" },
-  { id: "process", label: "Step by step" },
+const TABS: { id: PanelTab; label: string; mobileLabel: string }[] = [
+  { id: "live", label: "Live", mobileLabel: "Live" },
+  { id: "process", label: "Step by step", mobileLabel: "Process" },
 ];
 
-/** `summary` is included because the step-by-step tab's "Why" disclosures are focusable. */
 const FOCUSABLE = [
   "a[href]",
   "button:not([disabled])",
@@ -38,9 +36,6 @@ const FOCUSABLE = [
 export function RightPanel({ tab, onTabChange, steps, running, open, onClose }: Props) {
   const asideRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
-
-  // The panel is visually modal only while it is an overlay. On `lg` and up it
-  // is an ordinary third column, and trapping focus there would be a bug.
   const isDrawer = useMediaQuery("(max-width: 1023px)");
   const modal = open && isDrawer;
 
@@ -52,20 +47,15 @@ export function RightPanel({ tab, onTabChange, steps, running, open, onClose }: 
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== "Tab" || !asideRef.current) return;
-
-      // Read the focusables on every keypress: switching tabs swaps the panel's
-      // contents, so a list captured when the drawer opened would go stale.
       const focusable = Array.from(asideRef.current.querySelectorAll<HTMLElement>(FOCUSABLE));
       if (focusable.length === 0) {
         event.preventDefault();
         return;
       }
-
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
       const inside = asideRef.current.contains(document.activeElement);
       const atEdge = document.activeElement === (event.shiftKey ? first : last);
-
       if (atEdge || !inside) {
         event.preventDefault();
         (event.shiftKey ? last : first).focus();
@@ -75,54 +65,58 @@ export function RightPanel({ tab, onTabChange, steps, running, open, onClose }: 
     document.addEventListener("keydown", onKeyDown);
     return () => {
       document.removeEventListener("keydown", onKeyDown);
-      // Hand focus back to whatever opened the drawer — unless navigation has
-      // already removed it from the document.
       if (opener?.isConnected) opener.focus();
     };
   }, [modal]);
 
   return (
     <>
-      {open && (
-        // Backdrop only — the labelled close button below is the accessible path.
-        <div aria-hidden onClick={onClose} className="fixed inset-0 z-20 bg-ink/20 lg:hidden" />
-      )}
+      {open && <div aria-hidden onClick={onClose} className="fixed inset-0 z-20 bg-black/70 lg:hidden" />}
       <aside
         ref={asideRef}
         aria-label="Agent panel"
         role={modal ? "dialog" : undefined}
         aria-modal={modal || undefined}
         className={[
-          "fixed inset-y-0 right-0 z-30 flex w-[360px] max-w-[88vw] flex-col gap-5 overflow-auto border-l border-line bg-bg p-6 transition-transform duration-200 ease-out",
-          "lg:visible lg:static lg:z-auto lg:max-w-none lg:shrink-0 lg:translate-x-0 lg:shadow-none",
-          open ? "visible translate-x-0 shadow-xl" : "invisible translate-x-full",
+          "fixed inset-y-0 right-0 z-30 flex w-[340px] max-w-[87vw] flex-col border-l border-line bg-surface transition-transform duration-200 ease-out",
+          "lg:visible lg:static lg:z-auto lg:w-[360px] lg:max-w-none lg:shrink-0 lg:translate-x-0 lg:shadow-none",
+          open ? "visible translate-x-0 shadow-2xl" : "invisible translate-x-full",
         ].join(" ")}
       >
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex h-16 shrink-0 items-center gap-2 border-b border-line px-4 lg:h-[46px] lg:px-0">
+          <p className="text-base font-semibold text-ink lg:hidden">
+            {tab === "live" ? "Agent trace" : "How built"}
+          </p>
           <div
             role="tablist"
             aria-label="Panel view"
-            className="inline-flex self-start overflow-hidden rounded-[9px] border border-line-strong"
+            className="flex items-center lg:h-full lg:flex-1"
           >
-            {TABS.map((t) => {
-              const active = tab === t.id;
+            {TABS.map((item) => {
+              const active = tab === item.id;
               return (
                 <button
-                  key={t.id}
+                  key={item.id}
                   type="button"
                   role="tab"
-                  id={`panel-tab-${t.id}`}
+                  id={`panel-tab-${item.id}`}
+                  aria-label={item.label}
                   aria-selected={active}
                   aria-controls="panel-body"
-                  onClick={() => onTabChange(t.id)}
+                  onClick={() =>
+                    onTabChange(isDrawer && active ? (item.id === "live" ? "process" : "live") : item.id)
+                  }
+                  title={isDrawer && active ? `Switch to ${item.id === "live" ? "Process" : "Live"}` : undefined}
                   className={[
-                    "px-4 py-[7px] text-[13px] font-semibold transition-colors duration-150 ease-out",
+                    "text-xs font-medium transition-[background-color,color,border-color] duration-150",
+                    "lg:flex lg:h-full lg:flex-1 lg:items-center lg:justify-center lg:border-b",
                     active
-                      ? "bg-accent text-white"
-                      : "text-neutral-700 hover:bg-[rgb(32_30_29_/_0.04)] hover:text-ink",
+                      ? "rounded bg-accent-tint px-2 py-1 text-accent lg:rounded-none lg:border-accent lg:bg-transparent lg:px-0 lg:py-0"
+                      : "sr-only text-neutral-600 lg:not-sr-only lg:border-transparent lg:hover:bg-white/[0.03] lg:hover:text-ink",
                   ].join(" ")}
                 >
-                  {t.label}
+                  <span aria-hidden className="lg:hidden">{item.mobileLabel}</span>
+                  <span aria-hidden className="hidden lg:inline">{item.label}</span>
                 </button>
               );
             })}
@@ -132,9 +126,9 @@ export function RightPanel({ tab, onTabChange, steps, running, open, onClose }: 
             type="button"
             onClick={onClose}
             aria-label="Close panel"
-            className="flex size-8 items-center justify-center rounded-lg text-neutral-700 transition-[transform,color,background-color] duration-150 ease-out hover:scale-105 hover:bg-[rgb(32_30_29_/_0.05)] hover:text-ink active:scale-95 lg:hidden"
+            className="ml-auto flex size-8 items-center justify-center rounded-md text-neutral-600 transition-[background-color,color,transform] duration-150 hover:scale-105 hover:bg-white/[0.05] hover:text-ink active:scale-95 lg:hidden"
           >
-            <X size={17} strokeWidth={1.6} aria-hidden />
+            <X size={17} strokeWidth={1.8} aria-hidden />
           </button>
         </div>
 
@@ -142,7 +136,7 @@ export function RightPanel({ tab, onTabChange, steps, running, open, onClose }: 
           id="panel-body"
           role="tabpanel"
           aria-labelledby={`panel-tab-${tab}`}
-          className="flex flex-col gap-5"
+          className="min-h-0 flex-1 overflow-y-auto p-4 lg:p-5"
         >
           {tab === "live" ? <LiveTrace steps={steps} running={running} /> : <ProcessPanel />}
         </div>

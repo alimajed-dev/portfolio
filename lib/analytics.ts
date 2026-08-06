@@ -14,12 +14,13 @@ declare global {
  * a tick behind a client-side route change and would race this call.
  */
 export function pageTitle(pathname: string): string {
-  if (pathname === "/contact") return "Contact";
+  if (pathname === "/contact") return "Contact — Ali Majed";
   const projectId = pathname.match(/^\/projects\/([^/]+)/)?.[1];
   if (projectId) {
-    return PROJECTS.find((p) => p.id === projectId)?.name ?? "Project";
+    const project = PROJECTS.find((p) => p.id === projectId);
+    return project ? `${project.name} — Ali Majed` : "Project — Ali Majed";
   }
-  return "Home";
+  return "Ali Majed — Software Engineer";
 }
 
 /**

@@ -6,7 +6,7 @@ import type { Project } from "@/lib/site";
 
 /** Pulls the chat state that actually lives in `AppShell` back out of context. */
 export function ProjectPageClient({ project }: { project: Project }) {
-  const { messages, running, send, openPanel } = useAgentRunContext();
+  const { messages, running, send } = useAgentRunContext();
 
   return (
     <ProjectPane
@@ -14,7 +14,6 @@ export function ProjectPageClient({ project }: { project: Project }) {
       messages={messages}
       running={running}
       onSend={send}
-      onOpenPanel={openPanel}
     />
   );
 }

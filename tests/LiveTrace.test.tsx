@@ -25,11 +25,11 @@ describe("LiveTrace status colors", () => {
       <LiveTrace steps={[traceStep("running"), traceStep("done")]} running />,
     );
 
-    expect(container.querySelector('[data-step-status="running"]')?.className).toContain(
-      "border-orange-600",
+    expect(container.querySelector('[data-step-status="running"]')?.getAttribute("class")).toContain(
+      "text-orange-500",
     );
-    expect(container.querySelector('[data-step-status="done"]')?.className).toContain(
-      "bg-emerald-600",
+    expect(container.querySelector('[data-step-status="done"]')?.getAttribute("class")).toContain(
+      "text-emerald-400",
     );
     expect(container.textContent).toContain("Why this model: test");
   });

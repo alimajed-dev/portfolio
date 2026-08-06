@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUp, PanelRight } from "lucide-react";
+import { ArrowUp, PenLine, Plus, Sparkles, Terminal } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { ChatMessage } from "@/lib/useAgentRun";
 import { MAX_INPUT_LENGTH } from "@/lib/content-filter";
@@ -11,13 +11,12 @@ type Props = {
   messages: ChatMessage[];
   running: boolean;
   onSend: (text: string) => void;
-  onOpenPanel: () => void;
 };
 
 const SUGGESTION =
   "Research the top 3 competitors for a Swiss watch startup and draft a positioning summary.";
 
-export function ProjectPane({ project, messages, running, onSend, onOpenPanel }: Props) {
+export function ProjectPane({ project, messages, running, onSend }: Props) {
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -39,27 +38,16 @@ export function ProjectPane({ project, messages, running, onSend, onOpenPanel }:
   };
 
   return (
-    <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <header className="flex shrink-0 items-center gap-3 border-b border-line px-6 py-6 sm:px-8">
-        <div className="min-w-0 flex-1">
-          <h1 className="mb-0.5 truncate text-lg font-semibold">{project.name}</h1>
-          <p className="text-[13px] text-neutral-700">{project.subtitle}</p>
-        </div>
-        <button
-          type="button"
-          onClick={onOpenPanel}
-          className="flex size-9 shrink-0 items-center justify-center rounded-lg text-neutral-700 transition-[transform,color,background-color] duration-150 ease-out hover:scale-105 hover:bg-[rgb(32_30_29_/_0.05)] hover:text-ink active:scale-95 lg:hidden"
-          aria-label="Show agent trace"
-        >
-          <PanelRight size={18} strokeWidth={1.6} aria-hidden />
-        </button>
-      </header>
-
-      <div ref={scrollRef} className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-6 sm:p-8">
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-bg">
+      <h1 className="sr-only">{project.name}</h1>
+      <div ref={scrollRef} className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4 sm:p-6">
         {messages.length === 0 ? (
-          <div className="m-auto max-w-[420px] text-center">
-            <p className="mb-2 text-[15px] font-semibold">Ask the agents anything.</p>
-            <p className="mb-5 text-[13px]/[1.55] text-ink/[0.7]">
+          <div className="mx-auto mt-20 flex w-full max-w-[470px] flex-col items-center text-center lg:mt-16">
+            <span className="mb-4 flex size-12 items-center justify-center rounded-full bg-accent-tint text-accent">
+              <Sparkles size={24} strokeWidth={1.7} aria-hidden />
+            </span>
+            <p className="mb-3 text-[20px] font-semibold text-ink">Ask the agents anything.</p>
+            <p className="mb-5 text-[13px]/[1.55] text-neutral-600 sm:text-[14px]/[1.55]">
               A planner, focused researchers, a critic and a writer run across two model providers.
               Watch them work in the Live panel.
             </p>
@@ -67,84 +55,104 @@ export function ProjectPane({ project, messages, running, onSend, onOpenPanel }:
               type="button"
               onClick={() => onSend(SUGGESTION)}
               disabled={running}
-              className="rounded-[10px] border border-line-strong px-3.5 py-2 text-left text-[13px] text-ink/[0.8] transition-colors duration-150 ease-out hover:bg-surface disabled:opacity-50"
+              className="group flex w-full items-center gap-3 rounded-lg border border-line-strong bg-panel px-3 py-2.5 text-left text-[12px]/[1.35] text-ink transition-[background-color,border-color,transform] duration-150 hover:-translate-y-px hover:border-accent/60 hover:bg-panel-raised active:translate-y-0 disabled:opacity-50 sm:w-auto sm:min-w-[360px]"
             >
-              {SUGGESTION}
+              <Terminal size={16} strokeWidth={1.7} aria-hidden className="shrink-0 text-accent transition-transform group-hover:translate-x-0.5" />
+              <span>&quot;{SUGGESTION}&quot;</span>
             </button>
           </div>
         ) : (
-          messages.map((message) =>
-            message.role === "user" ? (
-              <div
-                key={message.id}
-                className="max-w-[85%] self-end rounded-[12px_12px_2px_12px] bg-surface px-4 py-3 text-sm/[1.55] whitespace-pre-wrap sm:max-w-[65%]"
-              >
-                {message.content}
-              </div>
-            ) : (
-              <div
-                key={message.id}
-                className="flex max-w-full flex-col gap-1.5 self-start sm:max-w-[75%]"
-              >
-                <p className="text-[11px] font-semibold tracking-[0.06em] text-neutral-600 uppercase">
-                  {message.label ?? "Assistant"}
-                </p>
-                {message.status ? (
-                  <p className="flex items-baseline gap-2 text-sm/[1.6] text-ink/[0.75]">
-                    <span className="relative -top-px size-1.5 flex-none animate-pulse rounded-full bg-accent" />
-                    {message.status}
-                  </p>
-                ) : (
-                  <p
-                    className={[
-                      "text-sm/[1.6] whitespace-pre-wrap",
-                      message.error ? "text-neutral-800" : "text-ink/[0.85]",
-                    ].join(" ")}
+          <div className="mx-auto flex w-full max-w-[560px] flex-col gap-4">
+            {messages.map((message) => {
+              if (message.role === "user") {
+                return (
+                  <div
+                    key={message.id}
+                    className="max-w-[84%] self-end rounded-[12px_12px_2px_12px] border border-accent bg-bg px-3 py-2.5 text-[13px]/[1.5] whitespace-pre-wrap sm:max-w-[86%]"
                   >
                     {message.content}
-                  </p>
-                )}
-              </div>
-            ),
-          )
+                  </div>
+                );
+              }
+
+              const system = !message.label || message.label === "Agent team";
+              const writer = /writer|final/i.test(message.label ?? "");
+              const label = system
+                ? "System"
+                : writer
+                  ? "Writer (Gemini 3.6 Flash)"
+                  : message.label;
+
+              return (
+                <div key={message.id} className="flex max-w-full items-start gap-2.5 self-start">
+                  <span
+                    className={[
+                      "mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-panel",
+                      writer ? "text-emerald-400" : "text-accent",
+                    ].join(" ")}
+                  >
+                    {writer ? <PenLine size={15} strokeWidth={1.8} aria-hidden /> : <Sparkles size={15} strokeWidth={1.8} aria-hidden />}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className={writer ? "mb-1.5 text-xs font-semibold text-emerald-400" : "mb-1.5 text-xs font-semibold text-accent"}>
+                      {label}
+                    </p>
+                    <div
+                      className={[
+                        "rounded-xl border border-line bg-panel px-3 py-2.5 text-[13px]/[1.55] whitespace-pre-wrap sm:px-4 sm:py-3 sm:text-[14px]/[1.6]",
+                        message.error ? "text-orange-300" : "text-neutral-600",
+                      ].join(" ")}
+                    >
+                      {message.status ? (
+                        <span className="text-neutral-700">{message.status}</span>
+                      ) : (
+                        message.content
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         )}
       </div>
 
       <form
-        className="flex shrink-0 items-end gap-3 border-t border-line px-6 py-5 sm:px-8"
+        className="shrink-0 px-4 pb-10 pt-2 sm:px-6 sm:pb-4"
         onSubmit={(event) => {
           event.preventDefault();
           submit();
         }}
       >
-        <label htmlFor="agent-input" className="sr-only">
-          Message the agent
-        </label>
-        <textarea
-          id="agent-input"
-          ref={inputRef}
-          rows={1}
-          value={input}
-          maxLength={MAX_INPUT_LENGTH}
-          disabled={running}
-          onChange={(event) => setInput(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter" && !event.shiftKey) {
-              event.preventDefault();
-              submit();
-            }
-          }}
-          placeholder="Message the agent…"
-          className="max-h-40 min-h-10 flex-1 resize-none rounded-[10px] border border-line-strong bg-bg px-2.5 py-2.5 text-sm placeholder:text-neutral-500 disabled:opacity-60"
-        />
-        <button
-          type="submit"
-          disabled={running || input.trim().length === 0}
-          aria-label={running ? "Agents are running" : "Send message"}
-          className="flex size-10 shrink-0 items-center justify-center rounded-[10px] bg-accent text-white transition-[background-color,transform] duration-150 ease-out hover:bg-accent-hover active:scale-95 active:bg-accent-active disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          <ArrowUp size={16} strokeWidth={1.8} aria-hidden />
-        </button>
+        <div className="mx-auto flex w-full max-w-[560px] items-end gap-2 rounded-lg border border-line bg-panel px-2 py-2">
+          <Plus size={20} strokeWidth={1.5} aria-hidden className="mb-1.5 ml-1 shrink-0 text-neutral-500" />
+          <label htmlFor="agent-input" className="sr-only">Message the agent</label>
+          <textarea
+            id="agent-input"
+            ref={inputRef}
+            rows={1}
+            value={input}
+            maxLength={MAX_INPUT_LENGTH}
+            disabled={running}
+            onChange={(event) => setInput(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                submit();
+              }
+            }}
+            placeholder={running ? "Agents executing. Please wait…" : "Message the agent…"}
+            className="max-h-40 min-h-8 min-w-0 flex-1 resize-none bg-transparent px-1 py-1.5 text-sm text-ink outline-none placeholder:text-neutral-500 disabled:cursor-not-allowed disabled:text-neutral-400"
+          />
+          <button
+            type="submit"
+            disabled={running || input.trim().length === 0}
+            aria-label={running ? "Agents are running" : "Send message"}
+            className="flex size-8 shrink-0 items-center justify-center rounded-md bg-accent text-white transition-[background-color,transform] duration-150 hover:bg-accent-hover active:scale-95 active:bg-accent-active disabled:cursor-not-allowed disabled:bg-panel-raised disabled:text-neutral-400"
+          >
+            <ArrowUp size={18} strokeWidth={1.9} aria-hidden />
+          </button>
+        </div>
       </form>
     </div>
   );

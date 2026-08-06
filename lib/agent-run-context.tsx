@@ -15,8 +15,6 @@ type AgentRunContextValue = {
   messages: ChatMessage[];
   running: boolean;
   send: (text: string) => void;
-  /** Opens the mobile agent-trace drawer — the project pane's "Show agent trace" button. */
-  openPanel: () => void;
 };
 
 const AgentRunContext = createContext<AgentRunContextValue | null>(null);

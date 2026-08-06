@@ -1,50 +1,45 @@
-import { ChevronRight } from "lucide-react";
 import { PROCESS_STEPS } from "@/lib/site";
+
+const BADGES: Record<string, string> = {
+  Requirements: "Claude Sonnet",
+  Design: "Claude + Figma AI",
+  Implementation: "Claude Code",
+  "Cross-model review": "GPT-5.5 Thinking",
+  Fixes: "Sonnet + Opus",
+};
 
 export function ProcessPanel() {
   return (
-    <>
-      <h3 className="text-[11px] font-semibold tracking-[0.07em] text-neutral-600">
-        How this site was built
-      </h3>
-      <ol className="flex flex-col">
-        {PROCESS_STEPS.map((step, index) => (
-          <li
-            key={step.phase}
-            className={`py-3.5 ${index < PROCESS_STEPS.length - 1 ? "border-b border-line-soft" : ""}`}
-          >
-            <p className="mb-1 text-[10px] font-semibold tracking-[0.09em] text-accent uppercase">
-              {step.phase}
-            </p>
-
-            <div className="mb-[3px] flex items-center gap-2">
-              <span className="flex-1 text-sm font-semibold">{step.tool}</span>
-              <span className="inline-flex shrink-0 items-center rounded-md bg-badge px-2.5 py-[3px] text-[11px] text-neutral-800">
-                {step.model}
-              </span>
-            </div>
-
-            <p className="text-[13px] text-ink/[0.72]">{step.description}</p>
-
-            {/* Native disclosure: keyboard-operable and open-by-default for
-                search and print, with no client-side state to manage. */}
-            <details className="group mt-2">
-              <summary className="inline-flex cursor-pointer list-none items-center gap-1 rounded text-[11px] font-semibold text-neutral-600 transition-colors duration-150 ease-out hover:text-ink [&::-webkit-details-marker]:hidden">
-                <ChevronRight
-                  size={12}
-                  strokeWidth={2.2}
-                  aria-hidden
-                  className="transition-transform duration-150 ease-out group-open:rotate-90"
-                />
-                Why
+    <div>
+      <h3 className="sr-only">How this site was built</h3>
+      <ol className="flex flex-col gap-2">
+        {PROCESS_STEPS.slice(0, 5).map((step, index) => (
+          <li key={step.phase}>
+            <details
+              open={index === 0 ? true : undefined}
+              className="group rounded-lg border border-line bg-panel transition-colors duration-150 open:border-accent"
+            >
+              <summary className="flex cursor-pointer list-none items-center gap-2 px-3 py-3 [&::-webkit-details-marker]:hidden">
+                <span className="font-mono text-[11px] text-neutral-600 group-open:text-accent">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-ink">{step.phase}</span>
+                <span className="shrink-0 rounded bg-panel-raised px-2 py-1 font-mono text-[10px] text-neutral-600 group-open:bg-accent-tint group-open:text-accent">
+                  {BADGES[step.phase] ?? step.model}
+                </span>
               </summary>
-              <p className="mt-2 border-l-2 border-line pl-3 text-[12px]/[1.65] text-ink/[0.68]">
-                {step.why}
-              </p>
+              <div className="px-3 pb-3">
+                <p className="text-[12px]/[1.45] text-neutral-700">{step.description}</p>
+                <p
+                  className={`${step.phase === "Design" ? "" : "line-clamp-2"} mt-1 text-[11px]/[1.45] italic text-neutral-500`}
+                >
+                  Why: {step.why}
+                </p>
+              </div>
             </details>
           </li>
         ))}
       </ol>
-    </>
+    </div>
   );
 }

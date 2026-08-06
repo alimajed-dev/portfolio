@@ -1,6 +1,6 @@
 "use client";
 
-import { Mail, MessageSquare, PanelLeft, PanelRight } from "lucide-react";
+import { ChevronsLeft, ChevronsRight, CircleX, Home, Mail, Terminal } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Avatar } from "./Avatar";
@@ -9,26 +9,32 @@ import { OWNER, PROJECTS } from "@/lib/site";
 type Props = {
   collapsed: boolean;
   onToggleCollapsed: () => void;
-  /** Set while the mobile agent drawer is open, so the sidebar leaves the tab order. */
   inert?: boolean;
   onNavigate?: () => void;
+  mobile?: boolean;
 };
 
-const itemBase =
-  "flex items-center gap-2.5 rounded-lg text-sm font-semibold transition-[background-color,color,transform] duration-150 ease-out active:scale-[0.98]";
+const navBase =
+  "group flex items-center gap-3 rounded-md border-l-2 px-3 py-2.5 text-sm transition-[background-color,color,border-color,transform] duration-150 ease-out hover:bg-white/[0.035] active:scale-[0.98]";
 
-export function Sidebar({ collapsed, onToggleCollapsed, inert, onNavigate }: Props) {
+export function Sidebar({
+  collapsed,
+  onToggleCollapsed,
+  inert,
+  onNavigate,
+  mobile = false,
+}: Props) {
   const pathname = usePathname();
   const isHome = pathname === "/";
   const isContact = pathname === "/contact";
 
-  const itemClass = (active: boolean) =>
+  const itemClass = (active: boolean, compact = false) =>
     [
-      itemBase,
-      collapsed ? "size-10 justify-center" : "px-2.5 py-2.5",
+      navBase,
+      compact ? "size-10 justify-center p-0" : "w-full",
       active
-        ? "bg-accent-tint text-accent-ink"
-        : "text-ink hover:bg-[rgb(32_30_29_/_0.05)]",
+        ? "border-accent bg-accent-tint font-medium text-ink"
+        : "border-transparent text-neutral-600 hover:text-ink",
     ].join(" ");
 
   return (
@@ -36,106 +42,122 @@ export function Sidebar({ collapsed, onToggleCollapsed, inert, onNavigate }: Pro
       aria-label="Main"
       inert={inert}
       className={[
-        "flex h-full shrink-0 flex-col border-r border-line bg-surface transition-[width] duration-200 ease-out",
-        collapsed ? "w-[72px] items-center gap-6 px-0 py-6" : "w-[264px] px-4 py-6",
+        "flex h-full shrink-0 flex-col justify-between border-r border-line bg-surface transition-[width] duration-200 ease-out",
+        collapsed ? "w-[72px] items-center px-4 py-5" : mobile ? "w-[280px] p-4" : "w-[272px] p-5",
       ].join(" ")}
     >
-      {collapsed ? (
-        <>
+      <div className={collapsed ? "flex w-full flex-col items-center gap-6" : "w-full"}>
+        {mobile && !collapsed && (
+          <div className="mb-4 flex items-center justify-between">
+            <span className="text-[11px] font-medium uppercase text-neutral-500">Navigation</span>
+            <button
+              type="button"
+              onClick={onToggleCollapsed}
+              aria-label="Close navigation"
+              className="flex size-8 items-center justify-center rounded-md text-neutral-600 transition hover:bg-white/[0.05] hover:text-ink active:scale-95"
+            >
+              <CircleX size={17} strokeWidth={1.8} aria-hidden />
+            </button>
+          </div>
+        )}
+
+        <Link
+          href="/"
+          onClick={onNavigate}
+          aria-label={`${OWNER.name} — home`}
+          aria-current={isHome ? "page" : undefined}
+          className={[
+            "flex rounded-lg transition-transform duration-150 active:scale-[0.98]",
+            collapsed ? "justify-center" : "items-center gap-3",
+          ].join(" ")}
+        >
+          <Avatar
+            src={OWNER.avatarSrc}
+            initials={OWNER.initials}
+            name={OWNER.name}
+            size={collapsed ? "sm" : "md"}
+          />
+          {!collapsed && (
+            <span className="flex min-w-0 flex-col gap-0.5">
+              <span className="truncate text-[15px] font-semibold text-ink">{OWNER.name}</span>
+              <span className="truncate text-xs text-neutral-600">Software Engineer</span>
+            </span>
+          )}
+        </Link>
+
+        <div className={collapsed ? "flex flex-col items-center gap-1" : "mt-6 flex flex-col gap-1"}>
           <Link
             href="/"
             onClick={onNavigate}
-            title={`${OWNER.name} — home`}
-            aria-label={`${OWNER.name} — home`}
+            className={itemClass(isHome, collapsed)}
             aria-current={isHome ? "page" : undefined}
-            className="rounded-lg transition-transform duration-150 ease-out hover:scale-105 active:scale-95"
+            title={collapsed ? "Home" : undefined}
           >
-            <Avatar src={OWNER.avatarSrc} initials={OWNER.initials} name={OWNER.name} />
+            <Home size={16} strokeWidth={1.7} aria-hidden className="shrink-0 text-current" />
+            {collapsed ? <span className="sr-only">Home</span> : <span>Home</span>}
           </Link>
-          <button
-            type="button"
-            onClick={onToggleCollapsed}
-            title="Expand sidebar"
-            aria-label="Expand sidebar"
-            aria-expanded={false}
-            className="flex size-9 items-center justify-center rounded-lg text-neutral-700 transition-[transform,color,background-color] duration-150 ease-out hover:scale-105 hover:bg-[rgb(32_30_29_/_0.05)] hover:text-ink active:scale-95"
-          >
-            <PanelRight size={17} strokeWidth={1.6} aria-hidden />
-          </button>
-        </>
-      ) : (
-        <div className="mb-8 flex items-center justify-between">
           <Link
-            href="/"
+            href="/contact"
             onClick={onNavigate}
-            aria-label={`${OWNER.name} — home`}
-            aria-current={isHome ? "page" : undefined}
-            className="flex items-center gap-2.5 rounded-lg text-left transition-transform duration-150 ease-out active:scale-[0.98]"
+            className={itemClass(isContact, collapsed)}
+            aria-current={isContact ? "page" : undefined}
+            title={collapsed ? "Contact" : undefined}
           >
-            <Avatar src={OWNER.avatarSrc} initials={OWNER.initials} name={OWNER.name} />
-            <span className="text-[15px] font-bold">{OWNER.name}</span>
+            <Mail size={16} strokeWidth={1.7} aria-hidden className="shrink-0" />
+            {collapsed ? <span className="sr-only">Contact</span> : <span>Contact</span>}
           </Link>
+
+          {collapsed ? (
+            <h2 className="sr-only">Projects</h2>
+          ) : (
+            <h2 className="px-3 pb-1 pt-3 text-[11px] font-semibold uppercase text-neutral-400">
+              Projects
+            </h2>
+          )}
+          <ul className="flex flex-col gap-1">
+            {PROJECTS.map((project) => {
+              const active = pathname === `/projects/${project.id}`;
+              return (
+                <li key={project.id}>
+                  <Link
+                    href={`/projects/${project.id}`}
+                    onClick={onNavigate}
+                    className={itemClass(active, collapsed)}
+                    aria-label={project.name}
+                    aria-current={active ? "page" : undefined}
+                    title={collapsed ? project.name : undefined}
+                  >
+                    <Terminal size={16} strokeWidth={1.7} aria-hidden className="shrink-0" />
+                    {collapsed ? <span className="sr-only">{project.name}</span> : <span className="truncate">{project.name}</span>}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </div>
+
+      <div className={collapsed ? "flex w-full flex-col items-center gap-4" : "w-full"}>
+        {!collapsed && (
+          <div className="mb-4 flex items-center gap-2 text-xs text-neutral-600">
+            <span className="size-2 rounded-full bg-emerald-500" aria-hidden />
+            <span className="hidden sm:inline">Systems fully operational</span>
+            <span className="sm:hidden">Systems operational</span>
+          </div>
+        )}
+        <div className={collapsed ? "flex flex-col items-center gap-3" : "flex items-center justify-between border-t border-line pt-3"}>
+          {!collapsed && <span className="text-xs text-neutral-400">v3.3.93</span>}
           <button
             type="button"
             onClick={onToggleCollapsed}
-            title="Collapse sidebar"
-            aria-label="Collapse sidebar"
-            aria-expanded
-            className="flex size-8 items-center justify-center rounded-lg text-neutral-700 transition-[transform,color,background-color] duration-150 ease-out hover:scale-105 hover:bg-[rgb(32_30_29_/_0.05)] hover:text-ink active:scale-95"
+            title={collapsed ? "Expand sidebar" : mobile ? "Close navigation" : "Collapse sidebar"}
+            aria-label={collapsed ? "Expand sidebar" : mobile ? "Close navigation" : "Collapse sidebar"}
+            aria-expanded={!collapsed}
+            className="flex size-8 items-center justify-center rounded-md text-neutral-500 transition-[transform,color,background-color] duration-150 hover:scale-105 hover:bg-white/[0.05] hover:text-ink active:scale-95"
           >
-            <PanelLeft size={17} strokeWidth={1.6} aria-hidden />
+            {collapsed ? <ChevronsRight size={17} aria-hidden /> : <ChevronsLeft size={17} aria-hidden />}
           </button>
         </div>
-      )}
-
-      <Link
-        href="/contact"
-        onClick={onNavigate}
-        className={itemClass(isContact)}
-        aria-current={isContact ? "page" : undefined}
-        title={collapsed ? "Contact" : undefined}
-      >
-        <Mail size={collapsed ? 17 : 16} strokeWidth={1.6} aria-hidden className="shrink-0" />
-        {collapsed ? <span className="sr-only">Contact</span> : "Contact"}
-      </Link>
-
-      <div className={collapsed ? "flex flex-col items-center gap-2" : "mt-7"}>
-        {collapsed ? (
-          <h2 className="sr-only">Projects</h2>
-        ) : (
-          <h2 className="mb-2 ml-2.5 text-[11px] font-semibold tracking-[0.07em] text-neutral-600">
-            Projects
-          </h2>
-        )}
-        <ul className={collapsed ? "flex flex-col items-center gap-2" : "flex flex-col gap-1"}>
-          {PROJECTS.map((project) => {
-            const active = pathname === `/projects/${project.id}`;
-            return (
-              <li key={project.id}>
-                <Link
-                  href={`/projects/${project.id}`}
-                  onClick={onNavigate}
-                  className={`${itemClass(active)} ${collapsed ? "" : "w-full"} text-left`}
-                  aria-label={project.name}
-                  aria-current={active ? "page" : undefined}
-                  title={collapsed ? project.name : undefined}
-                >
-                  <MessageSquare
-                    size={collapsed ? 17 : 16}
-                    strokeWidth={1.6}
-                    aria-hidden
-                    className="shrink-0"
-                  />
-                  {collapsed ? (
-                    <span className="sr-only">{project.name}</span>
-                  ) : (
-                    <span className="truncate">{project.name}</span>
-                  )}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
       </div>
     </nav>
   );

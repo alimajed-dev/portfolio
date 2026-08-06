@@ -1,5 +1,5 @@
-import { ExternalLink, Mail } from "lucide-react";
-import { CopyEmailButton } from "@/components/CopyEmailButton";
+import { Mail } from "lucide-react";
+import { CopyValueButton } from "@/components/CopyEmailButton";
 import { OWNER, SOCIAL_LINKS, type SocialLink } from "@/lib/site";
 
 /**
@@ -51,69 +51,58 @@ function LinkIcon({ icon }: { icon: SocialLink["icon"] }) {
 
 export function ContactPane() {
   return (
-    <div className="flex flex-1 overflow-auto px-6 py-10 sm:px-12 lg:px-20">
-      <div className="m-auto w-full max-w-[520px]">
-        <p className="mb-3 text-[11px] font-semibold tracking-[0.08em] text-accent">Get in touch</p>
-        <h1 className="mb-3.5 text-[30px] font-bold tracking-[-0.02em] sm:text-[36px]">
+    <div className="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:py-12">
+      <div className="mx-auto w-full max-w-[680px]">
+        <p className="mb-1 text-xs font-semibold uppercase text-accent sm:mb-2">Get in touch</p>
+        <h1 className="mb-1 text-[28px] leading-tight font-bold tracking-[-0.02em] text-ink sm:mb-2 sm:text-[32px]">
           Let&apos;s build something.
         </h1>
-        <p className="mb-7 text-[15px]/[1.6] text-ink/80">
+        <p className="text-[14px]/[1.6] text-neutral-600 sm:text-[15px]/[1.6]">
           Got something on your mind? Send me a message. I&apos;m always happy to hear from new people.
         </p>
 
-        <a
-          href={`mailto:${OWNER.email}`}
-          className="mb-8 inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-[11px] text-sm font-semibold text-white transition-[background-color,transform] duration-150 ease-out hover:bg-accent-hover active:scale-[0.98] active:bg-accent-active"
-        >
-          <Mail size={15} strokeWidth={1.8} aria-hidden />
-          Send an email
-        </a>
+        <div className="mt-6 rounded-lg border border-line bg-panel p-4 pt-3 sm:mt-8 sm:p-6">
+          <p className="mb-3 text-[13px] text-neutral-600 sm:mb-4 sm:text-sm">Primary Direct Channel</p>
+          <a
+            href={`mailto:${OWNER.email}`}
+            className="flex w-full items-center justify-center gap-2.5 rounded-md bg-accent px-5 py-2.5 text-[15px] font-semibold text-white transition-[background-color,transform] duration-150 hover:bg-accent-hover active:scale-[0.99] active:bg-accent-active sm:py-3.5"
+          >
+            <Mail size={16} strokeWidth={1.9} aria-hidden />
+            Send an email
+          </a>
+        </div>
 
-        <ul className="border-b border-line-soft">
+        <ul className="mt-7 flex flex-col gap-2 sm:mt-8">
           {SOCIAL_LINKS.map((link) => {
             const external = !link.href.startsWith("mailto:");
-
-            // The email row keeps its mailto but pairs it with a copy button, so
-            // it still works on desktops with no mail client configured.
-            if (link.icon === "mail") {
-              return (
-                <li
-                  key={link.id}
-                  className="flex items-center gap-2 border-t border-line-soft pr-2"
-                >
-                  <a
-                    href={link.href}
-                    className="group flex min-w-0 flex-1 items-center gap-3.5 rounded-[10px] px-2 py-3.5 text-ink transition-colors duration-150 ease-out hover:bg-[rgb(32_30_29_/_0.04)]"
-                  >
-                    <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-surface transition-transform duration-150 ease-out group-hover:scale-105">
-                      <LinkIcon icon={link.icon} />
-                    </span>
-                    <span className="truncate text-sm">{link.label}</span>
-                  </a>
-                  <CopyEmailButton value={OWNER.email} />
-                </li>
-              );
-            }
+            const name = {
+              mail: "Email",
+              linkedin: "LinkedIn",
+              x: "X (Twitter)",
+              youtube: "YouTube",
+              github: "GitHub",
+            }[link.icon];
 
             return (
-              <li key={link.id} className="border-t border-line-soft">
+              <li
+                key={link.id}
+                className="group flex min-h-14 items-center gap-2 rounded-lg border border-line bg-panel px-3 py-2 text-ink transition-[background-color,border-color,transform] duration-150 hover:-translate-y-px hover:border-line-strong hover:bg-panel-raised active:translate-y-0 sm:px-4 sm:py-3"
+              >
                 <a
                   href={link.href}
                   {...(external ? { target: "_blank", rel: "noreferrer noopener" } : {})}
-                  className="group flex items-center gap-3.5 rounded-[10px] px-2 py-3.5 text-ink transition-colors duration-150 ease-out hover:bg-[rgb(32_30_29_/_0.04)]"
+                  className="flex min-w-0 flex-1 items-center gap-3 rounded-md"
                 >
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-surface transition-transform duration-150 ease-out group-hover:scale-105">
+                  <span className="flex size-[18px] shrink-0 items-center justify-center text-accent transition-transform duration-150 group-hover:scale-110">
                     <LinkIcon icon={link.icon} />
                   </span>
-                  <span className="flex-1 truncate text-sm">{link.label}</span>
-                  <ExternalLink
-                    size={14}
-                    strokeWidth={1.8}
-                    aria-hidden
-                    className="shrink-0 text-neutral-500 transition-colors duration-150 ease-out group-hover:text-ink"
-                  />
+                  <span className="flex min-w-0 flex-1 flex-col sm:grid sm:grid-cols-[160px_1fr] sm:items-center">
+                    <span className="text-[14px] font-medium text-ink">{name}</span>
+                    <span className="truncate font-mono text-[12px] text-neutral-600 sm:text-[14px]">{link.label}</span>
+                  </span>
                   {external && <span className="sr-only">(opens in a new tab)</span>}
                 </a>
+                <CopyValueButton value={link.label} />
               </li>
             );
           })}
