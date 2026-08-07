@@ -30,24 +30,23 @@ export function ProcessPanel() {
           </li>
         ))}
       </ol>
-      <section
-        aria-labelledby="tech-stack-title"
-        className="mt-4 rounded-lg border border-line bg-panel px-3 py-3"
-      >
-        <h4 id="tech-stack-title" className="text-[13px] font-semibold text-ink">
-          Tech stack
-        </h4>
-        <dl className="mt-3 flex flex-col gap-3">
-          {TECH_STACK.map((item) => (
-            <div key={item.area}>
-              <dt className="text-[12px] font-semibold text-ink">{item.area}</dt>
-              <dd className="mt-0.5 text-[11px]/[1.45] text-neutral-600">
-                <span className="text-neutral-700">{item.tools}</span> — {item.why}
-              </dd>
-            </div>
-          ))}
-        </dl>
-      </section>
+      <details className="group mt-4 rounded-lg border border-line bg-panel transition-colors duration-150 open:border-accent">
+        <summary className="flex cursor-pointer list-none items-center px-3 py-3 [&::-webkit-details-marker]:hidden">
+          <span className="text-[13px] font-semibold text-accent">Tech stack</span>
+        </summary>
+        <div className="px-3 pb-3">
+          <dl className="flex flex-col gap-3">
+            {TECH_STACK.map((item) => (
+              <div key={item.area}>
+                <dt className="text-[12px] font-semibold text-ink">{item.area}</dt>
+                <dd className="mt-0.5 text-[11px]/[1.45] text-neutral-600">
+                  <span className="text-neutral-700">{item.tools}</span> — {item.why}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </details>
     </div>
   );
 }

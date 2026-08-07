@@ -1,7 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
-import { cleanup, render, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { ProcessPanel } from "@/components/ProcessPanel";
 import { PROCESS_STEPS, TECH_STACK } from "@/lib/site";
@@ -11,7 +11,9 @@ afterEach(cleanup);
 describe("ProcessPanel content", () => {
   it("uses one consistent tool category for every visible badge", () => {
     const { container } = render(<ProcessPanel />);
-    const summaries = Array.from(container.querySelectorAll("summary"));
+    const summaries = Array.from(
+      container.querySelectorAll<HTMLElement>("ol > li > details > summary"),
+    );
 
     expect(summaries).toHaveLength(5);
     summaries.forEach((summary, index) => {
@@ -30,10 +32,16 @@ describe("ProcessPanel content", () => {
 
   it("shows an unnumbered tech stack after step 05 with a reason for every area", () => {
     const { container } = render(<ProcessPanel />);
-    const stack = within(container).getByRole("region", { name: "Tech stack" });
+    const title = within(container).getByText("Tech stack", { exact: true });
+    const summary = title.closest("summary");
+    const stack = summary?.closest("details") as HTMLDetailsElement;
 
     expect(container.textContent).toContain("05");
     expect(container.textContent).not.toContain("06");
+    expect(title.className).toContain("text-accent");
+    expect(stack.open).toBe(false);
+    fireEvent.click(summary!);
+    expect(stack.open).toBe(true);
     for (const item of TECH_STACK) {
       expect(within(stack).getByText(item.area, { exact: true })).toBeDefined();
       expect(within(stack).getByText(new RegExp(item.why.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")))).toBeDefined();
