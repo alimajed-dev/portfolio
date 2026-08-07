@@ -1,5 +1,6 @@
 import { generateText, streamText, type LanguageModel } from "ai";
 import type { AgentEvent, StepStatus, TraceStep } from "./agent-types";
+import { captureOperationalError } from "./monitoring";
 import { geminiModel, groqModel } from "./models";
 import { MODEL_LABELS, REASONS, initialSteps, makeStep } from "./pipeline-plan";
 
@@ -19,11 +20,14 @@ function timeoutSignal(outer: AbortSignal): AbortSignal {
  * id looked like "the demo is just broken" instead of a 404.
  */
 function logStepFailure(step: string, error: unknown) {
-  const err = error as { name?: string; statusCode?: number; message?: string };
-  console.error(
-    `[agent] ${step} failed:`,
-    [err?.name, err?.statusCode, err?.message].filter(Boolean).join(" | ") || error,
-  );
+  const err = error as { name?: string; statusCode?: number; status?: number };
+  const status = err?.statusCode ?? err?.status;
+  console.error(`[agent] ${step} failed${status ? ` (${status})` : ""}`);
+  captureOperationalError(error, {
+    area: "agent-pipeline",
+    code: "pipeline_step_failed",
+    step,
+  });
 }
 
 async function callModel(opts: {

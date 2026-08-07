@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import type { AgentEvent } from "@/lib/agent-types";
 import { checkInput } from "@/lib/content-filter";
 import { missingKeys } from "@/lib/models";
+import { captureOperationalError } from "@/lib/monitoring";
 import { runPipeline } from "@/lib/orchestrator";
 import { clientIp, reserveRun } from "@/lib/rate-limit";
 
@@ -67,6 +68,10 @@ export async function POST(request: NextRequest) {
   const absent = missingKeys();
   if (absent.length > 0) {
     console.error(`[agent] missing env vars: ${absent.join(", ")}`);
+    captureOperationalError(new Error("Agent model credentials are missing"), {
+      area: "agent-route",
+      code: "model_credentials_missing",
+    });
     return errorStream(
       "The demo isn't configured with model credentials right now. Everything else on the site still works.",
       503,
@@ -113,6 +118,10 @@ export async function POST(request: NextRequest) {
       } catch (error) {
         if (timedOut) {
           console.error("[agent] run exceeded its deadline");
+          captureOperationalError(error, {
+            area: "agent-route",
+            code: "run_timeout",
+          });
           // An `error` event replaces the assistant message on the client, so
           // after partial output the honest signal is an appended note rather
           // than throwing away the text the visitor already read.
@@ -130,7 +139,11 @@ export async function POST(request: NextRequest) {
           );
           send({ type: "done" });
         } else if (!abort.signal.aborted) {
-          console.error("[agent] pipeline failed:", error);
+          console.error("[agent] pipeline failed");
+          captureOperationalError(error, {
+            area: "agent-route",
+            code: "pipeline_failed",
+          });
           send({
             type: "error",
             message: "Something went wrong running the agents. Try again in a moment.",

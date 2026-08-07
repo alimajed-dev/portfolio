@@ -13,6 +13,8 @@ vi.mock("@/lib/models", () => ({
   groqModel: "groq::mock",
   missingKeys: () => [],
 }));
+const captureOperationalError = vi.hoisted(() => vi.fn());
+vi.mock("@/lib/monitoring", () => ({ captureOperationalError }));
 
 const GEMINI = "gemini::mock";
 const GROQ = "groq::mock";
@@ -32,6 +34,7 @@ beforeEach(async () => {
 
   generateText.mockReset();
   streamText.mockReset();
+  captureOperationalError.mockReset();
   // Degradation is logged on purpose (`logStepFailure`); keep the output quiet.
   errorLog = vi.spyOn(console, "error").mockImplementation(() => {});
 });
@@ -193,6 +196,11 @@ describe("runPipeline — planner degradation", () => {
     expect(steps().filter((s) => s.id.startsWith("researcher-"))).toHaveLength(1);
     expect(text).toBe("answer");
     expect(step(steps(), "writer")?.status).toBe("done");
+    expect(captureOperationalError).toHaveBeenCalledWith(expect.any(Error), {
+      area: "agent-pipeline",
+      code: "pipeline_step_failed",
+      step: "planner",
+    });
   });
 
   it("reads a bulleted prose plan when the planner ignores the JSON instruction", async () => {

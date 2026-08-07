@@ -11,6 +11,7 @@ import { readEvents } from "@/lib/agent-transport";
  */
 vi.mock("@/lib/orchestrator", () => ({ runPipeline: vi.fn() }));
 vi.mock("@/lib/models", () => ({ missingKeys: vi.fn(() => []) }));
+vi.mock("@/lib/monitoring", () => ({ captureOperationalError: vi.fn() }));
 
 type Emit = (event: AgentEvent) => void;
 type RunPipeline = (message: string, emit: Emit, signal: AbortSignal) => Promise<void>;
@@ -18,6 +19,7 @@ type RunPipeline = (message: string, emit: Emit, signal: AbortSignal) => Promise
 let POST: (request: NextRequest) => Promise<Response>;
 let runPipeline: ReturnType<typeof vi.fn<RunPipeline>>;
 let missingKeys: ReturnType<typeof vi.fn<() => string[]>>;
+let captureOperationalError: ReturnType<typeof vi.fn>;
 let rateLimit: typeof import("@/lib/rate-limit");
 
 const CLIENT = { "x-forwarded-for": "203.0.113.7" };
@@ -52,13 +54,16 @@ beforeEach(async () => {
   vi.resetModules();
   const orchestrator = await import("@/lib/orchestrator");
   const models = await import("@/lib/models");
+  const monitoring = await import("@/lib/monitoring");
   runPipeline = orchestrator.runPipeline as typeof runPipeline;
   missingKeys = models.missingKeys as typeof missingKeys;
+  captureOperationalError = monitoring.captureOperationalError as typeof captureOperationalError;
   rateLimit = await import("@/lib/rate-limit");
   ({ POST } = await import("@/app/api/agent/route"));
 
   runPipeline.mockReset();
   missingKeys.mockReset().mockReturnValue([]);
+  captureOperationalError.mockReset();
   runPipeline.mockResolvedValue(undefined);
 });
 
@@ -76,6 +81,7 @@ describe("POST /api/agent — rejections", () => {
       { type: "error", message: "That request didn't parse. Try sending your message again." },
     ]);
     expect(runPipeline).not.toHaveBeenCalled();
+    expect(captureOperationalError).not.toHaveBeenCalled();
   });
 
   it("answers invalid messages with an SSE 400 carrying the filter's own wording", async () => {
@@ -104,6 +110,10 @@ describe("POST /api/agent — rejections", () => {
       },
     ]);
     expect(runPipeline).not.toHaveBeenCalled();
+    expect(captureOperationalError).toHaveBeenCalledWith(expect.any(Error), {
+      area: "agent-route",
+      code: "model_credentials_missing",
+    });
     errorLog.mockRestore();
   });
 
@@ -170,6 +180,10 @@ describe("POST /api/agent — streaming", () => {
     ]);
     // The upstream message must not leak into the stream.
     expect(JSON.stringify(frames)).not.toContain("sk-secret");
+    expect(captureOperationalError).toHaveBeenCalledWith(expect.any(Error), {
+      area: "agent-route",
+      code: "pipeline_failed",
+    });
     expect(slotIsFree()).toBe(true);
     errorLog.mockRestore();
   });
@@ -210,6 +224,10 @@ describe("POST /api/agent — whole-run deadline", () => {
     const frames = await events(response);
 
     expect(observedSignal?.aborted).toBe(true);
+    expect(captureOperationalError).toHaveBeenCalledWith(expect.any(Error), {
+      area: "agent-route",
+      code: "run_timeout",
+    });
     expect(frames).toEqual([
       {
         type: "error",
