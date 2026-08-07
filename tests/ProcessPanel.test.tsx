@@ -4,7 +4,7 @@
 import { cleanup, render, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { ProcessPanel } from "@/components/ProcessPanel";
-import { PROCESS_STEPS } from "@/lib/site";
+import { PROCESS_STEPS, TECH_STACK } from "@/lib/site";
 
 afterEach(cleanup);
 
@@ -25,6 +25,18 @@ describe("ProcessPanel content", () => {
       expect(step.why).not.toMatch(/(?:^|\s)\d+\.\s/);
       expect(step.why).not.toMatch(/(?:^|\n)\s*[-*]\s/);
       expect(step.description).not.toMatch(/(?:^|\s)\d+\.\s/);
+    }
+  });
+
+  it("shows an unnumbered tech stack after step 05 with a reason for every area", () => {
+    const { container } = render(<ProcessPanel />);
+    const stack = within(container).getByRole("region", { name: "Tech stack" });
+
+    expect(container.textContent).toContain("05");
+    expect(container.textContent).not.toContain("06");
+    for (const item of TECH_STACK) {
+      expect(within(stack).getByText(item.area, { exact: true })).toBeDefined();
+      expect(within(stack).getByText(new RegExp(item.why.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")))).toBeDefined();
     }
   });
 });

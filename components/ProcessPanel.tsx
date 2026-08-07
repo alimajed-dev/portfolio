@@ -1,4 +1,4 @@
-import { PROCESS_STEPS } from "@/lib/site";
+import { PROCESS_STEPS, TECH_STACK } from "@/lib/site";
 
 export function ProcessPanel() {
   return (
@@ -30,6 +30,24 @@ export function ProcessPanel() {
           </li>
         ))}
       </ol>
+      <section
+        aria-labelledby="tech-stack-title"
+        className="mt-4 rounded-lg border border-line bg-panel px-3 py-3"
+      >
+        <h4 id="tech-stack-title" className="text-[13px] font-semibold text-ink">
+          Tech stack
+        </h4>
+        <dl className="mt-3 flex flex-col gap-3">
+          {TECH_STACK.map((item) => (
+            <div key={item.area}>
+              <dt className="text-[12px] font-semibold text-ink">{item.area}</dt>
+              <dd className="mt-0.5 text-[11px]/[1.45] text-neutral-600">
+                <span className="text-neutral-700">{item.tools}</span> — {item.why}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </section>
     </div>
   );
 }

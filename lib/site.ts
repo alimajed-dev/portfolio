@@ -101,7 +101,7 @@ export type ProcessStep = {
   why: string;
 };
 
-/** The "Step by step" tab — the case study of how this site itself was built. */
+/** The "Build Process" tab — the case study of how this site itself was built. */
 export const PROCESS_STEPS: ProcessStep[] = [
   {
     phase: "Requirements",
@@ -151,5 +151,40 @@ export const PROCESS_STEPS: ProcessStep[] = [
     model: "Sonnet 5",
     description: "Deployed through GitHub and Railway and connected the domain.",
     why: "I used Claude Sonnet 5 to guide the deployment, environment configuration, usage limits, and DNS setup.",
+  },
+];
+
+export type TechStackItem = {
+  area: string;
+  tools: string;
+  why: string;
+};
+
+/** Concise implementation reference shown after the five public process steps. */
+export const TECH_STACK: TechStackItem[] = [
+  {
+    area: "Frontend",
+    tools: "Next.js, React, TypeScript, Tailwind CSS",
+    why: "Builds a fast, responsive, and maintainable interface.",
+  },
+  {
+    area: "Backend",
+    tools: "Node.js, Next.js API routes, Vercel AI SDK, SSE, Gemini, Groq",
+    why: "Runs the agent workflow and streams each step to the browser in real time.",
+  },
+  {
+    area: "Deployment",
+    tools: "Railway, Namecheap",
+    why: "Keeps the long-running Node service online and connects it to the custom domain.",
+  },
+  {
+    area: "Version control",
+    tools: "Git, GitHub",
+    why: "Tracks every change, runs CI checks, and provides the source Railway deploys.",
+  },
+  {
+    area: "Logging & monitoring",
+    tools: "Better Stack, Railway logs, Google Analytics",
+    why: "Tracks application errors, server health, deployments, and page visits.",
   },
 ];

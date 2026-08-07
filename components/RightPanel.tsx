@@ -20,7 +20,7 @@ type Props = {
 
 const TABS: { id: PanelTab; label: string }[] = [
   { id: "live", label: "Live" },
-  { id: "process", label: "Step by step" },
+  { id: "process", label: "Build Process" },
 ];
 
 const FOCUSABLE = [

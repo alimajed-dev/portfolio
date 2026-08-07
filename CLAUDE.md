@@ -107,21 +107,21 @@ the shared palette and surfaces, not older interaction/layout details.)
   - Project selected: chat-style interface — message bubbles, input box at
     bottom, "Message the agent…" placeholder.
 - **Right panel** (360px, only visible when a project is selected): Live /
-  Step by step toggle at top.
+  Build Process toggle at top.
   - **Live** (default): real-time agent trace. Each entry: small icon
     (checkmark = done, spinner = in progress, empty box = pending), agent
     name, a model badge (e.g. "Gemini 3.6 Flash", "Groq / Llama 3.3 70B"),
     one-line action description, and an italic one-line "Why this model:" note.
     These reason strings are **pre-written per agent role, not generated
     live** (see Agent pipeline below) — free, instant, always accurate.
-  - **Step by step**: the case study of how this site was built. The copy lives in
+  - **Build Process**: the case study of how this site was built. The copy lives in
     `PROCESS_STEPS` in `lib/site.ts` and is the single public record of which
     tool ran which phase — it has since grown past the mockup's five entries to
     seven, including the cross-model review passes. Edit it there; don't
     re-describe the process anywhere else.
 
   Entering a project always opens the panel on **Live**, even if the visitor
-  last left it on Step by step. Below `lg` the panel is a modal drawer: focus moves
+  last left it on Build Process. Below `lg` the panel is a modal drawer: focus moves
   into it, Tab is trapped inside it, Escape and the backdrop close it, and focus
   returns to the button that opened it.
 
@@ -184,7 +184,7 @@ the diff with fresh eyes for: broken layout vs the mockup, accessibility
 committed, and whether the SSE streaming actually degrades gracefully if a
 model call fails. Fix what you find, then push. Mention in the commit
 message or a short summary that this review pass happened — it's part of
-what the "Step by step" tab on the live site describes.
+what the "Build Process" tab on the live site describes.
 
 ## Git / GitHub
 Repo does not exist yet. Target: `https://github.com/alimajed-dev` (user's

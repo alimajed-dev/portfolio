@@ -115,7 +115,7 @@ Single client-side app, three panes, no page reloads:
 - **Left** — collapsible sidebar (264px / 72px): Contact, then one nav item per
   project. Collapsed by default under 1024px.
 - **Middle** — bio and skills by default, contact links, or the project chat.
-- **Right** (360px, projects only) — Live agent trace, or the Step by step case
+- **Right** (360px, projects only) — Live agent trace, or the Build Process case
   study. Becomes an overlay drawer under 1024px.
 
 ## Where things live
