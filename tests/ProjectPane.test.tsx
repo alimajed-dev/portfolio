@@ -27,6 +27,8 @@ describe("ProjectPane composer", () => {
     expect(composer?.className).not.toContain("shadow-");
     expect(input.className).toContain("border-0");
     expect(input.className).toContain("p-0");
+    expect(input.className).toContain("text-base");
+    expect(input.className).toContain("md:text-sm");
     expect(input.hasAttribute("data-agent-composer-input")).toBe(true);
     expect(container.querySelector(".lucide-plus")).toBeNull();
     expect(container.querySelector(".lucide-corner-down-left")).not.toBeNull();

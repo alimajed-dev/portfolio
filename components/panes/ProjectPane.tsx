@@ -142,7 +142,7 @@ export function ProjectPane({ project, messages, running, onSend }: Props) {
               }
             }}
             placeholder={running ? "Agents executing. Please wait…" : "Message the agent…"}
-            className="max-h-40 min-h-6 min-w-0 flex-1 resize-none border-0 bg-transparent p-0 text-sm leading-6 text-ink outline-none placeholder:text-neutral-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:text-neutral-400"
+            className="max-h-40 min-h-6 min-w-0 flex-1 resize-none border-0 bg-transparent p-0 text-base leading-6 text-ink outline-none placeholder:text-neutral-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:text-neutral-400 md:text-sm"
           />
           <button
             type="submit"

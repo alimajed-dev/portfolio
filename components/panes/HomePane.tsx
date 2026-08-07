@@ -29,7 +29,12 @@ export function HomePane() {
         <hr className="border-0 border-t border-line" />
 
         <section className="flex flex-col gap-4">
-          <h2 className="text-xl font-semibold text-ink">Projects</h2>
+          <div className="flex flex-col gap-2">
+            <h2 className="text-xl font-semibold text-ink">Projects</h2>
+            <p className="text-[13px]/[1.55] text-neutral-600 sm:text-[14px]/[1.5]">
+              Most of my professional work is confidential, but here are a few things I’ve built for fun and exploration.
+            </p>
+          </div>
           {PROJECTS.map((project) => (
             <Link
               key={project.id}
