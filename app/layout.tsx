@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { AppShell } from "@/components/AppShell";
+import { rootMetadata } from "@/lib/seo";
 import { DEFAULT_THEME, LIGHT_THEME_COLOR } from "@/lib/theme";
 import "./globals.css";
 
@@ -23,11 +24,7 @@ const archivo = localFont({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "Ali Majed — Software Engineer",
-  description:
-    "Ali Majed builds software end-to-end: agentic AI systems that coordinate multiple models, and frontend-first web development across the whole lifecycle.",
-};
+export const metadata: Metadata = rootMetadata;
 
 export const viewport: Viewport = {
   themeColor: LIGHT_THEME_COLOR,

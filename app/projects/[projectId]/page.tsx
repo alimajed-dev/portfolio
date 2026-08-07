@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { JsonLd } from "@/components/JsonLd";
+import { buildProjectJsonLd, createPageMetadata } from "@/lib/seo";
 import { PROJECTS } from "@/lib/site";
 import { ProjectPageClient } from "./project-page-client";
 
@@ -14,10 +16,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { projectId } = await params;
   const project = PROJECTS.find((p) => p.id === projectId);
   if (!project) return {};
-  return {
-    title: `${project.name} — Ali Majed`,
-    description: project.subtitle,
-  };
+  return createPageMetadata({
+    title: `${project.name} | Ali Majed`,
+    description: project.cardBody,
+    path: `/projects/${project.id}`,
+  });
 }
 
 export default async function ProjectPage({ params }: Props) {
@@ -25,5 +28,10 @@ export default async function ProjectPage({ params }: Props) {
   const project = PROJECTS.find((p) => p.id === projectId);
   if (!project) notFound();
 
-  return <ProjectPageClient project={project} />;
+  return (
+    <>
+      <JsonLd data={buildProjectJsonLd(project)} />
+      <ProjectPageClient project={project} />
+    </>
+  );
 }
