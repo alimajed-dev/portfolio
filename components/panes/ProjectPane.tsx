@@ -1,6 +1,7 @@
 "use client";
 
 import { CornerDownLeft, PenLine, Sparkles, Terminal } from "lucide-react";
+import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import type { ChatMessage } from "@/lib/useAgentRun";
 import { MAX_INPUT_LENGTH } from "@/lib/content-filter";
@@ -15,6 +16,36 @@ type Props = {
 
 const SUGGESTION =
   "Research the top 3 competitors for a Swiss watch startup and draft a positioning summary.";
+
+function FormattedMessage({ text }: { text: string }) {
+  const parts: ReactNode[] = [];
+  let cursor = 0;
+  let key = 0;
+
+  while (cursor < text.length) {
+    const opening = text.indexOf("**", cursor);
+    if (opening === -1) {
+      parts.push(text.slice(cursor));
+      break;
+    }
+
+    const closing = text.indexOf("**", opening + 2);
+    if (closing === -1) {
+      parts.push(text.slice(cursor));
+      break;
+    }
+
+    if (opening > cursor) parts.push(text.slice(cursor, opening));
+    parts.push(
+      <strong key={key++} className="font-semibold text-current">
+        {text.slice(opening + 2, closing)}
+      </strong>,
+    );
+    cursor = closing + 2;
+  }
+
+  return <>{parts}</>;
+}
 
 export function ProjectPane({ project, messages, running, onSend }: Props) {
   const [input, setInput] = useState("");
@@ -106,7 +137,7 @@ export function ProjectPane({ project, messages, running, onSend }: Props) {
                       {message.status ? (
                         <span className="text-neutral-700">{message.status}</span>
                       ) : (
-                        message.content
+                        <FormattedMessage text={message.content} />
                       )}
                     </div>
                   </div>

@@ -33,4 +33,25 @@ describe("ProjectPane composer", () => {
     expect(container.querySelector(".lucide-plus")).toBeNull();
     expect(container.querySelector(".lucide-corner-down-left")).not.toBeNull();
   });
+
+  it("renders assistant Markdown bold markers as bold text", () => {
+    const { container } = render(
+      <ProjectPane
+        project={PROJECTS[0]}
+        messages={[
+          {
+            id: "critic-result",
+            role: "assistant",
+            label: "Critic",
+            content: "Review **Missing target price:** Add a specific price point.",
+          },
+        ]}
+        running={false}
+        onSend={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("Missing target price:").tagName).toBe("STRONG");
+    expect(container.textContent).not.toContain("**");
+  });
 });
