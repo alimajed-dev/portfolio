@@ -73,6 +73,11 @@ select:focus-visible {
   outline-offset: 0;
 }
 
+/* The agent composer exposes focus on its single shared outer border. */
+textarea[data-agent-composer-input]:focus-visible {
+  outline: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

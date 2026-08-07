@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUp, PenLine, Sparkles, Terminal } from "lucide-react";
+import { CornerDownLeft, PenLine, Sparkles, Terminal } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { ChatMessage } from "@/lib/useAgentRun";
 import { MAX_INPUT_LENGTH } from "@/lib/content-filter";
@@ -124,10 +124,11 @@ export function ProjectPane({ project, messages, running, onSend }: Props) {
           submit();
         }}
       >
-        <div className="mx-auto flex w-full max-w-[560px] items-end gap-2 rounded-xl border border-line bg-panel px-3 py-2.5 transition-[border-color,box-shadow] duration-150 focus-within:border-accent focus-within:shadow-[0_0_0_1px_rgb(26_115_232_/_0.18)]">
+        <div className="mx-auto flex w-full max-w-[560px] items-center gap-3 rounded-xl border border-line bg-panel px-4 py-3 transition-colors duration-150 focus-within:border-accent">
           <label htmlFor="agent-input" className="sr-only">Message the agent</label>
           <textarea
             id="agent-input"
+            data-agent-composer-input
             ref={inputRef}
             rows={1}
             value={input}
@@ -141,15 +142,15 @@ export function ProjectPane({ project, messages, running, onSend }: Props) {
               }
             }}
             placeholder={running ? "Agents executing. Please wait…" : "Message the agent…"}
-            className="max-h-40 min-h-9 min-w-0 flex-1 resize-none rounded-lg bg-transparent px-2 py-2 text-sm text-ink outline-none placeholder:text-neutral-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:text-neutral-400"
+            className="max-h-40 min-h-6 min-w-0 flex-1 resize-none border-0 bg-transparent p-0 text-sm leading-6 text-ink outline-none placeholder:text-neutral-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:text-neutral-400"
           />
           <button
             type="submit"
             disabled={running || input.trim().length === 0}
             aria-label={running ? "Agents are running" : "Send message"}
-            className="flex size-8 shrink-0 items-center justify-center rounded-md bg-accent text-white transition-[background-color,transform] duration-150 hover:bg-accent-hover active:scale-95 active:bg-accent-active disabled:cursor-not-allowed disabled:bg-panel-raised disabled:text-neutral-400"
+            className="flex size-6 shrink-0 items-center justify-center border-0 bg-transparent text-accent transition-[color,transform] duration-150 hover:text-accent-hover active:scale-90 active:text-accent-active disabled:cursor-not-allowed disabled:text-neutral-500"
           >
-            <ArrowUp size={18} strokeWidth={1.9} aria-hidden />
+            <CornerDownLeft size={18} strokeWidth={1.9} aria-hidden />
           </button>
         </div>
       </form>

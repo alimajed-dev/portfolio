@@ -23,8 +23,12 @@ describe("ProjectPane composer", () => {
     const composer = input.parentElement;
 
     expect(composer?.className).toContain("rounded-xl");
-    expect(composer?.className).toContain("px-3");
-    expect(input.className).toContain("px-2");
+    expect(composer?.className).toContain("px-4");
+    expect(composer?.className).not.toContain("shadow-");
+    expect(input.className).toContain("border-0");
+    expect(input.className).toContain("p-0");
+    expect(input.hasAttribute("data-agent-composer-input")).toBe(true);
     expect(container.querySelector(".lucide-plus")).toBeNull();
+    expect(container.querySelector(".lucide-corner-down-left")).not.toBeNull();
   });
 });
