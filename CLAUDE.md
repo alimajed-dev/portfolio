@@ -68,14 +68,21 @@ problem it was collapsed to fix.
   `docs/requirements.md`.
 
 ## Design reference — quick token sheet
-(Extracted from the approved mockup at `docs/design/mockup.html`. Use these,
-not any conflicting values in other design-system export files.)
-- Background: `#f3f2f2` (main), `#eae9e9` (sidebar/surface)
-- Text: `#201e1d`
-- Accent (primary, buttons/active/links): `#3F5BD9`, hover `#3349B0`, active `#283C8C`
-- Accent tint (badges/active nav item bg): `#EEF1FE` / text `#33449E`
-- Neutral scale used for secondary text/badges: `#7d7979`, `#605d5d`, `#9b9797`, `#bab6b6`, `#f8f4f4`, `#444141`
-- Borders/dividers: `rgba(32,30,29,0.08–0.14)`
+(Updated from the approved Figma light-mode frames. Components and behavior
+implemented after the original mockups remain authoritative; Figma supplies
+the shared palette and surfaces, not older interaction/layout details.)
+- Default mode: **light**
+- Background: `#ffffff` (main), `#f7f8fa` (sidebar/right panel)
+- Raised surfaces: `#ebedf3` (cards/inputs), `#e2e5ec` (nested/hover surfaces)
+- Text: `#1a1d26` primary, `#5f6672` secondary, `#8b919d` muted
+- Accent (primary, buttons/active/links): `#1A73E8`, hover `#1765CC`, active `#1558B0`
+- Accent tint: `rgba(26,115,232,0.08)`
+- Borders/dividers: `rgba(0,0,0,0.08–0.12)`
+- The previous dark palette remains under `html[data-theme="dark"]` in
+  `app/globals.css`. The header theme control shows a moon while light is
+  active (switch to dark) and a sun while dark is active (switch to light),
+  and persists the visitor's explicit choice. No old Figma component markup
+  should replace later product changes.
 - Font: `"Archivo", system-ui, sans-serif`
 - Radius: 8px (buttons/nav items/icons), 10–12px (cards/panels/inputs), 12px 12px 2px 12px (chat bubble)
 - Shadow: subtle only — `0 1px 3px rgba(32,30,29,0.08)` on the main app frame

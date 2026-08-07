@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { AppShell } from "@/components/AppShell";
+import { DEFAULT_THEME, LIGHT_THEME_COLOR } from "@/lib/theme";
 import "./globals.css";
 
 /** Unset in dev and in any environment that hasn't been given an ID — GA is then simply not loaded. */
@@ -29,8 +30,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#111318",
-  colorScheme: "dark",
+  themeColor: LIGHT_THEME_COLOR,
+  colorScheme: DEFAULT_THEME,
 };
 
 export default function RootLayout({
@@ -39,7 +40,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={archivo.variable}>
+    <html lang="en" className={archivo.variable} data-theme={DEFAULT_THEME}>
       <body className="antialiased">
         <AppShell>{children}</AppShell>
       </body>

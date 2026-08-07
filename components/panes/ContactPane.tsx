@@ -65,7 +65,7 @@ export function ContactPane() {
           <p className="mb-3 text-[13px] text-neutral-600 sm:mb-4 sm:text-sm">Primary Direct Channel</p>
           <a
             href={`mailto:${OWNER.email}`}
-            className="flex w-full items-center justify-center gap-2.5 rounded-md bg-accent px-5 py-2.5 text-[15px] font-semibold text-white transition-[background-color,transform] duration-150 hover:bg-accent-hover active:scale-[0.99] active:bg-accent-active sm:py-3.5"
+            className="flex w-full items-center justify-center gap-2.5 rounded-md bg-accent px-5 py-2.5 text-[15px] font-semibold text-on-accent transition-[background-color,transform] duration-150 hover:bg-accent-hover active:scale-[0.99] active:bg-accent-active sm:py-3.5"
           >
             <Mail size={16} strokeWidth={1.9} aria-hidden />
             Send an email

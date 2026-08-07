@@ -88,19 +88,19 @@ export function ProjectPane({ project, messages, running, onSend }: Props) {
                   <span
                     className={[
                       "mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-panel",
-                      writer ? "text-emerald-400" : "text-accent",
+                      writer ? "text-success" : "text-accent",
                     ].join(" ")}
                   >
                     {writer ? <PenLine size={15} strokeWidth={1.8} aria-hidden /> : <Sparkles size={15} strokeWidth={1.8} aria-hidden />}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className={writer ? "mb-1.5 text-xs font-semibold text-emerald-400" : "mb-1.5 text-xs font-semibold text-accent"}>
+                    <p className={writer ? "mb-1.5 text-xs font-semibold text-success" : "mb-1.5 text-xs font-semibold text-accent"}>
                       {label}
                     </p>
                     <div
                       className={[
                         "rounded-xl border border-line bg-panel px-3 py-2.5 text-[13px]/[1.55] whitespace-pre-wrap sm:px-4 sm:py-3 sm:text-[14px]/[1.6]",
-                        message.error ? "text-orange-300" : "text-neutral-600",
+                        message.error ? "text-error" : "text-neutral-600",
                       ].join(" ")}
                     >
                       {message.status ? (

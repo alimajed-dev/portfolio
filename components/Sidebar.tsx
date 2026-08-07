@@ -15,7 +15,7 @@ type Props = {
 };
 
 const navBase =
-  "group flex items-center gap-3 rounded-md border-l-2 px-3 py-2.5 text-sm transition-[background-color,color,border-color,transform] duration-150 ease-out hover:bg-white/[0.035] active:scale-[0.98]";
+  "group flex items-center gap-3 rounded-md border-l-2 px-3 py-2.5 text-sm transition-[background-color,color,border-color,transform] duration-150 ease-out hover:bg-panel active:scale-[0.98]";
 
 export function Sidebar({
   collapsed,
@@ -54,7 +54,7 @@ export function Sidebar({
               type="button"
               onClick={onToggleCollapsed}
               aria-label="Close navigation"
-              className="flex size-8 items-center justify-center rounded-md text-neutral-600 transition hover:bg-white/[0.05] hover:text-ink active:scale-95"
+              className="flex size-8 items-center justify-center rounded-md text-neutral-600 transition hover:bg-panel hover:text-ink active:scale-95"
             >
               <CircleX size={17} strokeWidth={1.8} aria-hidden />
             </button>
@@ -140,7 +140,7 @@ export function Sidebar({
       <div className={collapsed ? "flex w-full flex-col items-center gap-4" : "w-full"}>
         {!collapsed && (
           <div className="mb-4 flex items-center gap-2 text-xs text-neutral-600">
-            <span className="size-2 rounded-full bg-emerald-500" aria-hidden />
+            <span className="size-2 rounded-full bg-success" aria-hidden />
             <span className="hidden sm:inline">Systems fully operational</span>
             <span className="sm:hidden">Systems operational</span>
           </div>
@@ -153,7 +153,7 @@ export function Sidebar({
             title={collapsed ? "Expand sidebar" : mobile ? "Close navigation" : "Collapse sidebar"}
             aria-label={collapsed ? "Expand sidebar" : mobile ? "Close navigation" : "Collapse sidebar"}
             aria-expanded={!collapsed}
-            className="flex size-8 items-center justify-center rounded-md text-neutral-500 transition-[transform,color,background-color] duration-150 hover:scale-105 hover:bg-white/[0.05] hover:text-ink active:scale-95"
+            className="flex size-8 items-center justify-center rounded-md text-neutral-500 transition-[transform,color,background-color] duration-150 hover:scale-105 hover:bg-panel hover:text-ink active:scale-95"
           >
             {collapsed ? <ChevronsRight size={17} aria-hidden /> : <ChevronsLeft size={17} aria-hidden />}
           </button>

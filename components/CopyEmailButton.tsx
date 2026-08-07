@@ -33,12 +33,12 @@ export function CopyValueButton({ value }: { value: string }) {
       onClick={copy}
       aria-label={copied ? `${value} copied` : `Copy ${value}`}
       title={copied ? "Copied" : "Copy"}
-      className="flex h-8 shrink-0 items-center justify-center gap-1.5 rounded-md px-2 text-[11px] font-medium text-neutral-500 transition-[width,color,background-color,transform] duration-150 hover:scale-105 hover:bg-white/[0.05] hover:text-accent active:scale-95"
+      className="flex h-8 shrink-0 items-center justify-center gap-1.5 rounded-md px-2 text-[11px] font-medium text-neutral-500 transition-[width,color,background-color,transform] duration-150 hover:scale-105 hover:bg-panel-raised hover:text-accent active:scale-95"
     >
       {copied ? (
         <>
-          <Check size={15} strokeWidth={2.2} aria-hidden className="text-emerald-400" />
-          <span aria-live="polite" className="text-emerald-400">Copied</span>
+          <Check size={15} strokeWidth={2.2} aria-hidden className="text-success" />
+          <span aria-live="polite" className="text-success">Copied</span>
         </>
       ) : (
         <Copy size={16} strokeWidth={1.7} aria-hidden />

@@ -1,33 +1,65 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg: #111318;
-  --color-surface: #191b21;
-  --color-panel: #20232b;
-  --color-panel-raised: #272a33;
-  --color-ink: #f1f3f9;
+  --color-bg: #ffffff;
+  --color-surface: #f7f8fa;
+  --color-panel: #ebedf3;
+  --color-panel-raised: #e2e5ec;
+  --color-ink: #1a1d26;
 
   /* Figma uses #4F6DF5. The approved implementation color is Google blue. */
   --color-accent: #1a73e8;
   --color-accent-hover: #1765cc;
   --color-accent-active: #1558b0;
+  --color-accent-tint: rgb(26 115 232 / 0.08);
+  --color-accent-ink: #1765cc;
+  --color-on-accent: #ffffff;
+
+  --color-neutral-400: #8b919d;
+  --color-neutral-500: #747b87;
+  --color-neutral-600: #5f6672;
+  --color-neutral-700: #414854;
+  --color-neutral-800: #2c323d;
+  --color-badge: #e2e5ec;
+
+  --color-success: #087f5b;
+  --color-warning: #c46600;
+  --color-error: #b54708;
+
+  --color-line: rgb(0 0 0 / 0.08);
+  --color-line-soft: rgb(0 0 0 / 0.06);
+  --color-line-strong: rgb(0 0 0 / 0.12);
+
+  --font-sans: var(--font-archivo), system-ui, sans-serif;
+
+  --shadow-frame: 0 1px 3px rgb(0 0 0 / 0.08);
+}
+
+/* Preserve the approved dark palette as an explicit alternate mode. Light is
+   deliberately the default; a future theme control only needs to set this
+   attribute without changing component classes. */
+html[data-theme="dark"] {
+  --color-bg: #111318;
+  --color-surface: #191b21;
+  --color-panel: #20232b;
+  --color-panel-raised: #272a33;
+  --color-ink: #f1f3f9;
   --color-accent-tint: rgb(26 115 232 / 0.14);
   --color-accent-ink: #6ea8f8;
-
   --color-neutral-400: #5f646f;
   --color-neutral-500: #717782;
   --color-neutral-600: #8e939e;
   --color-neutral-700: #a8adb7;
   --color-neutral-800: #c6cad2;
   --color-badge: #272a33;
-
+  --color-success: #34d399;
+  --color-warning: #f97316;
+  --color-error: #fdba74;
   --color-line: rgb(255 255 255 / 0.08);
   --color-line-soft: rgb(255 255 255 / 0.06);
   --color-line-strong: rgb(255 255 255 / 0.12);
-
-  --font-sans: var(--font-archivo), system-ui, sans-serif;
-
   --shadow-frame: 0 1px 3px rgb(0 0 0 / 0.2);
+  color-scheme: dark;
 }
 
 html,
@@ -38,7 +70,12 @@ body {
 body {
   background: var(--color-bg);
   color: var(--color-ink);
+  color-scheme: light;
   font-family: var(--font-sans);
+}
+
+html[data-theme="dark"] body {
+  color-scheme: dark;
 }
 
 button,
@@ -51,7 +88,7 @@ a {
 }
 
 * {
-  scrollbar-color: #3a3e48 transparent;
+  scrollbar-color: var(--color-neutral-400) transparent;
   scrollbar-width: thin;
 }
 

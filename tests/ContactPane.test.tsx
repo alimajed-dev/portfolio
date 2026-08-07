@@ -24,6 +24,9 @@ describe("ContactPane copy actions", () => {
     render(<ContactPane />);
 
     expect(screen.getByRole("heading", { name: "Hi" })).toBeDefined();
+    expect(screen.getByRole("link", { name: "Send an email" }).className).toContain(
+      "text-on-accent",
+    );
   });
 
   it("keeps the row link intact and copies its displayed value from the copy control", async () => {

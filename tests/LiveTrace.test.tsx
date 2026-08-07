@@ -20,16 +20,16 @@ function traceStep(status: TraceStep["status"]): TraceStep {
 }
 
 describe("LiveTrace status colors", () => {
-  it("uses orange while working and green when complete", () => {
+  it("uses the theme warning color while working and success color when complete", () => {
     const { container } = render(
       <LiveTrace steps={[traceStep("running"), traceStep("done")]} running />,
     );
 
     expect(container.querySelector('[data-step-status="running"]')?.getAttribute("class")).toContain(
-      "text-orange-500",
+      "text-warning",
     );
     expect(container.querySelector('[data-step-status="done"]')?.getAttribute("class")).toContain(
-      "text-emerald-400",
+      "text-success",
     );
     expect(container.textContent).toContain("Why this model: test");
   });

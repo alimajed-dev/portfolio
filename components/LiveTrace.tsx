@@ -10,7 +10,7 @@ function StepIcon({ status }: { status: TraceStep["status"] }) {
   switch (status) {
     case "done":
       return (
-        <span data-step-status="done" className="flex size-4 shrink-0 items-center justify-center rounded-full border border-emerald-500 text-emerald-400">
+        <span data-step-status="done" className="flex size-4 shrink-0 items-center justify-center rounded-full border border-success text-success">
           <Check size={10} strokeWidth={2.8} aria-hidden />
         </span>
       );
@@ -20,13 +20,13 @@ function StepIcon({ status }: { status: TraceStep["status"] }) {
           data-step-status="running"
           size={16}
           strokeWidth={2}
-          className="shrink-0 animate-spin text-orange-500"
+          className="shrink-0 animate-spin text-warning"
           aria-hidden
         />
       );
     case "error":
       return (
-        <span data-step-status="error" className="flex size-4 shrink-0 items-center justify-center rounded-full border border-orange-400 text-orange-300">
+        <span data-step-status="error" className="flex size-4 shrink-0 items-center justify-center rounded-full border border-error text-error">
           <X size={9} strokeWidth={2.5} aria-hidden />
         </span>
       );
@@ -79,11 +79,11 @@ export function LiveTrace({ steps, running }: { steps: TraceStep[]; running: boo
               className={[
                 "rounded-lg border bg-panel p-3 transition-[border-color,background-color,opacity] duration-200",
                 step.status === "running"
-                  ? "border-orange-500"
+                  ? "border-warning"
                   : step.status === "done"
                     ? "border-line"
                     : step.status === "error"
-                      ? "border-orange-400/50"
+                      ? "border-error/50"
                       : "border-line",
               ].join(" ")}
             >

@@ -4,6 +4,7 @@ import { Home, Mail, Menu, Terminal } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { PROJECTS } from "@/lib/site";
+import { ThemeToggle } from "./ThemeToggle";
 
 type Props = {
   onOpenSidebar: () => void;
@@ -29,7 +30,7 @@ export function TopHeader({ onOpenSidebar, onOpenPanel, running }: Props) {
           type="button"
           onClick={onOpenSidebar}
           aria-label="Open navigation"
-          className="flex size-9 shrink-0 items-center justify-center rounded-md text-ink transition-[background-color,transform] duration-150 hover:bg-white/[0.05] active:scale-95 lg:hidden"
+          className="flex size-9 shrink-0 items-center justify-center rounded-md text-ink transition-[background-color,transform] duration-150 hover:bg-panel active:scale-95 lg:hidden"
         >
           <Menu size={20} strokeWidth={1.9} aria-hidden />
         </button>
@@ -44,12 +45,14 @@ export function TopHeader({ onOpenSidebar, onOpenPanel, running }: Props) {
       </div>
 
       <div className="flex shrink-0 items-center gap-2">
+        <ThemeToggle />
+
         {!project && !contact && (
           <Link
             href="/contact"
             aria-label="Open contact page"
             title="Contact"
-            className="flex size-9 items-center justify-center rounded-md text-neutral-600 transition-[background-color,color,transform] duration-150 hover:scale-105 hover:bg-white/[0.05] hover:text-accent active:scale-95 lg:hidden"
+            className="flex size-9 items-center justify-center rounded-md text-neutral-600 transition-[background-color,color,transform] duration-150 hover:scale-105 hover:bg-panel hover:text-accent active:scale-95 lg:hidden"
           >
             <Mail size={20} strokeWidth={1.7} aria-hidden />
           </Link>
@@ -63,7 +66,7 @@ export function TopHeader({ onOpenSidebar, onOpenPanel, running }: Props) {
             className="relative flex size-9 items-center justify-center rounded-md text-accent transition-[background-color,transform] duration-150 hover:scale-105 hover:bg-accent-tint active:scale-95 lg:hidden"
           >
             <Terminal size={20} strokeWidth={1.8} aria-hidden />
-            {running && <span className="absolute right-0.5 top-0.5 size-1.5 rounded-full bg-orange-500" aria-hidden />}
+            {running && <span className="absolute right-0.5 top-0.5 size-1.5 rounded-full bg-warning" aria-hidden />}
           </button>
         )}
 
@@ -71,7 +74,7 @@ export function TopHeader({ onOpenSidebar, onOpenPanel, running }: Props) {
           href="/contact"
           aria-label="Open contact page"
           title="Contact"
-          className="hidden size-8 items-center justify-center rounded-md border border-line text-neutral-600 transition-[background-color,color,transform] duration-150 hover:scale-105 hover:bg-white/[0.05] hover:text-ink active:scale-95 lg:flex"
+          className="hidden size-8 items-center justify-center rounded-md border border-line text-neutral-600 transition-[background-color,color,transform] duration-150 hover:scale-105 hover:bg-panel hover:text-ink active:scale-95 lg:flex"
         >
           <Mail size={15} strokeWidth={1.8} aria-hidden />
         </Link>
