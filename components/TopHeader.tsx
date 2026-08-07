@@ -30,7 +30,7 @@ export function TopHeader({ onOpenSidebar, onOpenPanel, running }: Props) {
           type="button"
           onClick={onOpenSidebar}
           aria-label="Open navigation"
-          className="flex size-9 shrink-0 items-center justify-center rounded-md text-ink transition-[background-color,transform] duration-150 hover:bg-panel active:scale-95 lg:hidden"
+          className="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-md text-ink transition-[background-color,transform] duration-150 hover:bg-panel active:scale-95 lg:hidden"
         >
           <Menu size={20} strokeWidth={1.9} aria-hidden />
         </button>
@@ -63,7 +63,7 @@ export function TopHeader({ onOpenSidebar, onOpenPanel, running }: Props) {
             type="button"
             onClick={onOpenPanel}
             aria-label="Show agent trace"
-            className="relative flex size-9 items-center justify-center rounded-md text-accent transition-[background-color,transform] duration-150 hover:scale-105 hover:bg-accent-tint active:scale-95 lg:hidden"
+            className="relative flex size-9 cursor-pointer items-center justify-center rounded-md text-accent transition-[background-color,transform] duration-150 hover:scale-105 hover:bg-accent-tint active:scale-95 lg:hidden"
           >
             <Terminal size={20} strokeWidth={1.8} aria-hidden />
             {running && <span className="absolute right-0.5 top-0.5 size-1.5 rounded-full bg-warning" aria-hidden />}

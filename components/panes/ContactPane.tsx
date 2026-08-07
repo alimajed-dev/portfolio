@@ -61,8 +61,7 @@ export function ContactPane() {
           Got something on your mind? Send me a message. I&apos;m always happy to hear from new people.
         </p>
 
-        <div className="mt-6 rounded-lg border border-line bg-panel p-4 pt-3 sm:mt-8 sm:p-6">
-          <p className="mb-3 text-[13px] text-neutral-600 sm:mb-4 sm:text-sm">Primary Direct Channel</p>
+        <div className="mt-6 rounded-lg border border-line bg-panel p-4 sm:mt-8 sm:p-6">
           <a
             href={`mailto:${OWNER.email}`}
             className="flex w-full items-center justify-center gap-2.5 rounded-md bg-accent px-5 py-2.5 text-[15px] font-semibold text-on-accent transition-[background-color,transform] duration-150 hover:bg-accent-hover active:scale-[0.99] active:bg-accent-active sm:py-3.5"

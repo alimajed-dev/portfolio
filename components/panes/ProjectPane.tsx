@@ -86,7 +86,7 @@ export function ProjectPane({ project, messages, running, onSend }: Props) {
               type="button"
               onClick={() => onSend(SUGGESTION)}
               disabled={running}
-              className="group flex w-full items-center gap-3 rounded-lg border border-line-strong bg-panel px-3 py-2.5 text-left text-[12px]/[1.35] text-ink transition-[background-color,border-color,transform] duration-150 hover:-translate-y-px hover:border-accent/60 hover:bg-panel-raised active:translate-y-0 disabled:opacity-50 sm:w-auto sm:min-w-[360px]"
+              className="group flex w-full cursor-pointer items-center gap-3 rounded-lg border border-line-strong bg-panel px-3 py-2.5 text-left text-[12px]/[1.35] text-ink transition-[background-color,border-color,transform] duration-150 hover:-translate-y-px hover:border-accent/60 hover:bg-panel-raised active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-w-[360px]"
             >
               <Terminal size={16} strokeWidth={1.7} aria-hidden className="shrink-0 text-accent transition-transform group-hover:translate-x-0.5" />
               <span>&quot;{SUGGESTION}&quot;</span>
@@ -179,7 +179,7 @@ export function ProjectPane({ project, messages, running, onSend }: Props) {
             type="submit"
             disabled={running || input.trim().length === 0}
             aria-label={running ? "Agents are running" : "Send message"}
-            className="flex size-6 shrink-0 items-center justify-center border-0 bg-transparent text-accent transition-[color,transform] duration-150 hover:text-accent-hover active:scale-90 active:text-accent-active disabled:cursor-not-allowed disabled:text-neutral-500"
+            className="flex size-6 shrink-0 cursor-pointer items-center justify-center border-0 bg-transparent text-accent transition-[color,transform] duration-150 hover:text-accent-hover active:scale-90 active:text-accent-active disabled:cursor-not-allowed disabled:text-neutral-500"
           >
             <CornerDownLeft size={18} strokeWidth={1.9} aria-hidden />
           </button>

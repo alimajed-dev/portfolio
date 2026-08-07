@@ -241,6 +241,8 @@ describe("AppShell — mobile drawer focus management (F-006)", () => {
 
     expect(live.className).not.toContain("sr-only");
     expect(process.className).not.toContain("sr-only");
+    expect(live.className).toContain("cursor-pointer");
+    expect(process.className).toContain("cursor-pointer");
     expect(within(drawer).getByRole("heading", { name: "Agent trace" })).toBeDefined();
   });
 

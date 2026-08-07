@@ -30,6 +30,12 @@ describe("ProjectPane composer", () => {
     expect(input.className).toContain("text-base");
     expect(input.className).toContain("md:text-sm");
     expect(input.hasAttribute("data-agent-composer-input")).toBe(true);
+    expect(
+      screen.getByRole("button", { name: /Research the top 3 competitors/ }).className,
+    ).toContain("cursor-pointer");
+    expect(screen.getByRole("button", { name: "Send message" }).className).toContain(
+      "cursor-pointer",
+    );
     expect(container.querySelector(".lucide-plus")).toBeNull();
     expect(container.querySelector(".lucide-corner-down-left")).not.toBeNull();
   });

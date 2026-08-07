@@ -92,9 +92,9 @@ export const PROJECTS: Project[] = [
 
 export type ProcessStep = {
   phase: string;
-  /** The tool used, e.g. "Claude Code". */
+  /** The tool shown in the process badge, e.g. "Claude Code". */
   tool: string;
-  /** Model badge — same styling as the Live trace badges. */
+  /** Model used, retained as part of the public process record. */
   model: string;
   description: string;
   /** First-person aside, revealed on demand. Written to be read, not skimmed. */
@@ -107,49 +107,49 @@ export const PROCESS_STEPS: ProcessStep[] = [
     phase: "Requirements",
     tool: "Claude",
     model: "Sonnet 5",
-    description: "Scoped in conversation before any code.",
-    why: "I talked it through like a normal conversation — what the site had to prove, who'd actually be reading it, what wasn't worth building for v1. Scoping is thinking out loud, not a hard reasoning problem, so there was no reason to reach for anything heavier.",
+    description: "Defined the audience, goals, scope, and v1 boundaries before writing code.",
+    why: "I used Claude Sonnet 5 to turn a normal conversation into a focused plan for what the site needed to prove and what could wait.",
   },
   {
     phase: "Design",
     tool: "Claude + Figma AI",
     model: "Figma MCP",
-    description: "Prompted with Claude, designed in Figma AI, and implemented through Figma MCP.",
-    why: "1. After agreeing on the design direction, colour palette, and look and feel, I asked Claude to write the detailed design prompt. 2. I used that prompt in Figma AI to generate the design. 3. I connected Claude to Figma through MCP so it could inspect the approved frames and implement the design accurately.",
+    description: "Turned the agreed direction into an approved Figma design and implementation reference.",
+    why: "After agreeing on the design direction, colour palette, and look and feel, I asked Claude to write the design prompt. I used it in Figma AI, then connected Claude to the approved frames through MCP for implementation.",
   },
   {
     phase: "Implementation",
     tool: "Claude Code",
     model: "Sonnet 5 + Opus 5",
-    description: "Built the site and the multi-agent backend.",
-    why: "Sonnet 5 did most of the building. I switched to Opus 5 for the genuinely tricky parts — the multi-agent orchestration and the streaming — where the extra capability earns its keep. No point paying for it to write a nav bar.",
+    description: "Built the interface, multi-agent workflow, streaming, and supporting backend.",
+    why: "I used Claude Sonnet 5 for most implementation work and Opus 5 for the more complex orchestration and streaming logic.",
   },
   {
     phase: "Cross-model review",
     tool: "ChatGPT",
     model: "GPT-5.5 Thinking",
-    description: "Reviewed by a model from a different lab.",
-    why: "Instead of asking Claude to grade its own homework, I brought in ChatGPT as a second, unrelated opinion — different company, different training, so it actually catches different things.",
+    description: "Reviewed the finished application with an independent model from another lab.",
+    why: "I used ChatGPT GPT-5.5 Thinking to get a different perspective and catch issues the implementation model might miss.",
   },
   {
     phase: "Fixes",
     tool: "Claude Code",
     model: "Sonnet 5 + Opus 5",
-    description: "Worked through everything the review flagged.",
-    why: "Back to Claude Code to actually fix what came out of the review. Having the thing that wrote the code fix the code is fine — it's the reviewing you don't want it marking itself on.",
+    description: "Resolved the review findings and refined the product experience.",
+    why: "I returned to Claude Code with Sonnet 5 and Opus 5 to fix the findings, verify the behavior, and polish the remaining details.",
   },
   {
     phase: "Validation",
     tool: "ChatGPT",
     model: "GPT-5.5 Thinking",
-    description: "Re-checked the fixes against the original notes.",
-    why: "Same reviewer, second pass. I wanted it to confirm the fixes actually solved what it flagged, rather than just making the warning go away — it's easy to patch the symptom and call it done.",
+    description: "Rechecked every fix against the original findings.",
+    why: "I used ChatGPT GPT-5.5 Thinking for a second review pass to confirm that each issue was resolved rather than only hidden.",
   },
   {
     phase: "Deployment",
     tool: "Claude",
     model: "Sonnet 5",
-    description: "GitHub to Railway, plus domain DNS.",
-    why: "Pushing to GitHub, wiring up Railway, setting the env vars and usage caps, then pointing the domain's DNS at it. Mostly careful step-by-step work rather than hard problems, so Sonnet was the right call.",
+    description: "Deployed through GitHub and Railway and connected the domain.",
+    why: "I used Claude Sonnet 5 to guide the deployment, environment configuration, usage limits, and DNS setup.",
   },
 ];

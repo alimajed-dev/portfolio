@@ -102,7 +102,7 @@ export function RightPanel({ tab, onTabChange, steps, running, open, onClose }: 
                   aria-controls="panel-body"
                   onClick={() => onTabChange(item.id)}
                   className={[
-                    "flex h-full min-w-0 flex-1 items-center justify-center border-b text-xs font-medium transition-[background-color,color,border-color] duration-150",
+                    "flex h-full min-w-0 flex-1 cursor-pointer items-center justify-center border-b text-xs font-medium transition-[background-color,color,border-color] duration-150",
                     active
                       ? "border-accent text-accent"
                       : "border-transparent text-neutral-600 hover:bg-panel hover:text-ink",
@@ -118,7 +118,7 @@ export function RightPanel({ tab, onTabChange, steps, running, open, onClose }: 
             type="button"
             onClick={onClose}
             aria-label="Close panel"
-            className="mr-3 ml-1 flex size-8 shrink-0 items-center justify-center rounded-md text-neutral-600 transition-[background-color,color,transform] duration-150 hover:scale-105 hover:bg-panel hover:text-ink active:scale-95 lg:hidden"
+            className="mr-3 ml-1 flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-neutral-600 transition-[background-color,color,transform] duration-150 hover:scale-105 hover:bg-panel hover:text-ink active:scale-95 lg:hidden"
           >
             <X size={17} strokeWidth={1.8} aria-hidden />
           </button>

@@ -24,6 +24,7 @@ describe("ContactPane copy actions", () => {
     render(<ContactPane />);
 
     expect(screen.getByRole("heading", { name: "Hi" })).toBeDefined();
+    expect(screen.queryByText("Primary Direct Channel")).toBeNull();
     expect(screen.getByRole("link", { name: "Send an email" }).className).toContain(
       "text-on-accent",
     );
