@@ -61,8 +61,8 @@ export function LiveTrace({ steps, running }: { steps: TraceStep[]; running: boo
 
   return (
     <div>
-      <h3 className="hidden text-sm font-semibold text-ink lg:block">Agent trace</h3>
-      <p className="text-[11px]/[1.4] text-neutral-600 lg:mt-1">
+      <h3 className="text-sm font-semibold text-ink">Agent trace</h3>
+      <p className="mt-1 text-[11px]/[1.4] text-neutral-600">
         {idle
           ? "Send a message and the four agents below run for real — each step updates here as it happens."
           : "Each step in the pipeline updates instantly as agents collaborate."}

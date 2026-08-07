@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, Mail, Menu, MessageCircle, Terminal } from "lucide-react";
+import { Home, Mail, Menu, Terminal } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { PROJECTS } from "@/lib/site";
@@ -51,7 +51,7 @@ export function TopHeader({ onOpenSidebar, onOpenPanel, running }: Props) {
             title="Contact"
             className="flex size-9 items-center justify-center rounded-md text-neutral-600 transition-[background-color,color,transform] duration-150 hover:scale-105 hover:bg-white/[0.05] hover:text-accent active:scale-95 lg:hidden"
           >
-            <MessageCircle size={20} strokeWidth={1.7} aria-hidden />
+            <Mail size={20} strokeWidth={1.7} aria-hidden />
           </Link>
         )}
 
@@ -73,7 +73,7 @@ export function TopHeader({ onOpenSidebar, onOpenPanel, running }: Props) {
           title="Contact"
           className="hidden size-8 items-center justify-center rounded-md border border-line text-neutral-600 transition-[background-color,color,transform] duration-150 hover:scale-105 hover:bg-white/[0.05] hover:text-ink active:scale-95 lg:flex"
         >
-          <MessageCircle size={15} strokeWidth={1.8} aria-hidden />
+          <Mail size={15} strokeWidth={1.8} aria-hidden />
         </Link>
       </div>
     </header>

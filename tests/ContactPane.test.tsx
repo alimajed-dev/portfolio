@@ -20,6 +20,12 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("ContactPane copy actions", () => {
+  it("uses the short contact greeting", () => {
+    render(<ContactPane />);
+
+    expect(screen.getByRole("heading", { name: "Hi" })).toBeDefined();
+  });
+
   it("keeps the row link intact and copies its displayed value from the copy control", async () => {
     render(<ContactPane />);
 

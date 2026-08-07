@@ -55,7 +55,7 @@ export function ContactPane() {
       <div className="mx-auto w-full max-w-[680px]">
         <p className="mb-1 text-xs font-semibold uppercase text-accent sm:mb-2">Get in touch</p>
         <h1 className="mb-1 text-[28px] leading-tight font-bold tracking-[-0.02em] text-ink sm:mb-2 sm:text-[32px]">
-          Let&apos;s build something.
+          Hi
         </h1>
         <p className="text-[14px]/[1.6] text-neutral-600 sm:text-[15px]/[1.6]">
           Got something on your mind? Send me a message. I&apos;m always happy to hear from new people.

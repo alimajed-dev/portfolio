@@ -218,6 +218,20 @@ describe("AppShell — mobile drawer focus management (F-006)", () => {
     );
   });
 
+  it("shows both panel tabs in the mobile drawer", async () => {
+    const user = userEvent.setup();
+    renderAt(PROJECT_PATH, PROJECT_PAGE);
+    await openDrawer(user);
+
+    const drawer = dialog();
+    const live = within(drawer).getByRole("tab", { name: "Live" });
+    const process = within(drawer).getByRole("tab", { name: "Step by step" });
+
+    expect(live.className).not.toContain("sr-only");
+    expect(process.className).not.toContain("sr-only");
+    expect(within(drawer).getByRole("heading", { name: "Agent trace" })).toBeDefined();
+  });
+
   it("takes the background out of the tab order and the accessibility tree", async () => {
     const user = userEvent.setup();
     renderAt(PROJECT_PATH, PROJECT_PAGE);

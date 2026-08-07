@@ -18,9 +18,9 @@ type Props = {
   onClose: () => void;
 };
 
-const TABS: { id: PanelTab; label: string; mobileLabel: string }[] = [
-  { id: "live", label: "Live", mobileLabel: "Live" },
-  { id: "process", label: "Step by step", mobileLabel: "Process" },
+const TABS: { id: PanelTab; label: string }[] = [
+  { id: "live", label: "Live" },
+  { id: "process", label: "Step by step" },
 ];
 
 const FOCUSABLE = [
@@ -83,14 +83,11 @@ export function RightPanel({ tab, onTabChange, steps, running, open, onClose }: 
           open ? "visible translate-x-0 shadow-2xl" : "invisible translate-x-full",
         ].join(" ")}
       >
-        <div className="flex h-16 shrink-0 items-center gap-2 border-b border-line px-4 lg:h-[46px] lg:px-0">
-          <p className="text-base font-semibold text-ink lg:hidden">
-            {tab === "live" ? "Agent trace" : "How built"}
-          </p>
+        <div className="flex h-[56px] shrink-0 items-center border-b border-line lg:h-[46px]">
           <div
             role="tablist"
             aria-label="Panel view"
-            className="flex items-center lg:h-full lg:flex-1"
+            className="flex h-full min-w-0 flex-1 items-center"
           >
             {TABS.map((item) => {
               const active = tab === item.id;
@@ -103,20 +100,15 @@ export function RightPanel({ tab, onTabChange, steps, running, open, onClose }: 
                   aria-label={item.label}
                   aria-selected={active}
                   aria-controls="panel-body"
-                  onClick={() =>
-                    onTabChange(isDrawer && active ? (item.id === "live" ? "process" : "live") : item.id)
-                  }
-                  title={isDrawer && active ? `Switch to ${item.id === "live" ? "Process" : "Live"}` : undefined}
+                  onClick={() => onTabChange(item.id)}
                   className={[
-                    "text-xs font-medium transition-[background-color,color,border-color] duration-150",
-                    "lg:flex lg:h-full lg:flex-1 lg:items-center lg:justify-center lg:border-b",
+                    "flex h-full min-w-0 flex-1 items-center justify-center border-b text-xs font-medium transition-[background-color,color,border-color] duration-150",
                     active
-                      ? "rounded bg-accent-tint px-2 py-1 text-accent lg:rounded-none lg:border-accent lg:bg-transparent lg:px-0 lg:py-0"
-                      : "sr-only text-neutral-600 lg:not-sr-only lg:border-transparent lg:hover:bg-white/[0.03] lg:hover:text-ink",
+                      ? "border-accent text-accent"
+                      : "border-transparent text-neutral-600 hover:bg-white/[0.03] hover:text-ink",
                   ].join(" ")}
                 >
-                  <span aria-hidden className="lg:hidden">{item.mobileLabel}</span>
-                  <span aria-hidden className="hidden lg:inline">{item.label}</span>
+                  {item.label}
                 </button>
               );
             })}
@@ -126,7 +118,7 @@ export function RightPanel({ tab, onTabChange, steps, running, open, onClose }: 
             type="button"
             onClick={onClose}
             aria-label="Close panel"
-            className="ml-auto flex size-8 items-center justify-center rounded-md text-neutral-600 transition-[background-color,color,transform] duration-150 hover:scale-105 hover:bg-white/[0.05] hover:text-ink active:scale-95 lg:hidden"
+            className="mr-3 ml-1 flex size-8 shrink-0 items-center justify-center rounded-md text-neutral-600 transition-[background-color,color,transform] duration-150 hover:scale-105 hover:bg-white/[0.05] hover:text-ink active:scale-95 lg:hidden"
           >
             <X size={17} strokeWidth={1.8} aria-hidden />
           </button>
