@@ -74,7 +74,7 @@ export function TopHeader({ onOpenSidebar, onOpenPanel, running }: Props) {
           href="/contact"
           aria-label="Open contact page"
           title="Contact"
-          className="hidden size-8 items-center justify-center rounded-md border border-line text-neutral-600 transition-[background-color,color,transform] duration-150 hover:scale-105 hover:bg-panel hover:text-ink active:scale-95 lg:flex"
+          className="hidden size-8 items-center justify-center rounded-md text-neutral-600 transition-[background-color,color,transform] duration-150 hover:scale-105 hover:bg-panel hover:text-ink active:scale-95 lg:flex"
         >
           <Mail size={15} strokeWidth={1.8} aria-hidden />
         </Link>

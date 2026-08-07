@@ -119,6 +119,18 @@ describe("AppShell — right panel only exists on a project route", () => {
     expect(screen.queryByRole("complementary", { name: "Agent panel" })).toBeNull();
   });
 
+  it("uses the same borderless style for the desktop header actions", () => {
+    renderAt("/", HOME);
+
+    const contactActions = screen.getAllByRole("link", { name: "Open contact page" });
+    const themeAction = screen.getByRole("button", { name: "Switch to dark mode" });
+
+    for (const contactAction of contactActions) {
+      expect(contactAction.className.split(" ")).not.toContain("border");
+    }
+    expect(themeAction.className.split(" ")).not.toContain("border");
+  });
+
   it("renders no panel on the contact route", () => {
     renderAt("/contact", CONTACT);
     expect(screen.queryByRole("complementary", { name: "Agent panel" })).toBeNull();
