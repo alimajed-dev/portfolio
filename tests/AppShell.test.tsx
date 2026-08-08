@@ -11,6 +11,7 @@ import { ProjectPageClient } from "@/app/projects/[projectId]/project-page-clien
 const NARROW_QUERY = "max-width: 1023px";
 const PROJECT = PROJECTS[0];
 const PROJECT_PATH = `/projects/${PROJECT.id}`;
+const PIXELS_PROJECT = PROJECTS[1];
 
 /**
  * AppShell reads the route via `usePathname()` and no longer decides which
@@ -62,6 +63,7 @@ function renderAt(pathname: string, children: React.ReactNode) {
 }
 
 const panel = () => screen.getByRole("complementary", { name: "Agent panel" });
+const projectPanel = () => screen.getByRole("complementary", { name: "Project panel" });
 const dialog = () => screen.getByRole("dialog", { name: "Agent panel" });
 const tab = (name: "Live" | "Build Process") => screen.getByRole("tab", { name });
 const activeTabName = () =>
@@ -81,13 +83,16 @@ afterEach(() => {
 describe("Sidebar — real, shareable per-route URLs", () => {
   beforeEach(() => setViewport("wide"));
 
-  it("links home, contact and the project to their own URLs", () => {
+  it("links home, contact and every project to their own URLs", () => {
     renderAt("/", HOME);
 
     expect(screen.getByRole("link", { name: "Ali Majed — home" }).getAttribute("href")).toBe("/");
     expect(screen.getByRole("link", { name: "Contact" }).getAttribute("href")).toBe("/contact");
     expect(screen.getByRole("link", { name: PROJECT.name }).getAttribute("href")).toBe(
       PROJECT_PATH,
+    );
+    expect(screen.getByRole("link", { name: PIXELS_PROJECT.name }).getAttribute("href")).toBe(
+      `/projects/${PIXELS_PROJECT.id}`,
     );
   });
 
@@ -111,7 +116,7 @@ describe("Sidebar — real, shareable per-route URLs", () => {
   });
 });
 
-describe("AppShell — right panel only exists on a project route", () => {
+describe("AppShell — project-specific right panels", () => {
   beforeEach(() => setViewport("wide"));
 
   it("renders no panel on the home route", () => {
@@ -139,6 +144,31 @@ describe("AppShell — right panel only exists on a project route", () => {
   it("renders the panel on a project route", () => {
     renderAt(PROJECT_PATH, PROJECT_PAGE);
     expect(panel()).toBeDefined();
+  });
+
+  it("shows a Build Process-only panel for the Pixels project", () => {
+    renderAt(`/projects/${PIXELS_PROJECT.id}`, <div>Pixel experience</div>);
+    expect(screen.queryByRole("complementary", { name: "Agent panel" })).toBeNull();
+    expect(projectPanel()).toBeDefined();
+    expect(within(projectPanel()).getByText("Build Process")).toBeDefined();
+    expect(within(projectPanel()).queryByRole("tab", { name: "Live" })).toBeNull();
+    expect(within(projectPanel()).getByText("How the 3D models were built")).toBeDefined();
+    expect(within(projectPanel()).getByText("3D & animation stack")).toBeDefined();
+    expect(screen.queryByRole("button", { name: "Show agent trace" })).toBeNull();
+  });
+
+  it("opens the Pixels Build Process-only panel from the mobile header", async () => {
+    const user = userEvent.setup();
+    setViewport("narrow");
+    renderAt(`/projects/${PIXELS_PROJECT.id}`, <div>Pixel experience</div>);
+    await user.click(screen.getByRole("button", { name: "Show project details" }));
+
+    const drawer = screen.getByRole("dialog", { name: "Project panel" });
+    expect(within(drawer).getByText("Build Process")).toBeDefined();
+    expect(within(drawer).queryByRole("tab", { name: "Live" })).toBeNull();
+    expect(document.activeElement).toBe(
+      within(drawer).getByRole("button", { name: "Close panel" }),
+    );
   });
 
   it("404s (renders nothing project-shaped) for an unknown project id — handled by notFound() in the real route", () => {

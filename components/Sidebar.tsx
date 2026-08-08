@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronsLeft, ChevronsRight, CircleX, Home, Mail, Terminal } from "lucide-react";
+import { ChevronsLeft, ChevronsRight, CircleX, Home, Mail, ScanLine, Terminal } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Avatar } from "./Avatar";
@@ -117,6 +117,7 @@ export function Sidebar({
           <ul className="flex flex-col gap-1">
             {PROJECTS.map((project) => {
               const active = pathname === `/projects/${project.id}`;
+              const ProjectIcon = project.experience === "pixels" ? ScanLine : Terminal;
               return (
                 <li key={project.id}>
                   <Link
@@ -127,7 +128,7 @@ export function Sidebar({
                     aria-current={active ? "page" : undefined}
                     title={collapsed ? project.name : undefined}
                   >
-                    <Terminal size={16} strokeWidth={1.7} aria-hidden className="shrink-0" />
+                    <ProjectIcon size={16} strokeWidth={1.7} aria-hidden className="shrink-0" />
                     {collapsed ? <span className="sr-only">{project.name}</span> : <span className="truncate">{project.name}</span>}
                   </Link>
                 </li>

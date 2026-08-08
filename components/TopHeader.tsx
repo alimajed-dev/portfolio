@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, Mail, Menu, Terminal } from "lucide-react";
+import { Home, Mail, Menu, ScanLine, Terminal } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { PROJECTS } from "@/lib/site";
@@ -21,7 +21,7 @@ export function TopHeader({ onOpenSidebar, onOpenPanel, running }: Props) {
   const title = project ? project.name : contact ? "workspace/contact" : "workspace/home";
   const mobileTitle = project ? project.name : contact ? "Contact" : "Portfolio";
   const subtitle = project ? project.subtitle : contact ? "Direct channels" : "Overview";
-  const Icon = project ? Terminal : contact ? Mail : Home;
+  const Icon = project?.experience === "pixels" ? ScanLine : project ? Terminal : contact ? Mail : Home;
 
   return (
     <header className="flex h-14 shrink-0 items-center justify-between border-b border-line bg-bg px-4 sm:px-6">
@@ -62,11 +62,11 @@ export function TopHeader({ onOpenSidebar, onOpenPanel, running }: Props) {
           <button
             type="button"
             onClick={onOpenPanel}
-            aria-label="Show agent trace"
+            aria-label={project.experience === "agent" ? "Show agent trace" : "Show project details"}
             className="relative flex size-9 cursor-pointer items-center justify-center rounded-md text-accent transition-[background-color,transform] duration-150 hover:scale-105 hover:bg-accent-tint active:scale-95 lg:hidden"
           >
-            <Terminal size={20} strokeWidth={1.8} aria-hidden />
-            {running && <span className="absolute right-0.5 top-0.5 size-1.5 rounded-full bg-warning" aria-hidden />}
+            <Icon size={20} strokeWidth={1.8} aria-hidden />
+            {project.experience === "agent" && running && <span className="absolute right-0.5 top-0.5 size-1.5 rounded-full bg-warning" aria-hidden />}
           </button>
         )}
 

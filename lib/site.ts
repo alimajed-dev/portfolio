@@ -72,21 +72,33 @@ export type Project = {
   id: string;
   name: string;
   subtitle: string;
+  experience: "agent" | "pixels";
   cardEyebrow: string;
   cardTitle: string;
   cardBody: string;
 };
 
-/** v1 has exactly one project; the sidebar renders one nav item per entry here. */
+/** The sidebar and static project routes are both generated from this list. */
 export const PROJECTS: Project[] = [
   {
     id: "agent-orchestration-demo",
     name: "Agent Orchestration Demo",
     subtitle: "Multi-agent workflow demo",
+    experience: "agent",
     cardEyebrow: "Project",
     cardTitle: "Agent orchestration in action",
     cardBody:
       "Use the demo to see how agents are orchestrated across planning, research, review, and writing, with the right model chosen for each step.",
+  },
+  {
+    id: "how-pixels-create-color",
+    name: "How Pixels Create Color",
+    subtitle: "Interactive RGB study",
+    experience: "pixels",
+    cardEyebrow: "Interactive 3D",
+    cardTitle: "Look closer at every color on your screen",
+    cardBody:
+      "Zoom from a complete image into its red, green, and blue subpixels, then mix your own color with light.",
   },
 ];
 
@@ -164,8 +176,8 @@ export type TechStackItem = {
 export const TECH_STACK: TechStackItem[] = [
   {
     area: "Frontend",
-    tools: "Next.js, React, TypeScript, Tailwind CSS",
-    why: "Builds a fast, responsive, and maintainable interface.",
+    tools: "Next.js, React, TypeScript, Tailwind CSS, React Three Fiber, Three.js",
+    why: "Builds a fast, responsive interface and a lightweight procedural 3D color experience.",
   },
   {
     area: "Backend",

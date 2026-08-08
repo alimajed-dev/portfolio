@@ -121,9 +121,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </AgentRunContextProvider>
       </main>
 
-      {/* Right panel exists only for project routes. */}
       {project && (
         <RightPanel
+          variant={project.experience}
           tab={tab}
           onTabChange={setTab}
           steps={steps}

@@ -25,4 +25,15 @@ describe("HomePane projects", () => {
       ),
     ).toBeDefined();
   });
+
+  it("gives the Pixels card its own title and sidebar-matching icon", () => {
+    const { container } = render(<HomePane />);
+    const pixelsCard = screen.getByRole("link", { name: /Learn how pixels create color/ });
+
+    expect(pixelsCard.getAttribute("href")).toBe("/projects/how-pixels-create-color");
+    expect(pixelsCard.textContent).not.toContain("Agent Orchestration");
+    expect(pixelsCard.querySelector(".lucide-scan-line")).not.toBeNull();
+    expect(container.querySelectorAll(".lucide-scan-line")).toHaveLength(1);
+    expect(pixelsCard.className).not.toContain("hover:-translate-y");
+  });
 });

@@ -6,10 +6,12 @@ import type { TraceStep } from "@/lib/agent-types";
 import { useMediaQuery } from "@/lib/useMediaQuery";
 import { LiveTrace } from "./LiveTrace";
 import { ProcessPanel } from "./ProcessPanel";
+import { PixelProcessPanel } from "./PixelProcessPanel";
 
 export type PanelTab = "live" | "process";
 
 type Props = {
+  variant?: "agent" | "pixels";
   tab: PanelTab;
   onTabChange: (tab: PanelTab) => void;
   steps: TraceStep[];
@@ -33,7 +35,7 @@ const FOCUSABLE = [
   '[tabindex]:not([tabindex="-1"])',
 ].join(",");
 
-export function RightPanel({ tab, onTabChange, steps, running, open, onClose }: Props) {
+export function RightPanel({ variant = "agent", tab, onTabChange, steps, running, open, onClose }: Props) {
   const asideRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const isDrawer = useMediaQuery("(max-width: 1023px)");
@@ -74,7 +76,7 @@ export function RightPanel({ tab, onTabChange, steps, running, open, onClose }: 
       {open && <div aria-hidden onClick={onClose} className="fixed inset-0 z-20 bg-black/70 lg:hidden" />}
       <aside
         ref={asideRef}
-        aria-label="Agent panel"
+        aria-label={variant === "pixels" ? "Project panel" : "Agent panel"}
         role={modal ? "dialog" : undefined}
         aria-modal={modal || undefined}
         className={[
@@ -84,12 +86,17 @@ export function RightPanel({ tab, onTabChange, steps, running, open, onClose }: 
         ].join(" ")}
       >
         <div className="flex h-[56px] shrink-0 items-center border-b border-line lg:h-[46px]">
-          <div
-            role="tablist"
-            aria-label="Panel view"
-            className="flex h-full min-w-0 flex-1 items-center"
-          >
-            {TABS.map((item) => {
+          {variant === "pixels" ? (
+            <div className="flex h-full min-w-0 flex-1 items-center justify-center border-b border-accent text-xs font-medium text-accent">
+              Build Process
+            </div>
+          ) : (
+            <div
+              role="tablist"
+              aria-label="Panel view"
+              className="flex h-full min-w-0 flex-1 items-center"
+            >
+              {TABS.map((item) => {
               const active = tab === item.id;
               return (
                 <button
@@ -111,8 +118,9 @@ export function RightPanel({ tab, onTabChange, steps, running, open, onClose }: 
                   {item.label}
                 </button>
               );
-            })}
-          </div>
+              })}
+            </div>
+          )}
           <button
             ref={closeRef}
             type="button"
@@ -126,11 +134,17 @@ export function RightPanel({ tab, onTabChange, steps, running, open, onClose }: 
 
         <div
           id="panel-body"
-          role="tabpanel"
-          aria-labelledby={`panel-tab-${tab}`}
+          role={variant === "agent" ? "tabpanel" : undefined}
+          aria-labelledby={variant === "agent" ? `panel-tab-${tab}` : undefined}
           className="min-h-0 flex-1 overflow-y-auto p-4 lg:p-5"
         >
-          {tab === "live" ? <LiveTrace steps={steps} running={running} /> : <ProcessPanel />}
+          {variant === "pixels" ? (
+            <PixelProcessPanel />
+          ) : tab === "live" ? (
+            <LiveTrace steps={steps} running={running} />
+          ) : (
+            <ProcessPanel />
+          )}
         </div>
       </aside>
     </>

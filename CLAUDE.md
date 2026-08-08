@@ -40,6 +40,9 @@ problem it was collapsed to fix.
   build it to run via `next build && next start`, not as edge/serverless
   functions.
 - **Styling:** Tailwind CSS.
+- **Interactive 3D:** React Three Fiber and Three.js. The Pixels project uses a
+  dynamically loaded procedural 3D stage so the main portfolio and agent demo
+  do not pay the WebGL bundle cost.
 - **Model calls / streaming:** Vercel AI SDK (`ai` package + `@ai-sdk/google`
   and a Groq provider) — gives a unified streaming interface across Gemini
   and Groq so the agent pipeline can stream step-by-step to the frontend
@@ -96,7 +99,7 @@ the shared palette and surfaces, not older interaction/layout details.)
   a graceful fallback to initials if the file doesn't exist**), name "Ali
   Majed", collapse/expand toggle button. Below: "Contact" nav item (single
   entry). Below that, "Projects" section header + one nav item per project —
-  v1 has exactly one: "Agent Orchestration Demo".
+  current projects are "Agent Orchestration Demo" and "How Pixels Create Color".
 - **Middle pane:** changes based on sidebar selection.
   - Nothing selected / default: bio + two skill cards (Agentic AI /
     Web Development, copy already in the mockup) + "Get in touch" CTA button.
@@ -104,10 +107,16 @@ the shared palette and surfaces, not older interaction/layout details.)
     CTA button + link rows for email, LinkedIn (linkedin.com/in/ali-majed),
     X (x.com/AliMajed93), YouTube (youtube.com/@alimajed93), GitHub
     (github.com/alimajed-dev). Direct links only, no contact form.
-  - Project selected: chat-style interface — message bubbles, input box at
+  - Agent demo selected: chat-style interface — message bubbles, input box at
     bottom, "Message the agent…" placeholder.
-- **Right panel** (360px, only visible when a project is selected): Live /
-  Build Process toggle at top.
+  - How Pixels Create Color selected: a full-width, scene-driven React Three
+    Fiber experience covering pixels, RGB subpixels, additive color, and an
+    interactive color mixer. Its project panel shows only its concise build
+    process and 3D/animation stack; it does not show the agent trace.
+- **Right panel** (360px, visible for both projects):
+  - The agent demo has the Live / Build Process toggle described below.
+  - The Pixels project has only Build Process: one procedural-modeling card
+    and one project-specific 3D/animation tech-stack section.
   - **Live** (default): real-time agent trace. Each entry: small icon
     (checkmark = done, spinner = in progress, empty box = pending), agent
     name, a model badge (e.g. "Gemini 3.6 Flash", "Groq / Llama 3.3 70B"),
@@ -120,8 +129,12 @@ the shared palette and surfaces, not older interaction/layout details.)
     seven, including the cross-model review passes. Edit it there; don't
     re-describe the process anywhere else.
 
-  Entering a project always opens the panel on **Live**, even if the visitor
-  last left it on Build Process. Below `lg` the panel is a modal drawer: focus moves
+  The Pixels experience emits only controlled Better Stack/Sentry lifecycle
+  events (experience loaded, WebGL ready, WebGL unavailable). Color values and
+  visitor data are never included.
+
+  Entering the agent project always opens its panel on **Live**, even if the visitor
+  last left it on Build Process. Below `lg` either panel is a modal drawer: focus moves
   into it, Tab is trapped inside it, Escape and the backdrop close it, and focus
   returns to the button that opened it.
 
