@@ -8,7 +8,7 @@ export async function searchRecentPosts(signal?: AbortSignal): Promise<XPost[]> 
   if (!token) throw new Error("X_BEARER_TOKEN is not configured");
   const max = Math.min(10, Math.max(1, Number(process.env.X_MAX_POSTS_PER_SCAN) || 10));
   const lookbackHours = Math.min(168, Math.max(12, Number(process.env.X_LOOKBACK_HOURS) || 12));
-  const topics = '("AI agents" OR "coding agents" OR "artificial intelligence" OR "software engineering" OR "prediction markets" OR startup OR founders OR product OR fintech OR crypto OR web3)';
+  const topics = '("AI agents" OR "coding agents" OR "agentic AI" OR "AI software engineering" OR "AI in software development" OR SDLC OR RAG OR "AWS Bedrock" OR "context engineering" OR "LLM evaluation" OR "AI reliability" OR "AI security" OR hallucinations OR "Claude Code" OR ChatGPT OR Gemini OR "GitHub Copilot" OR "Cursor AI" OR Windsurf OR "AI developer tools")';
   const activity = "(min_replies:3 OR min_likes:20 OR min_reposts:3)";
   const query = `${topics} ${activity} lang:en -is:retweet -from:${process.env.X_OWNER_USERNAME || "AliMajed93"}`;
   const params = new URLSearchParams({ query, max_results: String(max), start_time: new Date(Date.now() - lookbackHours * 3_600_000).toISOString().replace(/\.\d{3}Z$/, "Z"), sort_order: "relevancy", "tweet.fields": "author_id,created_at,public_metrics,referenced_tweets,lang", expansions: "author_id", "user.fields": "name,username,description,profile_image_url,public_metrics" });

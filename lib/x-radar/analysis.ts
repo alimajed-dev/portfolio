@@ -2,11 +2,11 @@ import { generateText } from "ai";
 import { geminiModel } from "@/lib/models";
 import type { RelevanceAnalysis, XPost } from "./types";
 
-const TOPICS = ["AI and software delivery", "AI agents and coding agents", "software and solution architecture", "engineering leadership", "developer tooling", "technical products and startups", "prediction markets and fintech", "crypto and Web3 when professionally substantive"];
+const TOPICS = ["AI agents and coding agents", "agentic AI", "AI-assisted SDLC and software engineering", "RAG and retrieval systems", "AWS and Amazon Bedrock", "context engineering", "LLM evaluation and observability", "AI reliability, security, hallucinations and implementation problems", "Claude, ChatGPT, Gemini, Copilot, Cursor, Windsurf and new AI developer tools"];
 
 export function analyzeLocally(post: XPost): RelevanceAnalysis {
   const text = `${post.text} ${post.author.description ?? ""}`.toLowerCase();
-  const hits = ["agent", "ai", "architecture", "software", "engineering", "developer", "cloud", "delivery", "product", "startup", "founder", "prediction market", "fintech", "crypto", "web3", "blockchain", "requirements", "planning", "testing"].filter((term) => text.includes(term)).length;
+  const hits = ["ai agent", "coding agent", "agentic ai", "artificial intelligence", "software engineering", "software development", "sdlc", "rag", "retrieval augmented", "aws", "bedrock", "context engineering", "llm", "eval", "observability", "hallucination", "guardrail", "prompt injection", "ai security", "model reliability", "developer tooling", "claude", "chatgpt", "gemini", "copilot", "cursor ai", "windsurf", "code review", "testing"].filter((term) => text.includes(term)).length;
   const asks = /\?|how |why |opinion|lesson|take|think|struggl|trade.?off|bottleneck/i.test(post.text);
   const promotional = /check it out|buy now|like if|follow me|giveaway/i.test(post.text);
   // A declarative technical observation can still invite a valuable response;

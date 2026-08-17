@@ -2,8 +2,8 @@ const RANKING_STEPS = [
   {
     phase: "Collect",
     tool: "X API",
-    description: "Searches the previous 12 hours for professional technology and market conversations that already clear a minimum activity signal, then asks X for the ten most relevant candidates.",
-    why: "The short window favors conversations that are still hot; minimum reply, like, or repost activity avoids spending the result set on unseen posts.",
+    description: "Searches the previous 12 hours for active conversations about AI agents, AI-assisted SDLC, software engineering, RAG, AWS/Bedrock, AI problems, and tools such as Claude, ChatGPT, Gemini, Copilot, Cursor, and Windsurf.",
+    why: "The focused topic set matches Ali’s expertise, while minimum reply, like, or repost activity avoids spending the result set on unseen posts.",
   },
   {
     phase: "Validate",

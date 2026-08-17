@@ -17,6 +17,13 @@ describe("X radar search", () => {
     expect(url.searchParams.get("max_results")).toBe("10");
     expect(url.searchParams.get("query")).toContain("min_replies:3");
     expect(url.searchParams.get("query")).toContain("min_likes:20");
+    expect(url.searchParams.get("query")).toContain('"AI agents"');
+    expect(url.searchParams.get("query")).toContain('"AWS Bedrock"');
+    expect(url.searchParams.get("query")).toContain('"LLM evaluation"');
+    expect(url.searchParams.get("query")).toContain('"Claude Code"');
+    expect(url.searchParams.get("query")).toContain("ChatGPT");
+    expect(url.searchParams.get("query")!.length).toBeLessThanOrEqual(512);
+    expect(url.searchParams.get("query")).not.toContain("crypto");
     const ageHours = (Date.now() - new Date(url.searchParams.get("start_time")!).getTime()) / 3_600_000;
     expect(ageHours).toBeGreaterThan(11.9);
     expect(ageHours).toBeLessThan(12.1);
