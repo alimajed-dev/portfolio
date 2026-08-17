@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { metricSignals, opportunityScore } from "@/lib/x-radar/scoring";
+import { metricSignals, opportunityScore, scoreLabel } from "@/lib/x-radar/scoring";
 
 const now = new Date("2026-08-17T12:00:00Z");
 const analysis = { relevance: 90, abilityToAddValue: 90, audienceValue: 75, whyReply: "Why", suggestedAngle: "Angle" };
@@ -25,5 +25,12 @@ describe("Conversation Opportunity Radar scoring", () => {
   it("does not let viral reach overcome poor relevance", () => {
     const result = opportunityScore({ ...analysis, relevance: 20, abilityToAddValue: 15, audienceValue: 20 }, { likes: 10000, replies: 1500, reposts: 3000, quotes: 500, impressions: 2_000_000 }, "2026-08-17T11:30:00Z", now);
     expect(result.score).toBeLessThan(60);
+  });
+
+  it("maps scores to clear check, maybe, and skip guidance", () => {
+    expect(scoreLabel(70)).toBe("Check");
+    expect(scoreLabel(69)).toBe("Maybe");
+    expect(scoreLabel(55)).toBe("Maybe");
+    expect(scoreLabel(54)).toBe("Skip");
   });
 });

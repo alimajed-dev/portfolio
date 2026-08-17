@@ -13,7 +13,15 @@ export function analyzeLocally(post: XPost): RelevanceAnalysis {
   // questions get a boost, but are not the only eligible conversation shape.
   const relevance = Math.min(96, 44 + hits * 12);
   const abilityToAddValue = Math.max(15, Math.min(94, 55 + (asks ? 22 : 0) - (promotional ? 42 : 0)));
-  return { relevance, abilityToAddValue, audienceValue: Math.min(88, 50 + hits * 6), whyReply: asks ? "A relevant professional discussion with a clear opening for a practical, experience-based contribution." : "A substantive technical observation where a concrete delivery or architecture lesson could extend the discussion.", suggestedAngle: "Add a concrete delivery or architecture lesson that moves the discussion beyond the headline." };
+  const whyReply = promotional
+    ? "Promotional or engagement-bait language leaves little room for a credible professional contribution."
+    : asks
+      ? "A relevant professional discussion with a clear opening for a practical, experience-based contribution."
+      : "A substantive technical observation where a concrete delivery or architecture lesson could extend the discussion.";
+  const suggestedAngle = promotional
+    ? "Skip unless the thread develops into a substantive technical discussion."
+    : "Add a concrete delivery or architecture lesson that moves the discussion beyond the headline.";
+  return { relevance, abilityToAddValue, audienceValue: Math.min(88, 50 + hits * 6), whyReply, suggestedAngle };
 }
 
 export async function analyzePosts(posts: XPost[], signal?: AbortSignal): Promise<RelevanceAnalysis[]> {

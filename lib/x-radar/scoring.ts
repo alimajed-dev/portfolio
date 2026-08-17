@@ -29,5 +29,5 @@ export function opportunityScore(analysis: RelevanceAnalysis, metrics: Engagemen
 }
 
 export function scoreLabel(score: number) {
-  return score >= 85 ? "Excellent" as const : score >= 70 ? "Strong" as const : score >= 55 ? "Good" as const : "Weak" as const;
+  return score >= 70 ? "Check" as const : score >= 55 ? "Maybe" as const : "Skip" as const;
 }

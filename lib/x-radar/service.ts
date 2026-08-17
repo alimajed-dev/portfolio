@@ -22,7 +22,7 @@ export async function getSnapshot() {
   if (!snapshot) return null;
   const maxAgeHours = Math.min(24, Math.max(1, Number(process.env.X_CONTENT_MAX_AGE_HOURS) || 24));
   if (Date.now() - new Date(snapshot.lastRefreshedAt).getTime() >= maxAgeHours * 3_600_000) return null;
-  return snapshot;
+  return { ...snapshot, posts: snapshot.posts.map((post) => ({ ...post, label: scoreLabel(post.opportunityScore) })) };
 }
 
 export async function refreshRadar(signal?: AbortSignal): Promise<RadarSnapshot> {
@@ -34,8 +34,9 @@ export async function refreshRadar(signal?: AbortSignal): Promise<RadarSnapshot>
       const candidates = await searchRecentPosts(signal);
       const analyses = await analyzePosts(candidates, signal);
       const ranked = candidates.map((post, i) => rank(post, analyses[i]));
-      const posts = ranked.filter(isOpportunity).sort((a, b) => b.opportunityScore - a.opportunityScore);
-      const snapshot: RadarSnapshot = { posts, lastRefreshedAt: new Date().toISOString(), source: "x", stats: { scanned: ranked.length, rejected: ranked.length - posts.length, opportunities: posts.length } };
+      const posts = ranked.sort((a, b) => b.opportunityScore - a.opportunityScore);
+      const opportunities = posts.filter(isOpportunity).length;
+      const snapshot: RadarSnapshot = { posts, lastRefreshedAt: new Date().toISOString(), source: "x", stats: { scanned: ranked.length, rejected: ranked.length - opportunities, opportunities } };
       await writeSnapshot(snapshot);
       return snapshot;
     } catch (error) {

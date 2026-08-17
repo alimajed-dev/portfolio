@@ -19,7 +19,7 @@ export type ScoringSignals = RelevanceAnalysis & {
 };
 
 export type RankedPost = XPost & {
-  opportunityScore: number; label: "Excellent" | "Strong" | "Good" | "Weak";
+  opportunityScore: number; label: "Check" | "Maybe" | "Skip";
   signals: ScoringSignals; whyReply: string; suggestedAngle: string; url: string;
 };
 

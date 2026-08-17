@@ -20,5 +20,7 @@ describe("local radar analysis", () => {
   it("penalizes promotional engagement bait", () => {
     const result = analyzeLocally(post("Launching our AI giveaway — check it out, follow me and like if you agree!"));
     expect(result.abilityToAddValue).toBeLessThan(45);
+    expect(result.whyReply).toContain("Promotional");
+    expect(result.suggestedAngle).toContain("Skip");
   });
 });

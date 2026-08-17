@@ -6,10 +6,10 @@ const RANKING_STEPS = [
     why: "A small, recent candidate set keeps paid API usage controlled and favors conversations where timing still matters.",
   },
   {
-    phase: "Filter",
+    phase: "Validate",
     tool: "Rules",
-    description: "Rejects Ali’s own posts, reposts, malformed results, duplicates, spam, promotions, and obvious engagement bait.",
-    why: "High reach is not useful when the conversation is irrelevant or leaves no credible room to contribute.",
+    description: "Removes Ali’s own posts, reposts, malformed results, and duplicates before scoring; low-value candidates remain visible.",
+    why: "Every valid candidate is shown, while the score makes spam, promotions, and engagement bait easy to skip.",
   },
   {
     phase: "Understand",
@@ -26,8 +26,8 @@ const RANKING_STEPS = [
   {
     phase: "Rank",
     tool: "Hybrid score",
-    description: "Combines every signal into a 0–100 Opportunity Score, then applies minimum relevance and contribution gates.",
-    why: "The final order rewards conversations where Ali has something valuable to say and joining can realistically build credibility or network value.",
+    description: "Combines every signal into a 0–100 Opportunity Score and orders all candidates from strongest to weakest.",
+    why: "Green means check (70+), orange means maybe (55–69), and red means skip (below 55); the info icon explains each result.",
   },
   {
     phase: "Cache",
