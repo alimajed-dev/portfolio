@@ -14,7 +14,7 @@ function rank(post: XPost, analysis: RelevanceAnalysis): RankedPost {
 // Reach cannot rescue an irrelevant or shallow post. The score orders only
 // candidates that first clear these product-level quality gates.
 function isOpportunity(post: RankedPost) {
-  return post.opportunityScore >= 60 && post.signals.relevance >= 55 && post.signals.abilityToAddValue >= 50;
+  return post.opportunityScore >= 55 && post.signals.relevance >= 50 && post.signals.abilityToAddValue >= 45;
 }
 
 export async function getSnapshot() {
