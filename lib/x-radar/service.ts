@@ -18,7 +18,11 @@ function isOpportunity(post: RankedPost) {
 }
 
 export async function getSnapshot() {
-  return readSnapshot();
+  const snapshot = await readSnapshot();
+  if (!snapshot) return null;
+  const maxAgeHours = Math.min(24, Math.max(1, Number(process.env.X_CONTENT_MAX_AGE_HOURS) || 24));
+  if (Date.now() - new Date(snapshot.lastRefreshedAt).getTime() >= maxAgeHours * 3_600_000) return null;
+  return snapshot;
 }
 
 export async function refreshRadar(signal?: AbortSignal): Promise<RadarSnapshot> {

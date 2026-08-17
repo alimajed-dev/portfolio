@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, Mail, Menu, Radar, ScanLine, Terminal } from "lucide-react";
+import { Home, Mail, Menu, Radar, ScanLine, ShieldCheck, Terminal } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { PROJECTS } from "@/lib/site";
@@ -17,11 +17,12 @@ export function TopHeader({ onOpenSidebar, onOpenPanel, running }: Props) {
   const projectId = pathname.match(/^\/projects\/([^/]+)/)?.[1];
   const project = PROJECTS.find((item) => item.id === projectId);
   const contact = pathname === "/contact";
+  const privacy = pathname === "/privacy";
 
-  const title = project ? project.name : contact ? "workspace/contact" : "workspace/home";
-  const mobileTitle = project ? project.name : contact ? "Contact" : "Portfolio";
-  const subtitle = project ? project.subtitle : contact ? "Direct channels" : "Overview";
-  const Icon = project?.experience === "pixels" ? ScanLine : project?.experience === "radar" ? Radar : project ? Terminal : contact ? Mail : Home;
+  const title = project ? project.name : contact ? "workspace/contact" : privacy ? "workspace/privacy" : "workspace/home";
+  const mobileTitle = project ? project.name : contact ? "Contact" : privacy ? "Privacy" : "Portfolio";
+  const subtitle = project ? project.subtitle : contact ? "Direct channels" : privacy ? "Data use & requests" : "Overview";
+  const Icon = project?.experience === "pixels" ? ScanLine : project?.experience === "radar" ? Radar : project ? Terminal : contact ? Mail : privacy ? ShieldCheck : Home;
 
   return (
     <header className="flex h-14 shrink-0 items-center justify-between border-b border-line bg-bg px-4 sm:px-6">
@@ -47,7 +48,7 @@ export function TopHeader({ onOpenSidebar, onOpenPanel, running }: Props) {
       <div className="flex shrink-0 items-center gap-2">
         <ThemeToggle />
 
-        {!project && !contact && (
+        {!project && !contact && !privacy && (
           <Link
             href="/contact"
             aria-label="Open contact page"

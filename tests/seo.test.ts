@@ -20,6 +20,7 @@ describe("SEO discovery", () => {
     expect(urls).toEqual([
       `${SITE_URL}/`,
       `${SITE_URL}/contact`,
+      `${SITE_URL}/privacy`,
       ...PROJECTS.map((project) => `${SITE_URL}/projects/${project.id}`),
     ]);
     expect(new Set(urls).size).toBe(urls.length);

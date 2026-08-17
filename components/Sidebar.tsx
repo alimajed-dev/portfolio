@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronsLeft, ChevronsRight, CircleX, Home, Mail, Radar, ScanLine, Terminal } from "lucide-react";
+import { ChevronsLeft, ChevronsRight, CircleX, Home, Mail, Radar, ScanLine, ShieldCheck, Terminal } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Avatar } from "./Avatar";
@@ -27,6 +27,7 @@ export function Sidebar({
   const pathname = usePathname();
   const isHome = pathname === "/";
   const isContact = pathname === "/contact";
+  const isPrivacy = pathname === "/privacy";
 
   const itemClass = (active: boolean, compact = false) =>
     [
@@ -139,6 +140,16 @@ export function Sidebar({
       </div>
 
       <div className={collapsed ? "flex w-full flex-col items-center gap-4" : "w-full"}>
+        <Link
+          href="/privacy"
+          onClick={onNavigate}
+          aria-current={isPrivacy ? "page" : undefined}
+          title={collapsed ? "Privacy" : undefined}
+          className={itemClass(isPrivacy, collapsed)}
+        >
+          <ShieldCheck size={16} strokeWidth={1.7} aria-hidden className="shrink-0" />
+          {collapsed ? <span className="sr-only">Privacy</span> : <span>Privacy</span>}
+        </Link>
         {!collapsed && (
           <div className="mb-4 flex items-center gap-2 text-xs text-neutral-600">
             <span className="size-2 rounded-full bg-success" aria-hidden />

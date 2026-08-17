@@ -101,8 +101,8 @@ export const PROJECTS: Project[] = [
       "Zoom from a complete image into its red, green, and blue subpixels, then mix your own color with light.",
   },
   {
-    id: "x-engagement-radar",
-    name: "X Engagement Radar",
+    id: "conversation-opportunity-radar",
+    name: "Conversation Opportunity Radar",
     subtitle: "AI opportunity finder",
     experience: "radar",
     cardEyebrow: "AI-powered tool",

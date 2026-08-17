@@ -4,7 +4,7 @@ import { metricSignals, opportunityScore } from "@/lib/x-radar/scoring";
 const now = new Date("2026-08-17T12:00:00Z");
 const analysis = { relevance: 90, abilityToAddValue: 90, audienceValue: 75, whyReply: "Why", suggestedAngle: "Angle" };
 
-describe("X Engagement Radar scoring", () => {
+describe("Conversation Opportunity Radar scoring", () => {
   it("rewards active, fresh conversations", () => {
     const active = opportunityScore(analysis, { likes: 200, replies: 60, reposts: 25, quotes: 12, impressions: 30000 }, "2026-08-17T11:00:00Z", now);
     const quiet = opportunityScore(analysis, { likes: 2, replies: 0, reposts: 0, quotes: 0, impressions: 80 }, "2026-08-17T11:00:00Z", now);

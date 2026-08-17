@@ -15,6 +15,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "yearly",
       priority: 0.7,
     },
+    {
+      url: absoluteUrl("/privacy"),
+      changeFrequency: "yearly",
+      priority: 0.5,
+    },
     ...PROJECTS.map((project) => ({
       url: absoluteUrl(`/projects/${project.id}`),
       changeFrequency: "monthly" as const,
