@@ -13,9 +13,9 @@ const RANKING_STEPS = [
   },
   {
     phase: "Understand",
-    tool: "Gemini",
-    description: "Scores professional relevance, room to add value, and the author or discussion’s network fit.",
-    why: "Semantic judgment distinguishes a useful technical conversation from a post that merely contains matching keywords.",
+    tool: "Local analysis",
+    description: "Scores professional relevance, room to add value, and network fit with deterministic server-side analysis.",
+    why: "X content stays inside the application by default. Gemini inference is available only after the disclosed processing is approved and paid-service data terms are confirmed.",
   },
   {
     phase: "Measure",
