@@ -35,6 +35,12 @@ const RANKING_STEPS = [
     description: "Writes only the latest successful snapshot and usage counter to the persistent /data volume; page visits read that cache and never call X.",
     why: "One Railway replica owns the four-hour scheduler and concurrency lock. More replicas would create independent schedulers, duplicate paid scans, and multiply in-memory limits.",
   },
+  {
+    phase: "Owner scan",
+    tool: "Protected API",
+    description: "Allows an authenticated owner to request an immediate backend scan and restart the four-hour countdown.",
+    why: "A Railway-only secret, failed-attempt throttling, same-origin checks, a 50-per-month manual cap, and the overall X request cap prevent public abuse and bound spend.",
+  },
 ] as const;
 
 const WEIGHTS = [

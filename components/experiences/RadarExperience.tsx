@@ -1,10 +1,11 @@
 "use client";
 
-import { ArrowUpRight, Clock3, Eye, Heart, Info, MessageCircle, Radar, Repeat2, Sparkles } from "lucide-react";
+import { ArrowUpRight, Clock3, Eye, Heart, Info, MessageCircle, Radar, RefreshCw, Repeat2, Sparkles } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { RadarSnapshot, RankedPost } from "@/lib/x-radar/types";
 
 type Sort = "score" | "newest";
+type RadarResponse = RadarSnapshot & { manualRefresh?: { enabled: boolean; manualRemaining: number; manualLimit: number } };
 const compact = new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 });
 function age(iso: string) { const minutes = Math.max(1, Math.floor((Date.now() - new Date(iso).getTime()) / 60_000)); return minutes < 60 ? `${minutes}m` : minutes < 1440 ? `${Math.floor(minutes / 60)}h` : `${Math.floor(minutes / 1440)}d`; }
 function scoreStyle(score: number) { return score >= 70 ? "bg-success/15 text-success" : score >= 55 ? "bg-warning/15 text-warning" : "bg-error/15 text-error"; }
@@ -29,19 +30,42 @@ function Metrics({ post }: { post: RankedPost }) {
 }
 
 export function RadarExperience() {
-  const [data, setData] = useState<RadarSnapshot | null>(null);
+  const [data, setData] = useState<RadarResponse | null>(null);
   const [error, setError] = useState("");
+  const [showUnlock, setShowUnlock] = useState(false);
+  const [ownerToken, setOwnerToken] = useState("");
+  const [scanning, setScanning] = useState(false);
   const [sort, setSort] = useState<Sort>("score");
   const [, tick] = useState(0);
   useEffect(() => { const controller = new AbortController(); fetch("/api/conversation-radar", { signal: controller.signal }).then((response) => { if (!response.ok) throw new Error("Could not load the radar"); return response.json(); }).then(setData).catch((reason) => { if (reason.name !== "AbortError") setError("The radar is temporarily unavailable. Please try again later."); }); return () => controller.abort(); }, []);
   useEffect(() => { const timer = window.setInterval(() => tick((value) => value + 1), 1000); return () => window.clearInterval(timer); }, []);
   const posts = useMemo(() => [...(data?.posts ?? [])].sort((a, b) => sort === "score" ? b.opportunityScore - a.opportunityScore : new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()), [data, sort]);
+  const manualLimitReached = data?.manualRefresh?.manualRemaining === 0;
+
+  async function scanNow(event: React.FormEvent) {
+    event.preventDefault();
+    if (!ownerToken || scanning || manualLimitReached) return;
+    setScanning(true);
+    setError("");
+    try {
+      const response = await fetch("/api/conversation-radar/refresh", { method: "POST", headers: { Authorization: `Bearer ${ownerToken}` } });
+      const body = await response.json();
+      if (!response.ok) throw new Error(body.error || "The manual scan failed.");
+      setData(body);
+      setShowUnlock(false);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "The manual scan failed.");
+    } finally {
+      setOwnerToken("");
+      setScanning(false);
+    }
+  }
 
   return <div className="min-h-0 flex-1 overflow-y-auto bg-bg px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
     <div className="mx-auto max-w-[1120px]">
       <header className="mb-7 flex flex-col gap-4 border-b border-line pb-6 sm:flex-row sm:items-end sm:justify-between">
         <div className="max-w-2xl"><span className="mb-3 inline-flex items-center gap-2 rounded-full bg-accent-tint px-3 py-1 text-xs font-semibold text-accent-ink"><Radar size={14} aria-hidden />Signal over noise</span><h1 className="text-[30px] font-bold tracking-[-0.025em] text-ink sm:text-[38px]">Find the conversations worth joining.</h1><p className="mt-3 text-[14px]/[1.6] text-neutral-600 sm:text-[15px]/[1.6]">An AI-powered radar for X posts where a useful reply can build visibility, credibility, and a better professional network.</p></div>
-        <div className="shrink-0 text-left sm:text-right"><p className="flex items-center gap-1.5 font-mono text-xs font-semibold text-accent-ink sm:justify-end"><Clock3 size={13} aria-hidden />{countdown(data?.nextRefreshAt)}</p><p className="mt-1 text-xs text-neutral-600">{data?.lastRefreshedAt ? `Last scan ${new Date(data.lastRefreshedAt).toLocaleString()}` : "No completed scans yet"}</p></div>
+        <div className="shrink-0 text-left sm:text-right"><p className="flex items-center gap-1.5 font-mono text-xs font-semibold text-accent-ink sm:justify-end"><Clock3 size={13} aria-hidden />{countdown(data?.nextRefreshAt)}</p><p className="mt-1 text-xs text-neutral-600">{data?.lastRefreshedAt ? `Last scan ${new Date(data.lastRefreshedAt).toLocaleString()}` : "No completed scans yet"}</p>{data?.manualRefresh?.enabled && <div className="mt-3 sm:flex sm:flex-col sm:items-end"><button type="button" disabled={manualLimitReached || scanning} onClick={() => setShowUnlock((value) => !value)} className="inline-flex min-h-9 items-center gap-1.5 rounded-md border border-line-strong bg-panel px-3 text-xs font-semibold text-ink transition hover:bg-panel-raised disabled:cursor-not-allowed disabled:opacity-50"><RefreshCw size={13} className={scanning ? "animate-spin" : ""} aria-hidden />{manualLimitReached ? "Monthly limit reached" : scanning ? "Scanning…" : "Scan now"}</button><p className="mt-1 text-[10px] text-neutral-500">{data.manualRefresh.manualRemaining}/{data.manualRefresh.manualLimit} manual scans left this month</p>{showUnlock && !manualLimitReached && <form onSubmit={scanNow} className="mt-2 flex w-full max-w-xs gap-2 sm:justify-end"><label className="sr-only" htmlFor="radar-owner-token">Owner refresh token</label><input id="radar-owner-token" type="password" value={ownerToken} onChange={(event) => setOwnerToken(event.target.value)} autoComplete="off" placeholder="Owner token" className="min-w-0 flex-1 rounded-md border border-line-strong bg-surface px-2.5 py-2 text-xs text-ink sm:w-40" /><button type="submit" disabled={!ownerToken || scanning} className="rounded-md bg-accent px-3 py-2 text-xs font-semibold text-on-accent disabled:opacity-50">Confirm</button></form>}</div>}</div>
       </header>
 
       <section aria-labelledby="pipeline-title" className="mb-6 rounded-xl border border-line bg-surface p-4"><h2 id="pipeline-title" className="sr-only">How the radar works</h2><div className="flex flex-wrap items-center gap-2 text-xs font-medium text-neutral-700">{["X Search", "Candidate Posts", "Relevance Analysis", "Engagement Analysis", "Opportunity Ranking", "Best Conversations"].map((step, index) => <span key={step} className="contents"><span className="rounded-md bg-panel px-2.5 py-1.5">{step}</span>{index < 5 && <span className="text-accent" aria-hidden>→</span>}</span>)}</div>{data && <p className="mt-3 text-xs text-neutral-600"><strong className="text-ink">{data.stats.scanned}</strong> candidates → <strong className="text-success">{data.posts.filter((post) => post.label === "Check").length}</strong> check → <strong className="text-warning">{data.posts.filter((post) => post.label === "Maybe").length}</strong> maybe → <strong className="text-error">{data.posts.filter((post) => post.label === "Skip").length}</strong> skip</p>}<p className="mt-2 text-[11px] text-neutral-500">Public post data sourced from <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="text-accent-ink underline decoration-accent/40 underline-offset-2">X</a>. This independent project is not affiliated with or endorsed by X.</p></section>

@@ -25,12 +25,13 @@ export async function getSnapshot() {
   return { ...snapshot, posts: snapshot.posts.map((post) => ({ ...post, label: scoreLabel(post.opportunityScore) })) };
 }
 
-export async function refreshRadar(signal?: AbortSignal): Promise<RadarSnapshot> {
+export async function refreshRadar(signal?: AbortSignal, kind: "scheduled" | "manual" = "scheduled"): Promise<RadarSnapshot> {
   if (refreshPromise) return refreshPromise;
   refreshPromise = (async () => {
     const previous = await readSnapshot();
     try {
-      if (!(await reserveMonthlyRequest())) throw new Error("Monthly X request guard reached");
+      const reservation = await reserveMonthlyRequest(kind);
+      if (!reservation.ok) throw new Error(reservation.reason === "manual" ? "Monthly manual scan limit reached" : "Monthly X request guard reached");
       const candidates = await searchRecentPosts(signal);
       const analyses = await analyzePosts(candidates, signal);
       const ranked = candidates.map((post, i) => rank(post, analyses[i]));
@@ -40,7 +41,7 @@ export async function refreshRadar(signal?: AbortSignal): Promise<RadarSnapshot>
       await writeSnapshot(snapshot);
       return snapshot;
     } catch (error) {
-      if (previous) {
+      if (previous && kind === "scheduled") {
         const stale = { ...previous, warning: `The latest scheduled scan failed: ${error instanceof Error ? error.message : "Unknown error"}. Showing the last successful results.` };
         await writeSnapshot(stale);
         return stale;
@@ -60,20 +61,32 @@ export function getNextRefreshAt() {
   return globalThis.__xRadarNextRefreshAt;
 }
 
+function intervalMs() {
+  return Math.max(1, Number(process.env.X_REFRESH_INTERVAL_HOURS) || 4) * 3_600_000;
+}
+
+function scheduleAfter(delay: number) {
+  if (globalThis.__xRadarTimer) clearTimeout(globalThis.__xRadarTimer);
+  globalThis.__xRadarNextRefreshAt = new Date(Date.now() + delay).toISOString();
+  globalThis.__xRadarTimer = setTimeout(async () => {
+    try { await refreshRadar(); } catch (error) { console.error("[x-radar] scheduled scan failed", error); }
+    scheduleAfter(intervalMs());
+  }, delay);
+  globalThis.__xRadarTimer.unref?.();
+}
+
+export async function forceRefreshRadar(signal?: AbortSignal) {
+  const snapshot = await refreshRadar(signal, "manual");
+  scheduleAfter(intervalMs());
+  return snapshot;
+}
+
 export function startRadarScheduler() {
   if (globalThis.__xRadarTimer) return;
-  const interval = Math.max(1, Number(process.env.X_REFRESH_INTERVAL_HOURS) || 4) * 3_600_000;
+  const interval = intervalMs();
   void readSnapshot().then((snapshot) => {
     const elapsed = snapshot ? Date.now() - new Date(snapshot.lastRefreshedAt).getTime() : interval;
     const firstDelay = Math.max(0, interval - elapsed);
-    const schedule = () => {
-      void refreshRadar().catch((error) => console.error("[x-radar] scheduled scan failed", error));
-      globalThis.__xRadarNextRefreshAt = new Date(Date.now() + interval).toISOString();
-      globalThis.__xRadarTimer = setTimeout(schedule, interval);
-      globalThis.__xRadarTimer.unref?.();
-    };
-    globalThis.__xRadarNextRefreshAt = new Date(Date.now() + firstDelay).toISOString();
-    globalThis.__xRadarTimer = setTimeout(schedule, firstDelay);
-    globalThis.__xRadarTimer.unref?.();
+    scheduleAfter(firstDelay);
   });
 }
