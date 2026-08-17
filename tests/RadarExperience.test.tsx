@@ -45,6 +45,7 @@ describe("RadarExperience manual scan control", () => {
 
     render(<RadarExperience />);
     const row = (await screen.findByText("A technical discussion")).closest("li");
+    expect(screen.getByText("A technical discussion").className.split(" ")).toContain("line-clamp-5");
     expect(screen.getByText(/ranked for my fit: higher scores signal stronger reach, active interaction, and more room for me to add value/i)).toBeTruthy();
     expect(row?.className.split(" ")).toContain("items-start");
     expect(screen.queryByText("Why reply")).toBeNull();

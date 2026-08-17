@@ -21,7 +21,7 @@ describe("RadarProcessPanel", () => {
     expect(screen.getByText(/generic tool-choice polls/i)).toBeTruthy();
     expect(screen.getByText(/launches, outages, incidents/i)).toBeTruthy();
     expect(screen.getByText(/build-versus-dependency trade-offs/i)).toBeTruthy();
-    expect(screen.getByText(/vibe-coding failures/i)).toBeTruthy();
+    expect(screen.getByText(/discussion-style matches must be link-free/i)).toBeTruthy();
     expect(screen.getByText(/70\+ fit Ali best/i)).toBeTruthy();
     expect(screen.getByText("Author authority")).toBeTruthy();
     expect(screen.getByText("5%")).toBeTruthy();

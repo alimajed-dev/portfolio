@@ -2,9 +2,9 @@ import { describe, expect, it } from "vitest";
 import { analyzeLocally } from "@/lib/x-radar/analysis";
 import type { XPost } from "@/lib/x-radar/types";
 
-function post(text: string, description = "Software engineering", authority: { followers?: number; verified?: boolean } = {}): XPost {
+function post(text: string, description = "Software engineering", authority: { followers?: number; verified?: boolean } = {}, format: XPost["format"] = "standard"): XPost {
   return {
-    id: "1", text, createdAt: "2026-08-17T12:00:00Z",
+    id: "1", text, createdAt: "2026-08-17T12:00:00Z", format,
     author: { id: "u1", name: "Engineer", username: "engineer", description, ...authority },
     metrics: { likes: 0, replies: 0, reposts: 0, quotes: 0 },
   };
@@ -76,5 +76,13 @@ describe("local radar analysis", () => {
   it("keeps relatable developer pain and dependency trade-offs eligible", () => {
     expect(analyzeLocally(post("Most annoying part of vibe coding? AI writes 500 lines, then one button does not work.")).abilityToAddValue).toBeGreaterThanOrEqual(70);
     expect(analyzeLocally(post("What's your strategy: build from scratch or depend on 50 mysterious packages?")).relevance).toBeGreaterThanOrEqual(68);
+  });
+
+  it("prefers concise discussions without banning valuable long announcements", () => {
+    const concise = analyzeLocally(post("What's harder about maintaining AI generated code?"));
+    const longGuide = analyzeLocally(post("All you need to prepare for software engineering: here's how I'd prepare with a generic FAANG roadmap. ".repeat(8), "", {}, "note"));
+    const longAnnouncement = analyzeLocally(post("Cursor launched an important AI coding platform update. ".repeat(12), "", {}, "note"));
+    expect(concise.abilityToAddValue).toBeGreaterThan(longGuide.abilityToAddValue);
+    expect(longAnnouncement.abilityToAddValue).toBeGreaterThanOrEqual(45);
   });
 });

@@ -2,8 +2,8 @@ const RANKING_STEPS = [
   {
     phase: "Collect",
     tool: "X API",
-    description: "Searches the previous 12 hours for active AI and software-engineering debates, developer pain, build-versus-dependency trade-offs, launches, outages, incidents, product announcements, and controversial professional opinions.",
-    why: "The query covers high-signal questions such as model-versus-prompt, maintaining generated code, vibe-coding failures, and package risk while still suppressing generic tool-choice polls and listicles.",
+    description: "Searches the previous 12 hours for active AI and software-engineering debates, developer pain, build-versus-dependency trade-offs, launches, outages, incidents, product announcements, and controversial professional opinions, with a preference for concise posts.",
+    why: "Discussion-style matches must be link-free, while launches, releases, outages, and incidents can still include links. Long notes, articles, generic tool-choice polls, and listicles are downranked without another paid X request.",
   },
   {
     phase: "Validate",
@@ -20,7 +20,7 @@ const RANKING_STEPS = [
   {
     phase: "Understand",
     tool: "Local analysis",
-    description: "Scores professional relevance, room to add value, and author authority from follower scale and verification metadata with deterministic server-side analysis.",
+    description: "Scores professional relevance, room to add value, author authority, and whether a concise reply can add something distinct without restating a long post.",
     why: "X content stays inside the application by default. Gemini inference is available only after the disclosed processing is approved and paid-service data terms are confirmed.",
   },
   {
