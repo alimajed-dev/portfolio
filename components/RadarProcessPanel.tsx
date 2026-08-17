@@ -39,7 +39,7 @@ const RANKING_STEPS = [
     phase: "Cache",
     tool: "Railway volume",
     description: "Writes only the latest successful snapshot and usage counter to the persistent /data volume; page visits read that cache and never call X.",
-    why: "One Railway replica owns the configured scheduler and concurrency lock. More replicas would create independent schedulers, duplicate paid scans, and multiply in-memory limits.",
+    why: "A server environment variable controls the scan cadence without a code change. One Railway replica owns that scheduler and its concurrency lock, preventing duplicate paid scans.",
   },
   {
     phase: "Owner scan",

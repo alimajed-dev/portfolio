@@ -11,6 +11,7 @@ describe("RadarProcessPanel", () => {
     expect(screen.getByText("Rank")).toBeTruthy();
     expect(screen.getByText("Cache")).toBeTruthy();
     expect(screen.getByText("Railway volume")).toBeTruthy();
+    expect(screen.getByText(/environment variable controls the scan cadence/i)).toBeTruthy();
     expect(screen.getByText("Opportunity Score weights")).toBeTruthy();
     expect(screen.getByText("Professional relevance")).toBeTruthy();
     expect(screen.getByText("View reach")).toBeTruthy();
