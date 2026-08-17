@@ -2,8 +2,8 @@ const RANKING_STEPS = [
   {
     phase: "Collect",
     tool: "X API",
-    description: "Searches recent professional conversations and collects at most ten candidates per scheduled scan.",
-    why: "A small, recent candidate set keeps paid API usage controlled and favors conversations where timing still matters.",
+    description: "Searches the previous 48 hours of professional conversations and asks X for the ten most relevant candidates.",
+    why: "This gives posts time to accumulate meaningful views and interactions while keeping conversations timely and paid API usage controlled.",
   },
   {
     phase: "Validate",
@@ -20,14 +20,14 @@ const RANKING_STEPS = [
   {
     phase: "Measure",
     tool: "Metrics",
-    description: "Calculates engagement, engagement velocity, and freshness from the public metrics returned by X.",
-    why: "A relevant post still needs active reach and enough remaining time for a reply to be noticed.",
+    description: "Scores public views, interaction quality, activity velocity, and freshness from the metrics returned by X.",
+    why: "Views and interactions are the dominant criteria because a relevant post still needs real distribution and active participation.",
   },
   {
     phase: "Rank",
     tool: "Hybrid score",
     description: "Combines every signal into a 0–100 Opportunity Score and orders all candidates from strongest to weakest.",
-    why: "Green means check (70+), orange means maybe (55–69), and red means skip (below 55); the info icon explains each result.",
+    why: "Green means check (70+), orange means maybe (55–69), and red means skip (below 55). Views and interactions dominate, while a quality floor prevents irrelevant virality from being recommended.",
   },
   {
     phase: "Cache",
@@ -44,9 +44,9 @@ const RANKING_STEPS = [
 ] as const;
 
 const WEIGHTS = [
-  ["Professional relevance", "27%"], ["Ability to add value", "22%"],
-  ["Existing engagement", "18%"], ["Engagement velocity", "13%"],
-  ["Freshness", "12%"], ["Audience value", "8%"],
+  ["View reach", "32%"], ["Existing interactions", "28%"],
+  ["Interaction velocity", "15%"], ["Professional relevance", "12%"],
+  ["Ability to add value", "7%"], ["Freshness", "4%"], ["Audience value", "2%"],
 ] as const;
 
 export function RadarProcessPanel() {

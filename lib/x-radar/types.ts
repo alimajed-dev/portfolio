@@ -15,7 +15,7 @@ export type RelevanceAnalysis = {
 };
 
 export type ScoringSignals = RelevanceAnalysis & {
-  engagement: number; velocity: number; freshness: number;
+  engagement: number; reach: number; velocity: number; freshness: number;
 };
 
 export type RankedPost = XPost & {

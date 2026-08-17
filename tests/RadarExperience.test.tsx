@@ -37,7 +37,7 @@ describe("RadarExperience manual scan control", () => {
 
   it("top-aligns every cell in a candidate row", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({
-      posts: [{ id: "p1", text: "A technical discussion", createdAt: "2026-08-17T12:00:00Z", author: { id: "a1", name: "Engineer", username: "engineer" }, metrics: { likes: 1, replies: 1, reposts: 0, quotes: 0 }, opportunityScore: 56, label: "Maybe", signals: { relevance: 60, abilityToAddValue: 60, audienceValue: 50, engagement: 20, velocity: 30, freshness: 90, whyReply: "Useful", suggestedAngle: "Add context" }, whyReply: "Useful", suggestedAngle: "Add context", url: "https://x.com/engineer/status/p1" }],
+      posts: [{ id: "p1", text: "A technical discussion", createdAt: "2026-08-17T12:00:00Z", author: { id: "a1", name: "Engineer", username: "engineer" }, metrics: { likes: 1, replies: 1, reposts: 0, quotes: 0 }, opportunityScore: 30, label: "Skip", signals: { relevance: 60, abilityToAddValue: 60, audienceValue: 50, engagement: 20, reach: 0, velocity: 30, freshness: 90, whyReply: "Useful", suggestedAngle: "Add context" }, whyReply: "Useful", suggestedAngle: "Add context", url: "https://x.com/engineer/status/p1" }],
       lastRefreshedAt: "2026-08-17T12:00:00Z", nextRefreshAt: "2026-08-17T16:00:00Z", source: "x",
       stats: { scanned: 1, rejected: 0, opportunities: 1 }, manualRefresh: { enabled: false, manualRemaining: 50, manualLimit: 50 },
     }), { status: 200, headers: { "content-type": "application/json" } })));
@@ -45,5 +45,7 @@ describe("RadarExperience manual scan control", () => {
     render(<RadarExperience />);
     const row = (await screen.findByText("A technical discussion")).closest("li");
     expect(row?.className.split(" ")).toContain("items-start");
+    expect(screen.queryByText("Why reply")).toBeNull();
+    expect(screen.queryByText("Angle:")).toBeNull();
   });
 });

@@ -7,9 +7,10 @@ export async function searchRecentPosts(signal?: AbortSignal): Promise<XPost[]> 
   const token = process.env.X_BEARER_TOKEN;
   if (!token) throw new Error("X_BEARER_TOKEN is not configured");
   const max = Math.min(10, Math.max(1, Number(process.env.X_MAX_POSTS_PER_SCAN) || 10));
+  const lookbackHours = Math.min(168, Math.max(12, Number(process.env.X_LOOKBACK_HOURS) || 48));
   const topics = '("AI agents" OR "coding agents" OR "context engineering" OR "AI software development" OR "software architecture" OR "engineering leadership")';
   const query = `${topics} lang:en -is:retweet -from:${process.env.X_OWNER_USERNAME || "AliMajed93"}`;
-  const params = new URLSearchParams({ query, max_results: String(max), sort_order: "recency", "tweet.fields": "author_id,created_at,public_metrics,referenced_tweets,lang", expansions: "author_id", "user.fields": "name,username,description,profile_image_url,public_metrics" });
+  const params = new URLSearchParams({ query, max_results: String(max), start_time: new Date(Date.now() - lookbackHours * 3_600_000).toISOString().replace(/\.\d{3}Z$/, "Z"), sort_order: "relevancy", "tweet.fields": "author_id,created_at,public_metrics,referenced_tweets,lang", expansions: "author_id", "user.fields": "name,username,description,profile_image_url,public_metrics" });
   const response = await fetch(`https://api.x.com/2/tweets/search/recent?${params}`, { headers: { Authorization: `Bearer ${token}` }, signal });
   if (!response.ok) throw new Error(response.status === 429 ? "X API rate limit reached" : `X API request failed (${response.status})`);
   const payload = await response.json() as { data?: ApiPost[]; includes?: { users?: ApiUser[] } };

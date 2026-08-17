@@ -27,6 +27,17 @@ describe("Conversation Opportunity Radar scoring", () => {
     expect(result.score).toBeLessThan(60);
   });
 
+  it("keeps a brand-new post with almost no views or interactions in Skip", () => {
+    const result = opportunityScore(analysis, { likes: 0, replies: 1, reposts: 0, quotes: 0, impressions: 1 }, "2026-08-17T11:58:00Z", now);
+    expect(result.score).toBeLessThan(55);
+  });
+
+  it("makes views and interactions dominate otherwise equal posts", () => {
+    const visible = opportunityScore(analysis, { likes: 120, replies: 30, reposts: 15, quotes: 8, impressions: 20_000 }, "2026-08-17T10:00:00Z", now);
+    const unseen = opportunityScore(analysis, { likes: 1, replies: 0, reposts: 0, quotes: 0, impressions: 5 }, "2026-08-17T10:00:00Z", now);
+    expect(visible.score - unseen.score).toBeGreaterThan(40);
+  });
+
   it("maps scores to clear check, maybe, and skip guidance", () => {
     expect(scoreLabel(70)).toBe("Check");
     expect(scoreLabel(69)).toBe("Maybe");

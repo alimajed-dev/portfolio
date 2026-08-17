@@ -22,7 +22,11 @@ export async function getSnapshot() {
   if (!snapshot) return null;
   const maxAgeHours = Math.min(24, Math.max(1, Number(process.env.X_CONTENT_MAX_AGE_HOURS) || 24));
   if (Date.now() - new Date(snapshot.lastRefreshedAt).getTime() >= maxAgeHours * 3_600_000) return null;
-  return { ...snapshot, posts: snapshot.posts.map((post) => ({ ...post, label: scoreLabel(post.opportunityScore) })) };
+  return { ...snapshot, posts: snapshot.posts.map((post) => {
+    const analysis = { relevance: post.signals.relevance, abilityToAddValue: post.signals.abilityToAddValue, audienceValue: post.signals.audienceValue, whyReply: post.whyReply, suggestedAngle: post.suggestedAngle };
+    const { score, signals } = opportunityScore(analysis, post.metrics, post.createdAt);
+    return { ...post, opportunityScore: score, label: scoreLabel(score), signals };
+  }) };
 }
 
 export async function refreshRadar(signal?: AbortSignal, kind: "scheduled" | "manual" = "scheduled"): Promise<RadarSnapshot> {

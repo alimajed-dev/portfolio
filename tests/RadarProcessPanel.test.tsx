@@ -13,6 +13,9 @@ describe("RadarProcessPanel", () => {
     expect(screen.getByText("Railway volume")).toBeTruthy();
     expect(screen.getByText("Opportunity Score weights")).toBeTruthy();
     expect(screen.getByText("Professional relevance")).toBeTruthy();
-    expect(screen.getByText("27%")).toBeTruthy();
+    expect(screen.getByText("View reach")).toBeTruthy();
+    expect(screen.getByText("32%")).toBeTruthy();
+    expect(screen.getByText("Existing interactions")).toBeTruthy();
+    expect(screen.getByText("28%")).toBeTruthy();
   });
 });
