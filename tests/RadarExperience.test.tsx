@@ -63,6 +63,8 @@ describe("RadarExperience manual scan control", () => {
     expect(screen.queryByRole("combobox")).toBeNull();
     expect(screen.getByText("Open on X")).toBeTruthy();
     expect(screen.getByText("Copy reply prompt")).toBeTruthy();
+    expect(screen.getByTitle("Open on X").className.split(" ")).toContain("cursor-pointer");
+    expect(screen.getByTitle("Copy reply prompt").className.split(" ")).toContain("cursor-pointer");
   });
 
   it("copies a concise contextual reply-writing prompt without another API request", async () => {

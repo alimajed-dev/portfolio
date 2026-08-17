@@ -50,7 +50,7 @@ const RANKING_STEPS = [
   {
     phase: "Reply prep",
     tool: "Clipboard prompt",
-    description: "Provides clearly labeled actions to open the post or copy a concise, context-rich reply prompt built from the cached post, its metrics, and Ali’s professional voice.",
+    description: "Provides clearly labeled, clickable actions to open the post or copy a concise, context-rich reply prompt built from the cached post, its metrics, and Ali’s professional voice.",
     why: "The prompt asks ChatGPT to inspect live replies and quote posts before drafting, so the portfolio makes no additional X request and never auto-posts.",
   },
 ] as const;
