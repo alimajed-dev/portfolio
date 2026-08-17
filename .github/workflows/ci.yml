@@ -12,9 +12,9 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           # .nvmrc is the one place the Node major is declared; package.json's
           # `engines` range is the compatibility floor, not the pin.
