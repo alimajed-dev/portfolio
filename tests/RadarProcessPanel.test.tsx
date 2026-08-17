@@ -26,6 +26,7 @@ describe("RadarProcessPanel", () => {
     expect(screen.getByText("Author authority")).toBeTruthy();
     expect(screen.getByText("5%")).toBeTruthy();
     expect(screen.getByText("Reply prep")).toBeTruthy();
+    expect(screen.getByText(/clearly labeled actions to open the post/i)).toBeTruthy();
     expect(screen.getByText(/makes no additional X request/i)).toBeTruthy();
     expect(screen.queryByText(/green means check/i)).toBeNull();
   });

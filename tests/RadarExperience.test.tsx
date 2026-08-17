@@ -60,6 +60,8 @@ describe("RadarExperience manual scan control", () => {
     expect(screen.queryByText(/Green:/)).toBeNull();
     expect(screen.queryByText("Sort by")).toBeNull();
     expect(screen.queryByRole("combobox")).toBeNull();
+    expect(screen.getByText("Open on X")).toBeTruthy();
+    expect(screen.getByText("Copy reply prompt")).toBeTruthy();
   });
 
   it("copies a concise contextual reply-writing prompt without another API request", async () => {
