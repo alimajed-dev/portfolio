@@ -50,14 +50,17 @@ problem it was collapsed to fix.
   library; using it doesn't imply Vercel hosting.)
 - **Live transport:** Server-Sent Events (SSE), one-directional
   server→browser. No WebSockets needed.
-- **Rate limiting:** in-memory store, no database (`lib/rate-limit.ts`). Per IP:
+- **Rate limiting:** daily usage is persisted on the Railway `/data` volume
+  using keyed hashes rather than raw IP addresses; active concurrency slots
+  remain in memory (`lib/rate-limit.ts`). Per IP:
   5 runs/day, 1 concurrent. Across all visitors: 200 runs/day, 6 concurrent —
   the per-IP key is only as trustworthy as the proxy chain, so the global caps
   are what actually bound free-tier spend. The IP is read from the *rightmost*
   `X-Forwarded-For` entry (the hop Railway appends); `TRUSTED_PROXY_HOPS`
   adjusts that if another proxy is ever put in front.
-  **This assumes exactly one Railway instance** — scaling horizontally
-  multiplies every cap by the replica count.
+  **This assumes exactly one Railway instance** — the attached volume and
+  in-process concurrency locks are not a distributed rate limiter. Use Redis
+  or another atomic shared store before scaling horizontally.
 - **Run budget:** each model call is capped at 60s (`lib/orchestrator.ts`) and
   the whole run at 180s (`AGENT_RUN_TIMEOUT_MS`, in `app/api/agent/route.ts`).
 - **Icons:** Lucide (`lucide-react`) — matches the mockup exactly.

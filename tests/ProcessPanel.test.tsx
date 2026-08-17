@@ -42,6 +42,8 @@ describe("ProcessPanel content", () => {
     expect(stack.open).toBe(false);
     fireEvent.click(summary!);
     expect(stack.open).toBe(true);
+    expect(within(stack).getByText("Usage controls", { exact: true })).toBeDefined();
+    expect(within(stack).getByText("Railway volume, keyed IP hashes", { exact: true })).toBeDefined();
     for (const item of TECH_STACK) {
       expect(within(stack).getByText(item.area, { exact: true })).toBeDefined();
       expect(within(stack).getByText(new RegExp(item.why.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")))).toBeDefined();

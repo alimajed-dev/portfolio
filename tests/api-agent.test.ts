@@ -1,4 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import type { NextRequest } from "next/server";
 import type { AgentEvent } from "@/lib/agent-types";
 import { readEvents } from "@/lib/agent-transport";
@@ -21,6 +24,7 @@ let runPipeline: ReturnType<typeof vi.fn<RunPipeline>>;
 let missingKeys: ReturnType<typeof vi.fn<() => string[]>>;
 let captureOperationalError: ReturnType<typeof vi.fn>;
 let rateLimit: typeof import("@/lib/rate-limit");
+let rateLimitDirectory: string;
 
 const CLIENT = { "x-forwarded-for": "203.0.113.7" };
 
@@ -52,6 +56,9 @@ function slotIsFree(ip = "203.0.113.7"): boolean {
 
 beforeEach(async () => {
   vi.resetModules();
+  rateLimitDirectory = mkdtempSync(path.join(tmpdir(), "portfolio-api-agent-"));
+  vi.stubEnv("RATE_LIMIT_DATA_DIR", rateLimitDirectory);
+  vi.stubEnv("RATE_LIMIT_HASH_SECRET", "test-only-rate-limit-secret-that-is-long-enough");
   const orchestrator = await import("@/lib/orchestrator");
   const models = await import("@/lib/models");
   const monitoring = await import("@/lib/monitoring");
@@ -69,6 +76,7 @@ beforeEach(async () => {
 
 afterEach(() => {
   vi.unstubAllEnvs();
+  rmSync(rateLimitDirectory, { recursive: true, force: true });
 });
 
 describe("POST /api/agent — rejections", () => {

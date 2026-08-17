@@ -195,6 +195,11 @@ export const TECH_STACK: TechStackItem[] = [
     why: "Runs the agent workflow and streams each step to the browser in real time.",
   },
   {
+    area: "Usage controls",
+    tools: "Railway volume, keyed IP hashes",
+    why: "Persists daily limits across deployments without storing raw visitor IP addresses.",
+  },
+  {
     area: "Deployment",
     tools: "Railway, Namecheap",
     why: "Keeps the long-running Node service online and connects it to the custom domain.",

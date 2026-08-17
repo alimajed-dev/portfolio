@@ -1,11 +1,12 @@
+import { createHash, createHmac } from "node:crypto";
+import { mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import path from "node:path";
+
 /**
- * In-memory run caps. No database by design (see CLAUDE.md) — the counts reset
- * whenever the server restarts, which is fine for protecting free-tier model
- * quotas on a single long-lived Railway process.
- *
- * DEPLOYMENT CONSTRAINT: this only holds if the service runs as exactly one
- * instance. Scaling horizontally splits the counters per replica and multiplies
- * the effective caps by the replica count.
+ * Daily usage survives deployments on the Railway volume. Active concurrency
+ * slots remain in memory because they represent work owned by this process.
+ * Exactly one replica is still required: an attached volume is not a
+ * distributed lock or atomic multi-process rate-limit store.
  */
 
 const RUNS_PER_DAY = 5;
@@ -29,13 +30,52 @@ export const LIMITS = {
   WINDOW_MS,
 } as const;
 
-type Entry = { count: number; resetAt: number; active: number };
+type Entry = { active: number; resetAt: number };
+type PersistedEntry = { count: number; resetAt: number };
+type PersistedUsage = {
+  entries: Record<string, PersistedEntry>;
+  global: PersistedEntry;
+};
 
 const buckets = new Map<string, Entry>();
-
-let globalCount = 0;
 let globalActive = 0;
-let globalResetAt = 0;
+const dataDirectory = process.env.RATE_LIMIT_DATA_DIR || process.env.X_RADAR_DATA_DIR || path.join(process.cwd(), ".data");
+const usagePath = path.join(dataDirectory, "agent-rate-limits.json");
+
+function hashingSecret() {
+  const source = process.env.RATE_LIMIT_HASH_SECRET || process.env.X_RADAR_ADMIN_TOKEN;
+  if (!source || source.length < 32) return null;
+  return createHash("sha256").update("agent-rate-limit\0").update(source).digest();
+}
+
+function quotaKey(ip: string) {
+  const secret = hashingSecret();
+  // A stable keyed hash is required for persistence without retaining the IP.
+  // If it is not configured, use one shared fail-closed bucket rather than
+  // writing a raw or reversibly hashed address to disk.
+  return secret ? createHmac("sha256", secret).update(ip).digest("hex") : "unconfigured-shared-bucket";
+}
+
+function emptyUsage(now: number): PersistedUsage {
+  return { entries: {}, global: { count: 0, resetAt: now + WINDOW_MS } };
+}
+
+function readUsage(now: number): PersistedUsage {
+  try {
+    const parsed = JSON.parse(readFileSync(usagePath, "utf8")) as Partial<PersistedUsage>;
+    if (!parsed.entries || !parsed.global || typeof parsed.global.count !== "number" || typeof parsed.global.resetAt !== "number") return emptyUsage(now);
+    return { entries: parsed.entries, global: parsed.global };
+  } catch {
+    return emptyUsage(now);
+  }
+}
+
+function writeUsage(usage: PersistedUsage) {
+  mkdirSync(dataDirectory, { recursive: true });
+  const temporary = `${usagePath}.tmp`;
+  writeFileSync(temporary, JSON.stringify(usage));
+  renameSync(temporary, usagePath);
+}
 
 function sweep(now: number) {
   for (const [key, entry] of buckets) {
@@ -43,11 +83,11 @@ function sweep(now: number) {
   }
 }
 
-function getEntry(ip: string, now: number): Entry {
-  let entry = buckets.get(ip);
-  if (!entry || entry.resetAt <= now) {
-    entry = { count: 0, resetAt: now + WINDOW_MS, active: 0 };
-    buckets.set(ip, entry);
+function getActiveEntry(key: string, resetAt: number): Entry {
+  let entry = buckets.get(key);
+  if (!entry || (entry.resetAt <= Date.now() && entry.active === 0)) {
+    entry = { active: 0, resetAt };
+    buckets.set(key, entry);
   }
   return entry;
 }
@@ -73,26 +113,27 @@ const secondsUntil = (deadline: number, now: number) =>
 export function reserveRun(ip: string): RateLimitResult {
   const now = Date.now();
   sweep(now);
-
-  if (globalResetAt <= now) {
-    globalCount = 0;
-    globalResetAt = now + WINDOW_MS;
+  const key = quotaKey(ip);
+  const usage = readUsage(now);
+  if (usage.global.resetAt <= now) usage.global = { count: 0, resetAt: now + WINDOW_MS };
+  for (const [storedKey, stored] of Object.entries(usage.entries)) {
+    if (stored.resetAt <= now) delete usage.entries[storedKey];
   }
+  const persistedEntry = usage.entries[key] ?? { count: 0, resetAt: now + WINDOW_MS };
+  const activeEntry = getActiveEntry(key, persistedEntry.resetAt);
 
-  const entry = getEntry(ip, now);
-
-  if (entry.active >= MAX_CONCURRENT_PER_IP) {
+  if (activeEntry.active >= MAX_CONCURRENT_PER_IP) {
     return {
       ok: false,
       reason: "One run at a time, please — let the current one finish first.",
       retryAfterSeconds: 30,
     };
   }
-  if (entry.count >= RUNS_PER_DAY) {
+  if (persistedEntry.count >= RUNS_PER_DAY) {
     return {
       ok: false,
       reason: `Daily demo limit reached (${RUNS_PER_DAY} runs). This demo runs on free model tiers — try again tomorrow.`,
-      retryAfterSeconds: secondsUntil(entry.resetAt, now),
+      retryAfterSeconds: secondsUntil(persistedEntry.resetAt, now),
     };
   }
   if (globalActive >= MAX_CONCURRENT_GLOBAL) {
@@ -102,32 +143,31 @@ export function reserveRun(ip: string): RateLimitResult {
       retryAfterSeconds: 30,
     };
   }
-  if (globalCount >= GLOBAL_RUNS_PER_DAY) {
+  if (usage.global.count >= GLOBAL_RUNS_PER_DAY) {
     return {
       ok: false,
       reason:
         "The demo has hit its daily capacity across all visitors — it runs on free model tiers. Try again tomorrow.",
-      retryAfterSeconds: secondsUntil(globalResetAt, now),
+      retryAfterSeconds: secondsUntil(usage.global.resetAt, now),
     };
   }
 
-  entry.count += 1;
-  entry.active += 1;
-  globalCount += 1;
+  persistedEntry.count += 1;
+  usage.entries[key] = persistedEntry;
+  usage.global.count += 1;
+  writeUsage(usage);
+  activeEntry.active += 1;
   globalActive += 1;
 
   let released = false;
   const release = () => {
     if (released) return;
     released = true;
-    // Decrement the entry this reservation incremented. If the window rolled
-    // over and `getEntry` has since replaced it, that object is an orphan and
-    // decrementing it is a no-op on live state, which is the correct outcome.
-    if (entry.active > 0) entry.active -= 1;
+    if (activeEntry.active > 0) activeEntry.active -= 1;
     if (globalActive > 0) globalActive -= 1;
   };
 
-  return { ok: true, remaining: RUNS_PER_DAY - entry.count, release };
+  return { ok: true, remaining: RUNS_PER_DAY - persistedEntry.count, release };
 }
 
 /**

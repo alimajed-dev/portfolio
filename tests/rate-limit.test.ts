@@ -1,4 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
 
 type RateLimitModule = typeof import("@/lib/rate-limit");
 
@@ -7,9 +10,22 @@ type RateLimitModule = typeof import("@/lib/rate-limit");
  * evaluated copy instead of a shared one. This also lets `TRUSTED_PROXY_HOPS`,
  * which is read once at import time, be varied per test.
  */
+const testDirectories: string[] = [];
+
+function testDirectory() {
+  const directory = mkdtempSync(path.join(tmpdir(), "portfolio-rate-limit-"));
+  testDirectories.push(directory);
+  return directory;
+}
+
 async function freshModule(env: Record<string, string> = {}): Promise<RateLimitModule> {
   vi.resetModules();
-  for (const [key, value] of Object.entries(env)) vi.stubEnv(key, value);
+  const configured = {
+    RATE_LIMIT_DATA_DIR: testDirectory(),
+    RATE_LIMIT_HASH_SECRET: "test-only-rate-limit-secret-that-is-long-enough",
+    ...env,
+  };
+  for (const [key, value] of Object.entries(configured)) vi.stubEnv(key, value);
   return import("@/lib/rate-limit");
 }
 
@@ -18,6 +34,7 @@ const headers = (init: Record<string, string>) => new Headers(init);
 afterEach(() => {
   vi.unstubAllEnvs();
   vi.useRealTimers();
+  for (const directory of testDirectories.splice(0)) rmSync(directory, { recursive: true, force: true });
 });
 
 describe("clientIp", () => {
@@ -188,5 +205,25 @@ describe("reserveRun", () => {
     const afterReset = mod.reserveRun("1.1.1.1");
     expect(afterReset.ok).toBe(true);
     if (afterReset.ok) expect(afterReset.remaining).toBe(mod.LIMITS.RUNS_PER_DAY - 1);
+  });
+
+  it("retains daily quotas across a server module reload without storing raw IP addresses", async () => {
+    const directory = testDirectory();
+    const env = {
+      RATE_LIMIT_DATA_DIR: directory,
+      RATE_LIMIT_HASH_SECRET: "persistent-test-secret-that-is-at-least-32-characters",
+    };
+    const firstModule = await freshModule(env);
+    for (let i = 0; i < firstModule.LIMITS.RUNS_PER_DAY; i += 1) {
+      const result = firstModule.reserveRun("203.0.113.7");
+      expect(result.ok).toBe(true);
+      if (result.ok) result.release();
+    }
+
+    const persisted = readFileSync(path.join(directory, "agent-rate-limits.json"), "utf8");
+    expect(persisted).not.toContain("203.0.113.7");
+
+    const reloadedModule = await freshModule(env);
+    expect(reloadedModule.reserveRun("203.0.113.7").ok).toBe(false);
   });
 });

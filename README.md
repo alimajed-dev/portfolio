@@ -19,9 +19,10 @@ Live: [majedali.com](https://majedali.com)
 | Tests | Vitest + React Testing Library, all provider calls mocked |
 | Hosting | Railway (single instance) |
 
-No database, no auth, no payments. Rate limiting is an in-memory counter, which
-is why this needs a long-lived process rather than serverless functions — and
-why the free tier's ~60s function cap would cut off a streamed agent run.
+No database, no auth, no payments. Daily rate-limit usage is stored on the
+Railway volume under keyed hashes rather than raw IP addresses; active-request
+slots remain in process memory. The persistent Node process also avoids a
+short serverless execution ceiling cutting off streamed agent runs.
 
 The font is checked in rather than fetched from Google at build time: a build
 that reaches the network before it compiles any app code fails behind a proxy or
@@ -92,8 +93,10 @@ day with one concurrent run, and all visitors together at 200 runs per day with
 6 concurrent. The per-visitor key is the *rightmost* `X-Forwarded-For` entry —
 the hop Railway's proxy appends, and the only one a caller can't forge — so the
 global ceilings are what bound spend if someone rotates addresses anyway. Both
-counters live in process memory, so **the service must run as a single
-instance**; more replicas multiply every cap.
+daily counters survive deployments on `/data`; raw IP addresses are never
+written there. Active concurrency locks remain in memory, so **the service must
+run as a single instance**. Redis or another atomic shared store is required
+before adding replicas.
 
 ## Validation
 
@@ -125,7 +128,7 @@ app/api/agent/route.ts   SSE endpoint: filter → rate limit → run budget → 
 lib/orchestrator.ts      the four-agent pipeline and its failure handling
 lib/pipeline-plan.ts     model labels, pre-written reasons, idle trace shape
 lib/models.ts            provider setup and env-var checks
-lib/rate-limit.ts        per-IP and global run caps, trusted-proxy IP extraction
+lib/rate-limit.ts        persistent hashed usage caps, concurrency, proxy IP extraction
 lib/agent-transport.ts   client-side SSE parsing and response validation
 lib/site.ts              all site copy, links, projects, case study
 components/              AppShell, Sidebar, RightPanel, panes
