@@ -39,12 +39,12 @@ const RANKING_STEPS = [
     phase: "Cache",
     tool: "Railway volume",
     description: "Writes only the latest successful snapshot and usage counter to the persistent /data volume; page visits read that cache and never call X.",
-    why: "One Railway replica owns the four-hour scheduler and concurrency lock. More replicas would create independent schedulers, duplicate paid scans, and multiply in-memory limits.",
+    why: "One Railway replica owns the configured scheduler and concurrency lock. More replicas would create independent schedulers, duplicate paid scans, and multiply in-memory limits.",
   },
   {
     phase: "Owner scan",
     tool: "Secure backend",
-    description: "Allows the owner to request an immediate scan and restart the four-hour countdown through a protected server workflow.",
+    description: "Allows the owner to request an immediate scan and restart the configured countdown through a protected server workflow.",
     why: "Owner authorization and server-enforced usage controls keep the paid action private and spending bounded.",
   },
 ] as const;
