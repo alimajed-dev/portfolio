@@ -1,4 +1,4 @@
-import { readSnapshot, reserveMonthlyRequest, writeSnapshot } from "./cache";
+import { readSeenPostIds, readSnapshot, rememberSeenPostIds, reserveMonthlyRequest, writeSnapshot } from "./cache";
 import { analyzePosts } from "./analysis";
 import { opportunityScore, scoreLabel } from "./scoring";
 import { searchRecentPosts } from "./x-client";
@@ -36,13 +36,17 @@ export async function refreshRadar(signal?: AbortSignal, kind: "scheduled" | "ma
     try {
       const reservation = await reserveMonthlyRequest(kind);
       if (!reservation.ok) throw new Error(reservation.reason === "manual" ? "Monthly manual scan limit reached" : "Monthly X request guard reached");
-      const candidates = await searchRecentPosts(signal);
+      const returned = await searchRecentPosts(signal);
+      const seen = await readSeenPostIds();
+      for (const post of previous?.posts ?? []) seen.add(post.id);
+      const candidates = returned.filter((post) => !seen.has(post.id));
       const analyses = await analyzePosts(candidates, signal);
       const ranked = candidates.map((post, i) => rank(post, analyses[i]));
       const posts = ranked.sort((a, b) => b.opportunityScore - a.opportunityScore);
       const opportunities = posts.filter(isOpportunity).length;
       const snapshot: RadarSnapshot = { posts, lastRefreshedAt: new Date().toISOString(), source: "x", stats: { scanned: ranked.length, rejected: ranked.length - opportunities, opportunities } };
       await writeSnapshot(snapshot);
+      await rememberSeenPostIds(returned.map((post) => post.id));
       return snapshot;
     } catch (error) {
       if (previous && kind === "scheduled") {

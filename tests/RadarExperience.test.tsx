@@ -1,10 +1,10 @@
 /** @vitest-environment jsdom */
-import { render, screen } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { RadarExperience } from "@/components/experiences/RadarExperience";
 
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 
 describe("RadarExperience manual scan control", () => {
   it("disables manual scanning when the persistent monthly allowance is exhausted", async () => {
@@ -36,6 +36,7 @@ describe("RadarExperience manual scan control", () => {
   });
 
   it("top-aligns every cell in a candidate row", async () => {
+    const user = userEvent.setup();
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({
       posts: [{ id: "p1", text: "A technical discussion", createdAt: "2026-08-17T12:00:00Z", author: { id: "a1", name: "Engineer", username: "engineer" }, metrics: { likes: 1, replies: 1, reposts: 0, quotes: 0 }, opportunityScore: 30, label: "Skip", signals: { relevance: 60, abilityToAddValue: 60, audienceValue: 50, engagement: 20, reach: 0, velocity: 30, freshness: 90, whyReply: "Useful", suggestedAngle: "Add context" }, whyReply: "Useful", suggestedAngle: "Add context", url: "https://x.com/engineer/status/p1" }],
       lastRefreshedAt: "2026-08-17T12:00:00Z", nextRefreshAt: "2026-08-17T16:00:00Z", source: "x",
@@ -47,5 +48,9 @@ describe("RadarExperience manual scan control", () => {
     expect(row?.className.split(" ")).toContain("items-start");
     expect(screen.queryByText("Why reply")).toBeNull();
     expect(screen.queryByText("Angle:")).toBeNull();
+    await user.click(screen.getByLabelText(/Explain score .* for Engineer/));
+    expect(screen.getByText("Score breakdown")).toBeTruthy();
+    expect(screen.getByText("View reach")).toBeTruthy();
+    expect(screen.queryByText(/Green:/)).toBeNull();
   });
 });

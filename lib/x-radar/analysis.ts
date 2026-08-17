@@ -2,13 +2,13 @@ import { generateText } from "ai";
 import { geminiModel } from "@/lib/models";
 import type { RelevanceAnalysis, XPost } from "./types";
 
-const TOPICS = ["AI in software delivery", "AI agents and coding agents", "context engineering", "software and solution architecture", "engineering leadership", "developer tooling and productivity", "technical product development", "React, TypeScript and AWS when technically substantive"];
+const TOPICS = ["AI and software delivery", "AI agents and coding agents", "software and solution architecture", "engineering leadership", "developer tooling", "technical products and startups", "prediction markets and fintech", "crypto and Web3 when professionally substantive"];
 
 export function analyzeLocally(post: XPost): RelevanceAnalysis {
   const text = `${post.text} ${post.author.description ?? ""}`.toLowerCase();
-  const hits = ["agent", "architecture", "software", "engineering", "developer", "typescript", "react", "aws", "cloud", "context", "delivery", "product", "requirements", "planning", "code review", "testing"].filter((term) => text.includes(term)).length;
+  const hits = ["agent", "ai", "architecture", "software", "engineering", "developer", "cloud", "delivery", "product", "startup", "founder", "prediction market", "fintech", "crypto", "web3", "blockchain", "requirements", "planning", "testing"].filter((term) => text.includes(term)).length;
   const asks = /\?|how |why |opinion|lesson|take|think|struggl|trade.?off|bottleneck/i.test(post.text);
-  const promotional = /check it out|launching|buy now|like if|follow me|giveaway/i.test(post.text);
+  const promotional = /check it out|buy now|like if|follow me|giveaway/i.test(post.text);
   // A declarative technical observation can still invite a valuable response;
   // questions get a boost, but are not the only eligible conversation shape.
   const relevance = Math.min(96, 44 + hits * 12);

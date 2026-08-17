@@ -2,14 +2,20 @@ const RANKING_STEPS = [
   {
     phase: "Collect",
     tool: "X API",
-    description: "Searches the previous 48 hours of professional conversations and asks X for the ten most relevant candidates.",
-    why: "This gives posts time to accumulate meaningful views and interactions while keeping conversations timely and paid API usage controlled.",
+    description: "Searches the previous 12 hours for professional technology and market conversations that already clear a minimum activity signal, then asks X for the ten most relevant candidates.",
+    why: "The short window favors conversations that are still hot; minimum reply, like, or repost activity avoids spending the result set on unseen posts.",
   },
   {
     phase: "Validate",
     tool: "Rules",
     description: "Removes Ali’s own posts, reposts, malformed results, and duplicates before scoring; low-value candidates remain visible.",
     why: "Every valid candidate is shown, while the score makes spam, promotions, and engagement bait easy to skip.",
+  },
+  {
+    phase: "Deduplicate",
+    tool: "Seen-ID cache",
+    description: "Excludes post IDs returned within the previous 24 hours, including the currently displayed snapshot.",
+    why: "Each paid refresh prioritizes new conversations without making extra X requests solely to replace repeats; the short-lived ID cache expires automatically.",
   },
   {
     phase: "Understand",

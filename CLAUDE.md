@@ -117,6 +117,11 @@ the shared palette and surfaces, not older interaction/layout details.)
   - The agent demo has the Live / Build Process toggle described below.
   - The Pixels project has only Build Process: one procedural-modeling card
     and one project-specific 3D/animation tech-stack section.
+  - The Conversation Opportunity Radar has Build Process / Privacy tabs. Its
+    public pipeline copy lives in `components/RadarProcessPanel.tsx`. Whenever
+    Radar fetching, filtering, analysis, ranking, caching, scheduling, cost
+    controls, or owner actions change, update that panel in the same commit;
+    do not leave the public explanation describing an older flow.
   - **Live** (default): real-time agent trace. Each entry: small icon
     (checkmark = done, spinner = in progress, empty box = pending), agent
     name, a model badge (e.g. "Gemini 3.6 Flash", "Groq / Llama 3.3 70B"),

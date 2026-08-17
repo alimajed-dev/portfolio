@@ -26,4 +26,13 @@ describe("radar request budget", () => {
     expect((await reserveMonthlyRequest("scheduled")).ok).toBe(true);
     expect(await getRadarUsage()).toMatchObject({ manualRemaining: 0, manualLimit: 2 });
   });
+
+  it("persists and deduplicates seen post IDs", async () => {
+    temporaryDirectory = await mkdtemp(path.join(os.tmpdir(), "radar-seen-"));
+    vi.stubEnv("X_RADAR_DATA_DIR", temporaryDirectory);
+    const { readSeenPostIds, rememberSeenPostIds } = await import("@/lib/x-radar/cache");
+    await rememberSeenPostIds(["one", "two"]);
+    await rememberSeenPostIds(["two", "three"]);
+    expect(Array.from(await readSeenPostIds())).toEqual(["one", "two", "three"]);
+  });
 });
