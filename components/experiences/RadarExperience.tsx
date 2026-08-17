@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight, Clock3, Eye, Heart, Info, MessageCircle, Radar, RefreshCw, Repeat2, Sparkles, X } from "lucide-react";
+import { ArrowUpRight, Check, Clock3, Copy, Eye, Heart, Info, MessageCircle, Radar, RefreshCw, Repeat2, Sparkles, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { RadarSnapshot, RankedPost } from "@/lib/x-radar/types";
 
@@ -21,6 +21,21 @@ function scoreDetails(post: RankedPost) {
     ["Freshness", "4%", `${freshness}/100`],
     ["Audience value", "2%", `${audienceValue}/100`],
   ] as const;
+}
+
+function formatScanTime(iso: string) {
+  const date = new Date(iso);
+  const options: Intl.DateTimeFormatOptions = { year: "numeric", month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit", second: "2-digit", timeZoneName: "short" };
+  try { return new Intl.DateTimeFormat(undefined, options).format(date); }
+  catch { return new Intl.DateTimeFormat("en-US", { ...options, timeZone: "UTC" }).format(date); }
+}
+
+function replyPrompt(post: RankedPost) {
+  return `Help me write a thoughtful reply to this X post:\n${post.url}\n\nOriginal post by @${post.author.username}:\n${post.text}\n\nCurrent public metrics: ${post.metrics.replies} replies, ${post.metrics.likes} likes, ${post.metrics.reposts} reposts, ${post.metrics.quotes} quote posts${post.metrics.impressions === undefined ? "" : `, ${post.metrics.impressions} views`}.\n\nBefore drafting, inspect the live post, its strongest replies, and relevant quote posts. Identify what is driving meaningful interaction, what has already been said, and where I can add a distinct point without copying anyone.\n\nWrite as me: Ali Majed, a full-stack software engineer and solutions architect focused on practical AI systems, agentic workflows, architecture, and reliable product delivery. Match my direct, curious, practical tone. Sound human, not AI-generated: no generic praise, canned opening, inflated language, unnecessary summary, hashtags, sales pitch, or claims about experience I have not provided.\n\nReturn one concise reply of roughly 40–80 words, normally 2–4 sentences. It should contribute a concrete observation, question, trade-off, or implementation perspective and feel natural in the existing conversation. Output only the reply.`;
+}
+
+function ScoreBreakdown({ post }: { post: RankedPost }) {
+  return <><p className="mb-3 text-sm font-semibold text-ink">What drives this score</p><ol className="space-y-2">{scoreDetails(post).map(([label, weight, value], index) => <li key={label} className="grid grid-cols-[24px_1fr_auto] items-start gap-2 rounded-md bg-panel px-2.5 py-2"><span className="flex size-6 items-center justify-center rounded-full bg-accent-tint font-mono text-[10px] font-semibold text-accent">{index + 1}</span><span className="font-medium text-ink">{label} <span className="font-normal text-neutral-500">({weight})</span></span><span className="text-right text-neutral-600">{value}</span></li>)}</ol></>;
 }
 
 function countdown(target?: string) {
@@ -46,6 +61,7 @@ export function RadarExperience() {
   const [scanning, setScanning] = useState(false);
   const [sort, setSort] = useState<Sort>("score");
   const [expandedScoreId, setExpandedScoreId] = useState<string | null>(null);
+  const [copiedPostId, setCopiedPostId] = useState<string | null>(null);
   const tokenInputRef = useRef<HTMLInputElement>(null);
   const refreshButtonRef = useRef<HTMLButtonElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -54,6 +70,16 @@ export function RadarExperience() {
   useEffect(() => { const timer = window.setInterval(() => tick((value) => value + 1), 1000); return () => window.clearInterval(timer); }, []);
   const posts = useMemo(() => [...(data?.posts ?? [])].sort((a, b) => sort === "score" ? b.opportunityScore - a.opportunityScore : new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()), [data, sort]);
   const manualLimitReached = data?.manualRefresh?.manualRemaining === 0;
+
+  async function copyReplyPrompt(post: RankedPost) {
+    try {
+      await navigator.clipboard.writeText(replyPrompt(post));
+      setCopiedPostId(post.id);
+      window.setTimeout(() => setCopiedPostId((current) => current === post.id ? null : current), 1800);
+    } catch {
+      setError("The reply prompt could not be copied. Please allow clipboard access and try again.");
+    }
+  }
 
   useEffect(() => {
     if (!showUnlock) return;
@@ -72,6 +98,13 @@ export function RadarExperience() {
     window.addEventListener("keydown", handleModalKey);
     return () => { window.removeEventListener("keydown", handleModalKey); returnTarget?.focus(); };
   }, [showUnlock, scanning]);
+
+  useEffect(() => {
+    if (!expandedScoreId) return;
+    const closeOnEscape = (event: KeyboardEvent) => { if (event.key === "Escape") setExpandedScoreId(null); };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [expandedScoreId]);
 
   async function scanNow(event: React.FormEvent) {
     event.preventDefault();
@@ -96,7 +129,7 @@ export function RadarExperience() {
     <div className="mx-auto max-w-[1120px]">
       <header className="mb-7 flex flex-col gap-4 border-b border-line pb-6 sm:flex-row sm:items-end sm:justify-between">
         <div className="max-w-2xl"><span className="mb-3 inline-flex items-center gap-2 rounded-full bg-accent-tint px-3 py-1 text-xs font-semibold text-accent-ink"><Radar size={14} aria-hidden />Signal over noise</span><h1 className="text-[30px] font-bold tracking-[-0.025em] text-ink sm:text-[38px]">Find the conversations worth joining.</h1><p className="mt-3 text-[14px]/[1.6] text-neutral-600 sm:text-[15px]/[1.6]">An AI-powered radar for X posts where a useful reply can build visibility, credibility, and a better professional network.</p></div>
-        <div className="flex shrink-0 items-start gap-2 text-left sm:text-right"><div><p className="flex items-center gap-1.5 font-mono text-xs font-semibold text-accent-ink sm:justify-end"><Clock3 size={13} aria-hidden />{countdown(data?.nextRefreshAt)}</p><p className="mt-1 text-xs text-neutral-600">{data?.lastRefreshedAt ? `Last scan ${new Date(data.lastRefreshedAt).toLocaleString()}` : "No completed scans yet"}</p></div>{data?.manualRefresh?.enabled && <button ref={refreshButtonRef} type="button" disabled={manualLimitReached || scanning} onClick={() => { setError(""); setShowUnlock(true); }} aria-label={manualLimitReached ? "Monthly manual scan limit reached" : "Run a manual scan"} title={manualLimitReached ? "Monthly manual scan limit reached" : "Run a manual scan"} className="inline-flex size-9 shrink-0 items-center justify-center rounded-md border border-line-strong bg-panel text-ink transition hover:scale-105 hover:bg-panel-raised active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"><RefreshCw size={15} className={scanning ? "animate-spin" : ""} aria-hidden /></button>}</div>
+        <div className="flex shrink-0 items-start gap-2 text-left sm:text-right"><div><p className="flex items-center gap-1.5 font-mono text-xs font-semibold text-accent-ink sm:justify-end"><Clock3 size={13} aria-hidden />{countdown(data?.nextRefreshAt)}</p><p className="mt-1 text-xs text-neutral-600">{data?.lastRefreshedAt ? `Last scan ${formatScanTime(data.lastRefreshedAt)}` : "No completed scans yet"}</p></div>{data?.manualRefresh?.enabled && <button ref={refreshButtonRef} type="button" disabled={manualLimitReached || scanning} onClick={() => { setError(""); setShowUnlock(true); }} aria-label={manualLimitReached ? "Monthly manual scan limit reached" : "Run a manual scan"} title={manualLimitReached ? "Monthly manual scan limit reached" : "Run a manual scan"} className="inline-flex size-9 shrink-0 items-center justify-center rounded-md border border-line-strong bg-panel text-ink transition hover:scale-105 hover:bg-panel-raised active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"><RefreshCw size={15} className={scanning ? "animate-spin" : ""} aria-hidden /></button>}</div>
       </header>
 
       {showUnlock && data?.manualRefresh?.enabled && !manualLimitReached && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onMouseDown={(event) => { if (event.currentTarget === event.target && !scanning) setShowUnlock(false); }}><div ref={modalRef} role="dialog" aria-modal="true" aria-labelledby="manual-scan-title" className="w-full max-w-sm rounded-xl border border-line bg-surface p-5 text-left shadow-2xl"><div className="flex items-start justify-between gap-4"><div><h2 id="manual-scan-title" className="text-lg font-semibold text-ink">Run a manual scan</h2><p className="mt-1 text-xs text-neutral-600">Enter the owner token to make one paid backend request and restart the scheduled timer.</p></div><button type="button" onClick={() => setShowUnlock(false)} disabled={scanning} aria-label="Close manual scan dialog" className="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-neutral-600 transition hover:bg-panel hover:text-ink disabled:opacity-50"><X size={17} aria-hidden /></button></div><div className="my-4 rounded-lg bg-panel px-3 py-2.5"><p className="text-xs font-semibold text-ink">{data.manualRefresh.manualRemaining}/{data.manualRefresh.manualLimit} manual scans left this month</p><p className="mt-1 text-[11px] text-neutral-500">The server enforces this allowance and the overall monthly spending limit.</p></div>{error && <p role="alert" className="mb-3 rounded-md border border-warning/30 bg-warning/10 px-3 py-2 text-xs text-warning">{error}</p>}<form onSubmit={scanNow} className="space-y-3"><label className="block text-xs font-medium text-ink" htmlFor="radar-owner-token">Owner token</label><input ref={tokenInputRef} id="radar-owner-token" type="password" value={ownerToken} onChange={(event) => setOwnerToken(event.target.value)} autoComplete="off" placeholder="Enter owner token" className="w-full rounded-md border border-line-strong bg-bg px-3 py-2.5 text-sm text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20" /><button type="submit" disabled={!ownerToken || scanning} className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-md bg-accent px-4 text-sm font-semibold text-on-accent transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"><RefreshCw size={15} className={scanning ? "animate-spin" : ""} aria-hidden />{scanning ? "Scanning…" : "Confirm scan"}</button></form></div></div>}
@@ -106,15 +139,15 @@ export function RadarExperience() {
       {(error || data?.warning) && <p role="status" className="mb-5 rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning">{error || data?.warning}</p>}
       <div className="mb-4 flex items-center justify-between"><h2 className="text-lg font-semibold text-ink">Latest candidates</h2><label className="flex items-center gap-2 text-xs text-neutral-600">Sort by<select value={sort} onChange={(event) => setSort(event.target.value as Sort)} className="rounded-md border border-line-strong bg-panel px-2.5 py-1.5 text-sm text-ink"><option value="score">Opportunity score</option><option value="newest">Newest</option></select></label></div>
 
-      {!data && !error ? <div aria-live="polite" className="flex min-h-56 items-center justify-center rounded-xl border border-line bg-surface text-sm text-neutral-600"><Sparkles className="mr-2 animate-pulse text-accent" size={18} aria-hidden />Reading the latest signals…</div> : posts.length === 0 ? <div className="rounded-xl border border-line bg-surface px-6 py-16 text-center"><p className="font-semibold text-ink">No new active posts available yet.</p><p className="mt-2 text-sm text-neutral-600">Repeated results are excluded. The radar will check again at the next scheduled scan.</p></div> : <div className="overflow-hidden rounded-xl border border-line bg-surface">
-        <div className="hidden grid-cols-[104px_150px_minmax(320px,1fr)_180px_52px_56px] gap-3 border-b border-line bg-panel px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-neutral-500 xl:grid"><span>Score</span><span>Author</span><span>Post</span><span>Engagement</span><span>Age</span><span>Actions</span></div>
-        <ul className="divide-y divide-line">{posts.map((post) => <li key={post.id} className="grid items-start gap-4 p-4 transition-colors hover:bg-panel/50 xl:grid-cols-[104px_150px_minmax(320px,1fr)_180px_52px_56px] xl:gap-3">
-          {expandedScoreId === post.id && <div id={`score-details-${post.id}`} className="col-span-full rounded-lg border border-line bg-panel p-4 text-[11px] text-neutral-700 shadow-sm"><p className="mb-3 font-semibold text-ink">Score breakdown</p><dl className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">{scoreDetails(post).map(([label, weight, value]) => <div key={label} className="rounded-md bg-surface px-3 py-2"><dt className="font-medium text-ink">{label} <span className="font-normal text-neutral-500">({weight})</span></dt><dd className="mt-1 text-neutral-600">{value}</dd></div>)}</dl></div>}
-          <div className="flex items-start gap-1.5"><span className={`inline-flex min-w-14 items-center justify-center rounded-lg px-2 py-2 ${scoreStyle(post.opportunityScore)}`}><strong className="text-xl leading-none">{post.opportunityScore}</strong></span><button type="button" aria-expanded={expandedScoreId === post.id} aria-controls={`score-details-${post.id}`} aria-label={`Explain score ${post.opportunityScore} for ${post.author.name}`} onClick={() => setExpandedScoreId((current) => current === post.id ? null : post.id)} className="mt-1 inline-flex size-6 items-center justify-center rounded-full text-neutral-500 transition hover:bg-panel-raised hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"><Info size={15} aria-hidden /></button></div>
+      {!data && !error ? <div aria-live="polite" className="flex min-h-56 items-center justify-center rounded-xl border border-line bg-surface text-sm text-neutral-600"><Sparkles className="mr-2 animate-pulse text-accent" size={18} aria-hidden />Reading the latest signals…</div> : posts.length === 0 ? <div className="rounded-xl border border-line bg-surface px-6 py-16 text-center"><p className="font-semibold text-ink">No new active posts available yet.</p><p className="mt-2 text-sm text-neutral-600">Repeated results are excluded. The radar will check again at the next scheduled scan.</p></div> : <div className="rounded-xl border border-line bg-surface">
+        <div className="hidden grid-cols-[104px_150px_minmax(320px,1fr)_180px_52px_76px] gap-3 rounded-t-xl border-b border-line bg-panel px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-neutral-500 xl:grid"><span>Score</span><span>Author</span><span>Post</span><span>Engagement</span><span>Age</span><span>Actions</span></div>
+        <ul className="divide-y divide-line">{posts.map((post) => <li key={post.id} className="grid items-start gap-4 p-4 transition-colors hover:bg-panel/50 xl:grid-cols-[104px_150px_minmax(320px,1fr)_180px_52px_76px] xl:gap-3">
+          <div className="flex items-start gap-1.5"><span className={`inline-flex min-w-14 flex-col items-center justify-center rounded-lg px-2 py-1.5 ${scoreStyle(post.opportunityScore)}`}><strong className="text-xl leading-none">{post.opportunityScore}</strong><span className="mt-0.5 text-[9px] font-semibold opacity-75">/100</span></span><div className="group relative"><button type="button" aria-expanded={expandedScoreId === post.id} aria-controls={`score-details-${post.id}`} aria-label={`Explain score ${post.opportunityScore} for ${post.author.name}`} onClick={() => setExpandedScoreId((current) => current === post.id ? null : post.id)} className="mt-1 inline-flex size-6 items-center justify-center rounded-full text-neutral-500 transition hover:bg-panel-raised hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"><Info size={15} aria-hidden /></button><div id={`score-details-${post.id}`} role="tooltip" className="invisible absolute left-0 top-8 z-40 hidden w-80 rounded-xl border border-line-strong bg-surface p-3 text-[11px] text-neutral-700 opacity-0 shadow-2xl transition xl:block group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100"><ScoreBreakdown post={post} /></div></div></div>
           <div className="min-w-0"><p className="truncate text-sm font-semibold text-ink">{post.author.name}</p><p className="truncate text-xs text-neutral-600">@{post.author.username}</p></div>
-          <p className="text-[13px]/[1.55] text-neutral-700">{post.text}</p><Metrics post={post} /><span className="text-xs font-medium text-neutral-600">{age(post.createdAt)}</span><a href={post.url} target="_blank" rel="noopener noreferrer" aria-label={`Open ${post.author.name}'s post on X in a new tab`} title="Open on X" className="inline-flex size-9 items-center justify-center rounded-md bg-accent-tint text-accent transition hover:scale-105 hover:bg-accent hover:text-on-accent active:scale-95"><ArrowUpRight size={17} strokeWidth={1.8} aria-hidden /></a>
+          <p className="text-[13px]/[1.55] text-neutral-700">{post.text}</p><Metrics post={post} /><span className="text-xs font-medium text-neutral-600">{age(post.createdAt)}</span><div className="flex gap-1"><a href={post.url} target="_blank" rel="noopener noreferrer" aria-label={`Open ${post.author.name}'s post on X in a new tab`} title="Open on X" className="inline-flex size-8 items-center justify-center rounded-md bg-accent-tint text-accent transition hover:scale-105 hover:bg-accent hover:text-on-accent active:scale-95"><ArrowUpRight size={15} strokeWidth={1.8} aria-hidden /></a><button type="button" onClick={() => void copyReplyPrompt(post)} aria-label={`Copy a reply prompt for ${post.author.name}'s post`} title="Copy reply prompt" className="inline-flex size-8 items-center justify-center rounded-md bg-accent-tint text-accent transition hover:scale-105 hover:bg-accent hover:text-on-accent active:scale-95">{copiedPostId === post.id ? <Check size={15} aria-hidden /> : <Copy size={15} aria-hidden />}</button></div>
         </li>)}</ul>
       </div>}
+      {expandedScoreId && posts.some((post) => post.id === expandedScoreId) && <div className="fixed inset-0 z-50 flex items-end bg-black/55 xl:hidden" onMouseDown={(event) => { if (event.currentTarget === event.target) setExpandedScoreId(null); }}><div role="dialog" aria-modal="true" aria-label="Score breakdown" className="max-h-[78vh] w-full overflow-y-auto rounded-t-2xl border border-line-strong bg-surface p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-2xl"><div className="mb-2 flex justify-end"><button type="button" onClick={() => setExpandedScoreId(null)} aria-label="Close score breakdown" className="inline-flex size-8 items-center justify-center rounded-md text-neutral-600 hover:bg-panel"><X size={17} aria-hidden /></button></div><ScoreBreakdown post={posts.find((post) => post.id === expandedScoreId)!} /></div></div>}
     </div>
   </div>;
 }

@@ -2,7 +2,7 @@ const RANKING_STEPS = [
   {
     phase: "Collect",
     tool: "X API",
-    description: "Searches the previous 12 hours for active AI-engineering discussions involving concrete problems, disagreements, quality, cost, security, architecture, reliability, or meaningful capability changes.",
+    description: "Searches the previous 12 hours for active AI and software-engineering discussions involving concrete problems, disagreements, quality, cost, security, architecture, reliability, or meaningful technology announcements.",
     why: "Requiring a substantive discussion signal suppresses generic tool polls, listicles, and promotional explainers while retaining the existing activity threshold.",
   },
   {
@@ -46,6 +46,12 @@ const RANKING_STEPS = [
     tool: "Secure backend",
     description: "Allows the owner to request an immediate scan and restart the configured countdown through a protected server workflow.",
     why: "Owner authorization and server-enforced usage controls keep the paid action private and spending bounded.",
+  },
+  {
+    phase: "Reply prep",
+    tool: "Clipboard prompt",
+    description: "Builds a concise, context-rich reply prompt from the cached post, its metrics, and Ali’s professional voice, then copies it locally.",
+    why: "The prompt asks ChatGPT to inspect live replies and quote posts before drafting, so the portfolio makes no additional X request and never auto-posts.",
   },
 ] as const;
 

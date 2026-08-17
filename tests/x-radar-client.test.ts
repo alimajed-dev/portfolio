@@ -18,11 +18,12 @@ describe("X radar search", () => {
     expect(url.searchParams.get("query")).toContain("min_replies:3");
     expect(url.searchParams.get("query")).toContain("min_likes:20");
     expect(url.searchParams.get("query")).toContain('"AI agents"');
-    expect(url.searchParams.get("query")).toContain('"AWS Bedrock"');
     expect(url.searchParams.get("query")).toContain("Anthropic");
     expect(url.searchParams.get("query")).toContain("quality");
     expect(url.searchParams.get("query")).toContain("architecture");
     expect(url.searchParams.get("query")).toContain('"AI slop"');
+    expect(url.searchParams.get("query")).toContain("YouTube");
+    expect(url.searchParams.get("query")).toContain("announces");
     expect(url.searchParams.get("query")).toContain("ChatGPT");
     expect(url.searchParams.get("query")!.length).toBeLessThanOrEqual(512);
     expect(url.searchParams.get("query")).not.toContain("crypto");

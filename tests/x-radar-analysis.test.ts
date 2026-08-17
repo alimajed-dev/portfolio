@@ -51,4 +51,9 @@ describe("local radar analysis", () => {
     expect(result.relevance).toBeGreaterThanOrEqual(68);
     expect(result.abilityToAddValue).toBeGreaterThanOrEqual(70);
   });
+
+  it("recognizes meaningful technology-platform announcements", () => {
+    const result = analyzeLocally(post("YouTube announces a major change to how video views are counted."));
+    expect(result.relevance).toBeGreaterThanOrEqual(50);
+  });
 });
