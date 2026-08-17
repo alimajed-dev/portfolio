@@ -2,7 +2,7 @@ import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { RadarSnapshot } from "./types";
 
-const directory = path.join(process.cwd(), ".data");
+const directory = process.env.X_RADAR_DATA_DIR || path.join(process.cwd(), ".data");
 const cachePath = path.join(directory, "x-radar.json");
 const usagePath = path.join(directory, "x-radar-usage.json");
 
