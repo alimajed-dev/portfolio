@@ -31,6 +31,8 @@ describe("X radar search", () => {
     expect(url.searchParams.get("tweet.fields")).toContain("article");
     expect(url.searchParams.get("tweet.fields")).toContain("note_tweet");
     expect(url.searchParams.get("user.fields")).toContain("verified");
+    expect(url.searchParams.get("user.fields")).toContain("created_at");
+    expect(url.searchParams.get("user.fields")).toContain("public_metrics");
     expect(url.searchParams.get("query")).toContain("ChatGPT");
     expect(url.searchParams.get("query")!.length).toBeLessThanOrEqual(512);
     expect(url.searchParams.get("query")).not.toContain("crypto");
@@ -43,12 +45,13 @@ describe("X radar search", () => {
     vi.stubEnv("X_BEARER_TOKEN", "test-token");
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({
       data: [{ id: "p1", text: "What is harder about maintaining AI generated code?", author_id: "u1", created_at: "2026-08-17T12:00:00Z", note_tweet: { text: "Full note" }, public_metrics: { like_count: 30, reply_count: 5 } }],
-      includes: { users: [{ id: "u1", name: "Microsoft Learn", username: "MicrosoftLearn", verified: true, public_metrics: { followers_count: 1_000_000 } }] },
+      includes: { users: [{ id: "u1", name: "Microsoft Learn", username: "MicrosoftLearn", created_at: "2020-01-01T00:00:00Z", verified: true, public_metrics: { followers_count: 1_000_000, tweet_count: 12_000 } }] },
     }), { status: 200 })));
 
     const [result] = await searchRecentPosts();
     expect(result.author.verified).toBe(true);
     expect(result.author.followers).toBe(1_000_000);
+    expect(result.author.postsPerMonth).toBeGreaterThan(0);
     expect(result.format).toBe("note");
   });
 });

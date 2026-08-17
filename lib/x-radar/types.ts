@@ -6,7 +6,7 @@ export type EngagementMetrics = {
 export type XPost = {
   id: string; text: string; createdAt: string;
   format?: "standard" | "note" | "article";
-  author: { id: string; name: string; username: string; description?: string; followers?: number; verified?: boolean; profileImageUrl?: string };
+  author: { id: string; name: string; username: string; description?: string; followers?: number; postsPerMonth?: number; verified?: boolean; profileImageUrl?: string };
   metrics: EngagementMetrics;
 };
 
@@ -16,7 +16,7 @@ export type RelevanceAnalysis = {
 };
 
 export type ScoringSignals = RelevanceAnalysis & {
-  engagement: number; reach: number; velocity: number; freshness: number;
+  engagement: number; reach: number; velocity: number;
 };
 
 export type RankedPost = XPost & {

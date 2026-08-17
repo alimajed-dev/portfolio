@@ -34,8 +34,9 @@ export function analyzeLocally(post: XPost): RelevanceAnalysis {
     : shallowPrompt
       ? "Skip unless the replies develop into a concrete engineering trade-off."
     : "Add a concrete delivery or architecture lesson that moves the discussion beyond the headline.";
-  const followerAuthority = post.author.followers ? Math.min(94, Math.round(Math.log10(post.author.followers + 1) * 18)) : 0;
-  const audienceValue = Math.min(100, followerAuthority + (post.author.verified ? 6 : 0));
+  const followerAuthority = post.author.followers ? Math.min(80, Math.round(Math.log10(post.author.followers + 1) * 13)) : 0;
+  const activityAuthority = post.author.postsPerMonth ? Math.min(12, Math.round(Math.log10(post.author.postsPerMonth + 1) * 6)) : 0;
+  const audienceValue = Math.min(100, followerAuthority + activityAuthority + (post.author.verified ? 8 : 0));
   return { relevance, abilityToAddValue, audienceValue, whyReply, suggestedAngle };
 }
 

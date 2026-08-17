@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight, Check, Clock3, Copy, Eye, Heart, Info, MessageCircle, Radar, RefreshCw, Repeat2, Sparkles, X } from "lucide-react";
+import { ArrowUpRight, Check, Clock3, Copy, Eye, Heart, Info, MessageCircle, Quote, Radar, RefreshCw, Repeat2, Sparkles, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { RadarSnapshot, RankedPost } from "@/lib/x-radar/types";
 
@@ -9,16 +9,15 @@ const compact = new Intl.NumberFormat("en", { notation: "compact", maximumFracti
 function age(iso: string) { const minutes = Math.max(1, Math.floor((Date.now() - new Date(iso).getTime()) / 60_000)); return minutes < 60 ? `${minutes}m` : minutes < 1440 ? `${Math.floor(minutes / 60)}h` : `${Math.floor(minutes / 1440)}d`; }
 function scoreStyle(score: number) { return score >= 70 ? "bg-success/15 text-success" : score >= 55 ? "bg-warning/15 text-warning" : "bg-error/15 text-error"; }
 function scoreDetails(post: RankedPost) {
-  const interactions = post.metrics.likes + post.metrics.replies + post.metrics.reposts + post.metrics.quotes;
-  const { reach, engagement, velocity, relevance, abilityToAddValue, freshness, audienceValue } = post.signals;
+  const { reach, engagement, velocity, relevance, abilityToAddValue, audienceValue } = post.signals;
+  const authorityDetails = [`${compact.format(post.author.followers ?? 0)} followers`, post.author.postsPerMonth === undefined ? null : `${compact.format(post.author.postsPerMonth)} avg posts/mo`, post.author.verified ? "verified" : null].filter(Boolean).join(" · ");
   return [
-    ["View reach", "32%", `${compact.format(post.metrics.impressions ?? 0)} views · ${reach}/100`],
-    ["Interactions", "28%", `${compact.format(interactions)} total · ${engagement}/100`],
-    ["Activity velocity", "15%", `${velocity}/100`],
-    ["Relevance", "10%", `${relevance}/100`],
+    ["Existing interactions", "32%", `${compact.format(post.metrics.replies)} replies · ${compact.format(post.metrics.likes)} likes · ${compact.format(post.metrics.reposts)} reposts · ${compact.format(post.metrics.quotes)} quotes · ${engagement}/100`],
+    ["Interaction velocity", "28%", `${velocity}/100`],
+    ["Professional relevance", "15%", `${relevance}/100`],
+    ["Author authority", "10%", `${authorityDetails} · ${audienceValue}/100`],
+    ["View reach", "8%", `${compact.format(post.metrics.impressions ?? 0)} views · ${reach}/100`],
     ["Ability to add value", "7%", `${abilityToAddValue}/100`],
-    ["Author authority", "5%", `${audienceValue}/100`],
-    ["Freshness", "3%", `${freshness}/100`],
   ] as const;
 }
 
@@ -34,7 +33,7 @@ function replyPrompt(post: RankedPost) {
 }
 
 function ScoreBreakdown({ post }: { post: RankedPost }) {
-  return <><p className="mb-3 text-sm font-semibold text-ink">What drives this score</p><ol className="space-y-2">{scoreDetails(post).map(([label, weight, value], index) => <li key={label} className="grid grid-cols-[24px_1fr_auto] items-start gap-2 rounded-md bg-panel px-2.5 py-2"><span className="flex size-6 items-center justify-center rounded-full bg-accent-tint font-mono text-[10px] font-semibold text-accent">{index + 1}</span><span className="font-medium text-ink">{label} <span className="font-normal text-neutral-500">({weight})</span></span><span className="text-right text-neutral-600">{value}</span></li>)}</ol></>;
+  return <><p className="mb-3 text-sm font-semibold text-ink">What drives this score</p><ol className="space-y-2">{scoreDetails(post).map(([label, weight, value], index) => <li key={label} className="grid grid-cols-[24px_minmax(0,1fr)] items-start gap-2 rounded-md bg-panel px-2.5 py-2"><span className="flex size-6 items-center justify-center rounded-full bg-accent-tint font-mono text-[10px] font-semibold text-accent">{index + 1}</span><span className="min-w-0"><span className="block font-medium text-ink">{label} <span className="font-normal text-neutral-500">({weight})</span></span><span className="mt-0.5 block break-words leading-relaxed text-neutral-600">{value}</span></span></li>)}</ol></>;
 }
 
 function countdown(target?: string) {
@@ -48,7 +47,7 @@ function countdown(target?: string) {
 }
 
 function Metrics({ post }: { post: RankedPost }) {
-  const items = [[MessageCircle, post.metrics.replies, "replies"], [Heart, post.metrics.likes, "likes"], [Repeat2, post.metrics.reposts, "reposts"], ...(post.metrics.impressions === undefined ? [] : [[Eye, post.metrics.impressions, "impressions"]] as const)] as const;
+  const items = [[MessageCircle, post.metrics.replies, "replies"], [Heart, post.metrics.likes, "likes"], [Repeat2, post.metrics.reposts, "reposts"], [Quote, post.metrics.quotes, "quote posts"], ...(post.metrics.impressions === undefined ? [] : [[Eye, post.metrics.impressions, "impressions"]] as const)] as const;
   return <span className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-neutral-600">{items.map(([Icon, value, label]) => <span key={label} title={label} className="inline-flex items-center gap-1"><Icon size={12} aria-hidden />{compact.format(value)}</span>)}</span>;
 }
 
@@ -126,7 +125,7 @@ export function RadarExperience() {
   return <div className="min-h-0 flex-1 overflow-y-auto bg-bg px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
     <div className="mx-auto max-w-[1120px]">
       <header className="mb-7 flex flex-col gap-4 border-b border-line pb-6 sm:flex-row sm:items-end sm:justify-between">
-        <div className="max-w-2xl"><span className="mb-3 inline-flex items-center gap-2 rounded-full bg-accent-tint px-3 py-1 text-xs font-semibold text-accent-ink"><Radar size={14} aria-hidden />Signal over noise</span><h1 className="text-[30px] font-bold tracking-[-0.025em] text-ink sm:text-[38px]">Find the conversations worth joining.</h1><p className="mt-3 text-[14px]/[1.6] text-neutral-600 sm:text-[15px]/[1.6]">An AI-powered radar for X posts, ranked for my fit: higher scores signal stronger reach, active interaction, and more room for me to add value.</p></div>
+        <div className="max-w-2xl"><span className="mb-3 inline-flex items-center gap-2 rounded-full bg-accent-tint px-3 py-1 text-xs font-semibold text-accent-ink"><Radar size={14} aria-hidden />Signal over noise</span><h1 className="text-[30px] font-bold tracking-[-0.025em] text-ink sm:text-[38px]">Find the conversations worth joining.</h1><p className="mt-3 text-[14px]/[1.6] text-neutral-600 sm:text-[15px]/[1.6]">An AI-powered radar for X posts, ranked for my fit: higher scores signal active interaction, professional relevance, credible authors, and more room for me to add value.</p></div>
         <div className="flex shrink-0 items-start gap-2 text-left sm:text-right"><div><p className="flex items-center gap-1.5 font-mono text-xs font-semibold text-accent-ink sm:justify-end"><Clock3 size={13} aria-hidden />{countdown(data?.nextRefreshAt)}</p><p className="mt-1 text-xs text-neutral-600">{data?.lastRefreshedAt ? `Last scan ${formatScanTime(data.lastRefreshedAt)}` : "No completed scans yet"}</p></div>{data?.manualRefresh?.enabled && <button ref={refreshButtonRef} type="button" disabled={manualLimitReached || scanning} onClick={() => { setError(""); setShowUnlock(true); }} aria-label={manualLimitReached ? "Monthly manual scan limit reached" : "Run a manual scan"} title={manualLimitReached ? "Monthly manual scan limit reached" : "Run a manual scan"} className="inline-flex size-9 shrink-0 items-center justify-center rounded-md border border-line-strong bg-panel text-ink transition hover:scale-105 hover:bg-panel-raised active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"><RefreshCw size={15} className={scanning ? "animate-spin" : ""} aria-hidden /></button>}</div>
       </header>
 

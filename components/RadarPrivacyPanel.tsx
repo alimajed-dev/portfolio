@@ -1,8 +1,8 @@
 import { OWNER } from "@/lib/site";
 
 const SECTIONS = [
-  ["Information processed", "Up to 10 recent public posts per scan, including post text and identifiers, timestamps, public author details, and public engagement metrics returned by X. Protected posts, Direct Messages, email addresses, private metrics, and precise location data are not accessed."],
-  ["How it is used", "The radar ranks professional conversations for possible manual participation. It never posts, replies, likes, reposts, follows, or messages anyone."],
+  ["Information processed", "Up to 10 recent public posts per scan, including post text and identifiers, timestamps, public author details, follower and posting-activity signals, verification status, and public engagement metrics returned by X. Protected posts, Direct Messages, email addresses, private metrics, and precise location data are not accessed."],
+  ["How it is used", "The radar ranks professional conversations using interaction depth and velocity, professional relevance, author authority, view reach, and room to contribute. It never posts, replies, likes, reposts, follows, or messages anyone."],
   ["Analysis", "Analysis runs locally using deterministic application logic by default. External AI processing remains disabled unless the required data terms and approvals are in place."],
   ["Storage and removal", "Only the latest successful result set and a short-lived list of post IDs used to prevent repeat recommendations are cached privately. The ID list and public result display expire within 24 hours. New successful scans replace the displayed results. Account owners may request correction or removal at any time."],
   ["Sharing", "X data is not sold, licensed, offered as a dataset, used for surveillance, matched to off-platform identities, or used for advertising."],

@@ -38,7 +38,7 @@ describe("RadarExperience manual scan control", () => {
   it("top-aligns every cell in a candidate row", async () => {
     const user = userEvent.setup();
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({
-      posts: [{ id: "p1", text: "A technical discussion", createdAt: "2026-08-17T12:00:00Z", author: { id: "a1", name: "Engineer", username: "engineer" }, metrics: { likes: 1, replies: 1, reposts: 0, quotes: 0 }, opportunityScore: 30, label: "Skip", signals: { relevance: 60, abilityToAddValue: 60, audienceValue: 50, engagement: 20, reach: 0, velocity: 30, freshness: 90, whyReply: "Useful", suggestedAngle: "Add context" }, whyReply: "Useful", suggestedAngle: "Add context", url: "https://x.com/engineer/status/p1" }],
+      posts: [{ id: "p1", text: "A technical discussion", createdAt: "2026-08-17T12:00:00Z", author: { id: "a1", name: "Engineer", username: "engineer", followers: 12_000, postsPerMonth: 120, verified: true }, metrics: { likes: 1, replies: 1, reposts: 0, quotes: 0 }, opportunityScore: 30, label: "Skip", signals: { relevance: 60, abilityToAddValue: 60, audienceValue: 50, engagement: 20, reach: 0, velocity: 30, whyReply: "Useful", suggestedAngle: "Add context" }, whyReply: "Useful", suggestedAngle: "Add context", url: "https://x.com/engineer/status/p1" }],
       lastRefreshedAt: "2026-08-17T12:00:00Z", nextRefreshAt: "2026-08-17T16:00:00Z", source: "x",
       stats: { scanned: 1, rejected: 0, opportunities: 1 }, manualRefresh: { enabled: false, manualRemaining: 50, manualLimit: 50 },
     }), { status: 200, headers: { "content-type": "application/json" } })));
@@ -46,7 +46,7 @@ describe("RadarExperience manual scan control", () => {
     render(<RadarExperience />);
     const row = (await screen.findByText("A technical discussion")).closest("li");
     expect(screen.getByText("A technical discussion").className.split(" ")).toContain("line-clamp-5");
-    expect(screen.getByText(/ranked for my fit: higher scores signal stronger reach, active interaction, and more room for me to add value/i)).toBeTruthy();
+    expect(screen.getByText(/ranked for my fit: higher scores signal active interaction, professional relevance, credible authors, and more room for me to add value/i)).toBeTruthy();
     expect(row?.className.split(" ")).toContain("items-start");
     expect(screen.queryByText("Why reply")).toBeNull();
     expect(screen.queryByText("Angle:")).toBeNull();
@@ -55,6 +55,9 @@ describe("RadarExperience manual scan control", () => {
     expect(within(dialog).getByText("What drives this score")).toBeTruthy();
     expect(within(dialog).getByText("View reach")).toBeTruthy();
     expect(within(dialog).getByText("Author authority")).toBeTruthy();
+    expect(within(dialog).getByText("Existing interactions")).toBeTruthy();
+    expect(within(dialog).getByText(/120 avg posts\/mo/)).toBeTruthy();
+    expect(within(dialog).queryByText("Freshness")).toBeNull();
     expect(screen.getByText("/100")).toBeTruthy();
     expect(screen.getByText(/Last scan .*(?:UTC|GMT(?:[+-]\d+)?)/)).toBeTruthy();
     expect(screen.queryByText("Skip")).toBeNull();
@@ -72,7 +75,7 @@ describe("RadarExperience manual scan control", () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     vi.stubGlobal("navigator", { clipboard: { writeText } });
     const apiFetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({
-      posts: [{ id: "p1", text: "A concrete AI engineering trade-off", createdAt: "2026-08-17T12:00:00Z", author: { id: "a1", name: "Engineer", username: "engineer" }, metrics: { likes: 20, replies: 4, reposts: 2, quotes: 1, impressions: 1000 }, opportunityScore: 72, label: "Check", signals: { relevance: 80, abilityToAddValue: 75, audienceValue: 60, engagement: 55, reach: 70, velocity: 65, freshness: 90, whyReply: "Useful", suggestedAngle: "Add context" }, whyReply: "Useful", suggestedAngle: "Add context", url: "https://x.com/engineer/status/p1" }],
+      posts: [{ id: "p1", text: "A concrete AI engineering trade-off", createdAt: "2026-08-17T12:00:00Z", author: { id: "a1", name: "Engineer", username: "engineer" }, metrics: { likes: 20, replies: 4, reposts: 2, quotes: 1, impressions: 1000 }, opportunityScore: 72, label: "Check", signals: { relevance: 80, abilityToAddValue: 75, audienceValue: 60, engagement: 55, reach: 70, velocity: 65, whyReply: "Useful", suggestedAngle: "Add context" }, whyReply: "Useful", suggestedAngle: "Add context", url: "https://x.com/engineer/status/p1" }],
       lastRefreshedAt: "2026-08-17T12:00:00Z", nextRefreshAt: "2026-08-17T16:00:00Z", source: "x", stats: { scanned: 1, rejected: 0, opportunities: 1 }, manualRefresh: { enabled: false, manualRemaining: 50, manualLimit: 50 },
     }), { status: 200, headers: { "content-type": "application/json" } }));
     vi.stubGlobal("fetch", apiFetch);

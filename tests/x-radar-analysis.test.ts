@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { analyzeLocally } from "@/lib/x-radar/analysis";
 import type { XPost } from "@/lib/x-radar/types";
 
-function post(text: string, description = "Software engineering", authority: { followers?: number; verified?: boolean } = {}, format: XPost["format"] = "standard"): XPost {
+function post(text: string, description = "Software engineering", authority: { followers?: number; postsPerMonth?: number; verified?: boolean } = {}, format: XPost["format"] = "standard"): XPost {
   return {
     id: "1", text, createdAt: "2026-08-17T12:00:00Z", format,
     author: { id: "u1", name: "Engineer", username: "engineer", description, ...authority },
@@ -58,14 +58,21 @@ describe("local radar analysis", () => {
   });
 
   it("keeps substantive model-versus-prompt questions eligible", () => {
-    const result = analyzeLocally(post("What's more important: the model or the prompt?", "AI learning", { followers: 1_000_000, verified: true }));
+    const result = analyzeLocally(post("What's more important: the model or the prompt?", "AI learning", { followers: 1_000_000, postsPerMonth: 300, verified: true }));
     expect(result.abilityToAddValue).toBeGreaterThanOrEqual(70);
     expect(result.audienceValue).toBeGreaterThanOrEqual(90);
   });
 
   it("keeps author authority separate from topical relevance", () => {
     expect(analyzeLocally(post("AI agents, RAG, LLMs, prompts, APIs, and software development")).audienceValue).toBe(0);
-    expect(analyzeLocally(post("A software observation", "", { followers: 100_000, verified: true })).audienceValue).toBeGreaterThanOrEqual(90);
+    expect(analyzeLocally(post("A software observation", "", { followers: 100_000, postsPerMonth: 300, verified: true })).audienceValue).toBeGreaterThanOrEqual(80);
+  });
+
+  it("rewards active, verified authors without changing topical relevance", () => {
+    const inactive = analyzeLocally(post("A concrete software architecture trade-off", "", { followers: 10_000 }));
+    const active = analyzeLocally(post("A concrete software architecture trade-off", "", { followers: 10_000, postsPerMonth: 300, verified: true }));
+    expect(active.audienceValue).toBeGreaterThan(inactive.audienceValue);
+    expect(active.relevance).toBe(inactive.relevance);
   });
 
   it("keeps AI-generated code maintainability and future-of-developer debates eligible", () => {

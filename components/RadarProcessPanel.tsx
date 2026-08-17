@@ -20,20 +20,20 @@ const RANKING_STEPS = [
   {
     phase: "Understand",
     tool: "Local analysis",
-    description: "Scores professional relevance, room to add value, author authority, and whether a concise reply can add something distinct without restating a long post.",
+    description: "Scores professional relevance, room to add value, and author authority from follower scale, verification, and average posting activity returned with the candidate.",
     why: "X content stays inside the application by default. Gemini inference is available only after the disclosed processing is approved and paid-service data terms are confirmed.",
   },
   {
     phase: "Measure",
     tool: "Metrics",
-    description: "Scores public views, interaction quality, activity velocity, and freshness from the metrics returned by X.",
-    why: "Views and interactions are the dominant criteria because a relevant post still needs real distribution and active participation.",
+    description: "Scores replies and quote posts most strongly, followed by reposts and likes, plus how quickly those interactions accumulated. Views remain a separate, lower-weight reach signal.",
+    why: "Real participation matters more than passive exposure. Freshness is not scored because every candidate already comes from the configured 12-hour window.",
   },
   {
     phase: "Rank",
     tool: "Hybrid score",
     description: "Combines every signal into a 0–100 Opportunity Score and orders all candidates from strongest to weakest.",
-    why: "Scores of 70+ fit Ali best, 55–69 warrant judgment, and lower scores are easy to skip. Views and interactions dominate, while a quality floor prevents irrelevant virality from being recommended.",
+    why: "Scores of 70+ fit Ali best, 55–69 warrant judgment, and lower scores are easy to skip. Interactions and their velocity dominate, while professional relevance and author quality prevent empty virality from winning.",
   },
   {
     phase: "Cache",
@@ -56,9 +56,9 @@ const RANKING_STEPS = [
 ] as const;
 
 const WEIGHTS = [
-  ["View reach", "32%"], ["Existing interactions", "28%"],
-  ["Interaction velocity", "15%"], ["Professional relevance", "10%"],
-  ["Ability to add value", "7%"], ["Author authority", "5%"], ["Freshness", "3%"],
+  ["Existing interactions", "32%"], ["Interaction velocity", "28%"],
+  ["Professional relevance", "15%"], ["Author authority", "10%"],
+  ["View reach", "8%"], ["Ability to add value", "7%"],
 ] as const;
 
 export function RadarProcessPanel() {
