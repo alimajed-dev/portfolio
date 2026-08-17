@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronsLeft, ChevronsRight, CircleX, Home, Mail, ScanLine, Terminal } from "lucide-react";
+import { ChevronsLeft, ChevronsRight, CircleX, Home, Mail, Radar, ScanLine, Terminal } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Avatar } from "./Avatar";
@@ -117,7 +117,7 @@ export function Sidebar({
           <ul className="flex flex-col gap-1">
             {PROJECTS.map((project) => {
               const active = pathname === `/projects/${project.id}`;
-              const ProjectIcon = project.experience === "pixels" ? ScanLine : Terminal;
+              const ProjectIcon = project.experience === "pixels" ? ScanLine : project.experience === "radar" ? Radar : Terminal;
               return (
                 <li key={project.id}>
                   <Link

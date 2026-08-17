@@ -43,3 +43,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Runtime cache for X Engagement Radar (Railway volume can persist this later)
+/.data/

@@ -72,7 +72,7 @@ export type Project = {
   id: string;
   name: string;
   subtitle: string;
-  experience: "agent" | "pixels";
+  experience: "agent" | "pixels" | "radar";
   cardEyebrow: string;
   cardTitle: string;
   cardBody: string;
@@ -99,6 +99,16 @@ export const PROJECTS: Project[] = [
     cardTitle: "Look closer at every color on your screen",
     cardBody:
       "Zoom from a complete image into its red, green, and blue subpixels, then mix your own color with light.",
+  },
+  {
+    id: "x-engagement-radar",
+    name: "X Engagement Radar",
+    subtitle: "AI opportunity finder",
+    experience: "radar",
+    cardEyebrow: "AI-powered tool",
+    cardTitle: "Find the conversations worth joining",
+    cardBody:
+      "Finds high-potential X conversations where I can contribute useful expertise, grow my network, and join discussions while they’re still active.",
   },
 ];
 

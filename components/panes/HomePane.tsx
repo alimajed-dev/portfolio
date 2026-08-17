@@ -1,4 +1,4 @@
-import { ArrowRight, ScanLine, Terminal } from "lucide-react";
+import { ArrowRight, Radar, ScanLine, Terminal } from "lucide-react";
 import Link from "next/link";
 import { OWNER, PROJECTS, SKILLS } from "@/lib/site";
 
@@ -36,7 +36,7 @@ export function HomePane() {
             </p>
           </div>
           {PROJECTS.map((project) => {
-            const ProjectIcon = project.experience === "pixels" ? ScanLine : Terminal;
+            const ProjectIcon = project.experience === "pixels" ? ScanLine : project.experience === "radar" ? Radar : Terminal;
             const displayName =
               project.experience === "pixels" ? "Learn how pixels create color" : project.name;
             return (

@@ -7,11 +7,12 @@ import { useMediaQuery } from "@/lib/useMediaQuery";
 import { LiveTrace } from "./LiveTrace";
 import { ProcessPanel } from "./ProcessPanel";
 import { PixelProcessPanel } from "./PixelProcessPanel";
+import { RadarProcessPanel } from "./RadarProcessPanel";
 
 export type PanelTab = "live" | "process";
 
 type Props = {
-  variant?: "agent" | "pixels";
+  variant?: "agent" | "pixels" | "radar";
   tab: PanelTab;
   onTabChange: (tab: PanelTab) => void;
   steps: TraceStep[];
@@ -76,7 +77,7 @@ export function RightPanel({ variant = "agent", tab, onTabChange, steps, running
       {open && <div aria-hidden onClick={onClose} className="fixed inset-0 z-20 bg-black/70 lg:hidden" />}
       <aside
         ref={asideRef}
-        aria-label={variant === "pixels" ? "Project panel" : "Agent panel"}
+        aria-label={variant === "agent" ? "Agent panel" : "Project panel"}
         role={modal ? "dialog" : undefined}
         aria-modal={modal || undefined}
         className={[
@@ -86,9 +87,9 @@ export function RightPanel({ variant = "agent", tab, onTabChange, steps, running
         ].join(" ")}
       >
         <div className="flex h-[56px] shrink-0 items-center border-b border-line lg:h-[46px]">
-          {variant === "pixels" ? (
+          {variant !== "agent" ? (
             <div className="flex h-full min-w-0 flex-1 items-center justify-center border-b border-accent text-xs font-medium text-accent">
-              Build Process
+              {variant === "radar" ? "Ranking Process" : "Build Process"}
             </div>
           ) : (
             <div
@@ -140,6 +141,8 @@ export function RightPanel({ variant = "agent", tab, onTabChange, steps, running
         >
           {variant === "pixels" ? (
             <PixelProcessPanel />
+          ) : variant === "radar" ? (
+            <RadarProcessPanel />
           ) : tab === "live" ? (
             <LiveTrace steps={steps} running={running} />
           ) : (

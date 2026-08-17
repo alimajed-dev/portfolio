@@ -2,6 +2,7 @@
 
 import { ProjectPane } from "@/components/panes/ProjectPane";
 import { PixelExperience } from "@/components/experiences/PixelExperience";
+import { RadarExperience } from "@/components/experiences/RadarExperience";
 import { useAgentRunContext } from "@/lib/agent-run-context";
 import type { Project } from "@/lib/site";
 
@@ -12,6 +13,8 @@ export function ProjectPageClient({ project }: { project: Project }) {
   if (project.experience === "pixels") {
     return <PixelExperience />;
   }
+
+  if (project.experience === "radar") return <RadarExperience />;
 
   return (
     <ProjectPane

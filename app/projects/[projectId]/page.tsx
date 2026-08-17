@@ -18,7 +18,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!project) return {};
   return createPageMetadata({
     title: `${project.name} | Ali Majed`,
-    description: project.cardBody,
+    description: project.experience === "radar"
+      ? "An AI-powered tool that finds high-value X conversations worth joining based on relevance, engagement, freshness, and networking opportunity."
+      : project.cardBody,
     path: `/projects/${project.id}`,
   });
 }
