@@ -2,20 +2,14 @@ const RANKING_STEPS = [
   {
     phase: "Collect",
     tool: "X API",
-    description: "Searches the previous 12 hours for active AI and software-engineering debates, developer pain, build-versus-dependency trade-offs, launches, outages, incidents, product announcements, and controversial professional opinions, with a preference for concise posts.",
+    description: "Every scheduled and owner scan uses the same X search for the best active posts from the previous 12 hours: AI and software-engineering debates, developer pain, build-versus-dependency trade-offs, launches, outages, incidents, announcements, and controversial professional opinions.",
     why: "Discussion-style matches must be link-free, while launches, releases, outages, and incidents can still include links. Long notes, articles, generic tool-choice polls, and listicles are downranked without another paid X request.",
   },
   {
     phase: "Validate",
     tool: "Rules",
-    description: "Removes Ali’s own posts, reposts, malformed results, and duplicates before scoring; low-value candidates remain visible.",
-    why: "Every valid candidate is shown, while the score makes spam, promotions, and engagement bait easy to skip.",
-  },
-  {
-    phase: "Deduplicate",
-    tool: "Seen-ID cache",
-    description: "Excludes post IDs returned within the previous 24 hours, including the currently displayed snapshot.",
-    why: "Each paid refresh prioritizes new conversations without making extra X requests solely to replace repeats; the short-lived ID cache expires automatically.",
+    description: "Removes Ali’s own posts, reposts, and malformed results before scoring; posts from an earlier scan can appear again when they remain among the best current matches.",
+    why: "Every valid candidate returned by the paid search is ranked, while the score makes spam, promotions, and engagement bait easy to skip.",
   },
   {
     phase: "Understand",
@@ -40,6 +34,12 @@ const RANKING_STEPS = [
     tool: "Railway volume",
     description: "Writes only the latest successful snapshot and usage counter to the persistent /data volume; page visits read that cache and never call X.",
     why: "A server environment variable controls the scan cadence without a code change. One Railway replica owns that scheduler and its concurrency lock, preventing duplicate paid scans.",
+  },
+  {
+    phase: "Observe",
+    tool: "Better Stack",
+    description: "Records whether each scan completed, returned zero matches, or failed, together with safe result counts and duration; Railway receives the same structured lifecycle log.",
+    why: "Diagnostics never include post text, post or author IDs, API credentials, owner tokens, or visitor data, but they make an unexpectedly empty scan traceable.",
   },
   {
     phase: "Owner scan",

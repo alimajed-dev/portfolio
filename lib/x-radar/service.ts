@@ -1,4 +1,5 @@
-import { readSeenPostIds, readSnapshot, rememberSeenPostIds, reserveMonthlyRequest, writeSnapshot } from "./cache";
+import { captureOperationalError, captureRadarScan } from "../monitoring";
+import { clearLegacySeenPostCache, readSnapshot, reserveMonthlyRequest, writeSnapshot } from "./cache";
 import { analyzePosts } from "./analysis";
 import { opportunityScore, scoreLabel } from "./scoring";
 import { searchRecentPosts } from "./x-client";
@@ -32,23 +33,29 @@ export async function getSnapshot() {
 export async function refreshRadar(signal?: AbortSignal, kind: "scheduled" | "manual" = "scheduled"): Promise<RadarSnapshot> {
   if (refreshPromise) return refreshPromise;
   refreshPromise = (async () => {
+    const startedAt = Date.now();
     const previous = await readSnapshot();
     try {
+      await clearLegacySeenPostCache();
       const reservation = await reserveMonthlyRequest(kind);
       if (!reservation.ok) throw new Error(reservation.reason === "manual" ? "Monthly manual scan limit reached" : "Monthly X request guard reached");
-      const returned = await searchRecentPosts(signal);
-      const seen = await readSeenPostIds();
-      for (const post of previous?.posts ?? []) seen.add(post.id);
-      const candidates = returned.filter((post) => !seen.has(post.id));
+      const candidates = await searchRecentPosts(signal);
       const analyses = await analyzePosts(candidates, signal);
       const ranked = candidates.map((post, i) => rank(post, analyses[i]));
       const posts = ranked.sort((a, b) => b.opportunityScore - a.opportunityScore);
       const opportunities = posts.filter(isOpportunity).length;
-      const snapshot: RadarSnapshot = { posts, lastRefreshedAt: new Date().toISOString(), source: "x", stats: { scanned: ranked.length, rejected: ranked.length - opportunities, opportunities } };
+      const warning = posts.length === 0 ? "The latest X search returned no matching posts from the previous 12 hours." : undefined;
+      const snapshot: RadarSnapshot = { posts, lastRefreshedAt: new Date().toISOString(), source: "x", stats: { scanned: ranked.length, rejected: ranked.length - opportunities, opportunities }, warning };
       await writeSnapshot(snapshot);
-      await rememberSeenPostIds(returned.map((post) => post.id));
+      const summary = { kind, returnedCount: candidates.length, displayedCount: posts.length, opportunityCount: opportunities, durationMs: Date.now() - startedAt };
+      console.info("[x-radar] scan completed", summary);
+      captureRadarScan(summary);
       return snapshot;
     } catch (error) {
+      const source = error as { name?: unknown; statusCode?: unknown; status?: unknown };
+      const status = typeof source?.statusCode === "number" ? source.statusCode : typeof source?.status === "number" ? source.status : undefined;
+      console.error("[x-radar] scan failed", { kind, durationMs: Date.now() - startedAt, errorName: typeof source?.name === "string" ? source.name : "Error", status });
+      captureOperationalError(error, { area: "x-radar", operation: kind, code: "radar_scan_failed" });
       if (previous && kind === "scheduled") {
         const stale = { ...previous, warning: `The latest scheduled scan failed: ${error instanceof Error ? error.message : "Unknown error"}. Showing the last successful results.` };
         await writeSnapshot(stale);

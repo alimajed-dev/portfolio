@@ -1,4 +1,4 @@
-import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rename, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { RadarSnapshot } from "./types";
 
@@ -32,30 +32,12 @@ export async function writeSnapshot(snapshot: RadarSnapshot) {
   await rename(temporary, cachePath);
 }
 
-type SeenEntry = { id: string; seenAt: string };
-
-async function readSeenEntries() {
-  try {
-    const parsed = JSON.parse(await readFile(seenPath, "utf8")) as { entries?: unknown };
-    if (!Array.isArray(parsed.entries)) return [];
-    const cutoff = Date.now() - 24 * 3_600_000;
-    return parsed.entries.filter((entry): entry is SeenEntry => typeof entry?.id === "string" && typeof entry?.seenAt === "string" && new Date(entry.seenAt).getTime() >= cutoff);
-  } catch { return []; }
-}
-
-export async function readSeenPostIds() {
-  return new Set((await readSeenEntries()).map((entry) => entry.id));
-}
-
-export async function rememberSeenPostIds(ids: string[]) {
-  await mkdir(directory, { recursive: true });
-  const entries = await readSeenEntries();
-  const known = new Set(entries.map((entry) => entry.id));
-  const seenAt = new Date().toISOString();
-  for (const id of ids) if (!known.has(id)) entries.push({ id, seenAt });
-  const temporary = `${seenPath}.tmp`;
-  await writeFile(temporary, JSON.stringify({ entries: entries.slice(-500) }));
-  await rename(temporary, seenPath);
+/** Remove the obsolete deduplication cache left by older deployments. */
+export async function clearLegacySeenPostCache() {
+  try { await unlink(seenPath); }
+  catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+  }
 }
 
 export type RadarRequestKind = "scheduled" | "manual";

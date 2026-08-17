@@ -10,6 +10,9 @@ describe("RadarPrivacyPanel", () => {
     expect(screen.getByText("Storage and removal")).toBeTruthy();
     expect(screen.getByText(/follower and posting-activity signals/i)).toBeTruthy();
     expect(screen.getByText(/interaction depth and velocity/i)).toBeTruthy();
+    expect(screen.getByText(/latest successful result set and usage counters/i)).toBeTruthy();
+    expect(screen.getByText("Operational monitoring")).toBeTruthy();
+    expect(screen.getByText(/post text, post and author IDs, credentials, owner tokens, and visitor data are never included/i)).toBeTruthy();
     expect(screen.getByRole("link", { name: /@/ }).getAttribute("href")).toContain("mailto:");
     expect(screen.getByRole("link", { name: "X Privacy Policy" }).getAttribute("target")).toBe("_blank");
   });

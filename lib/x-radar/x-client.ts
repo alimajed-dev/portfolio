@@ -22,7 +22,11 @@ export async function searchRecentPosts(signal?: AbortSignal): Promise<XPost[]> 
   const query = `${topics} ${substance} ${activity} lang:en -is:retweet -from:${process.env.X_OWNER_USERNAME || "AliMajed93"}`;
   const params = new URLSearchParams({ query, max_results: String(max), start_time: new Date(Date.now() - lookbackHours * 3_600_000).toISOString().replace(/\.\d{3}Z$/, "Z"), sort_order: "relevancy", "tweet.fields": "author_id,article,note_tweet,created_at,public_metrics,referenced_tweets,lang", expansions: "author_id", "user.fields": "name,username,description,created_at,verified,profile_image_url,public_metrics" });
   const response = await fetch(`https://api.x.com/2/tweets/search/recent?${params}`, { headers: { Authorization: `Bearer ${token}` }, signal });
-  if (!response.ok) throw new Error(response.status === 429 ? "X API rate limit reached" : `X API request failed (${response.status})`);
+  if (!response.ok) {
+    const error = new Error(response.status === 429 ? "X API rate limit reached" : `X API request failed (${response.status})`);
+    Object.assign(error, { status: response.status });
+    throw error;
+  }
   const payload = await response.json() as { data?: ApiPost[]; includes?: { users?: ApiUser[] } };
   const users = new Map((payload.includes?.users ?? []).map((user) => [user.id, user]));
   return (payload.data ?? []).flatMap((post): XPost[] => {

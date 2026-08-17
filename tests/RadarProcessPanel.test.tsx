@@ -10,6 +10,8 @@ describe("RadarProcessPanel", () => {
     expect(screen.getByText("Understand")).toBeTruthy();
     expect(screen.getByText("Rank")).toBeTruthy();
     expect(screen.getByText("Cache")).toBeTruthy();
+    expect(screen.getByText("Observe")).toBeTruthy();
+    expect(screen.getByText("Better Stack")).toBeTruthy();
     expect(screen.getByText("Railway volume")).toBeTruthy();
     expect(screen.getByText(/environment variable controls the scan cadence/i)).toBeTruthy();
     expect(screen.getByText("Opportunity Score weights")).toBeTruthy();
@@ -35,6 +37,8 @@ describe("RadarProcessPanel", () => {
     expect(screen.getByText("Reply prep")).toBeTruthy();
     expect(screen.getByText(/clearly labeled, clickable actions to open the post/i)).toBeTruthy();
     expect(screen.getByText(/makes no additional X request/i)).toBeTruthy();
+    expect(screen.getByText(/posts from an earlier scan can appear again/i)).toBeTruthy();
+    expect(screen.getByText(/unexpectedly empty scan traceable/i)).toBeTruthy();
     expect(screen.queryByText(/green means check/i)).toBeNull();
   });
 });

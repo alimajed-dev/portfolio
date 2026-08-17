@@ -54,4 +54,11 @@ describe("X radar search", () => {
     expect(result.author.postsPerMonth).toBeGreaterThan(0);
     expect(result.format).toBe("note");
   });
+
+  it("retains a safe upstream status for scan diagnostics", async () => {
+    vi.stubEnv("X_BEARER_TOKEN", "test-token");
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(null, { status: 429 })));
+
+    await expect(searchRecentPosts()).rejects.toMatchObject({ message: "X API rate limit reached", status: 429 });
+  });
 });

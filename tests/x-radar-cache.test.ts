@@ -1,4 +1,4 @@
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -27,12 +27,14 @@ describe("radar request budget", () => {
     expect(await getRadarUsage()).toMatchObject({ manualRemaining: 0, manualLimit: 2 });
   });
 
-  it("persists and deduplicates seen post IDs", async () => {
+  it("removes the legacy seen-post cache", async () => {
     temporaryDirectory = await mkdtemp(path.join(os.tmpdir(), "radar-seen-"));
     vi.stubEnv("X_RADAR_DATA_DIR", temporaryDirectory);
-    const { readSeenPostIds, rememberSeenPostIds } = await import("@/lib/x-radar/cache");
-    await rememberSeenPostIds(["one", "two"]);
-    await rememberSeenPostIds(["two", "three"]);
-    expect(Array.from(await readSeenPostIds())).toEqual(["one", "two", "three"]);
+    const seenPath = path.join(temporaryDirectory, "x-radar-seen.json");
+    await writeFile(seenPath, JSON.stringify({ entries: [{ id: "one", seenAt: new Date().toISOString() }] }));
+    const { clearLegacySeenPostCache } = await import("@/lib/x-radar/cache");
+    await clearLegacySeenPostCache();
+    await expect(readFile(seenPath, "utf8")).rejects.toMatchObject({ code: "ENOENT" });
+    await expect(clearLegacySeenPostCache()).resolves.toBeUndefined();
   });
 });
