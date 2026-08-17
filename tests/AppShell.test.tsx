@@ -12,6 +12,7 @@ const NARROW_QUERY = "max-width: 1023px";
 const PROJECT = PROJECTS[0];
 const PROJECT_PATH = `/projects/${PROJECT.id}`;
 const PIXELS_PROJECT = PROJECTS[1];
+const RADAR_PROJECT = PROJECTS.find((project) => project.experience === "radar")!;
 
 /**
  * AppShell reads the route via `usePathname()` and no longer decides which
@@ -65,7 +66,7 @@ function renderAt(pathname: string, children: React.ReactNode) {
 const panel = () => screen.getByRole("complementary", { name: "Agent panel" });
 const projectPanel = () => screen.getByRole("complementary", { name: "Project panel" });
 const dialog = () => screen.getByRole("dialog", { name: "Agent panel" });
-const tab = (name: "Live" | "Build Process") => screen.getByRole("tab", { name });
+const tab = (name: "Live" | "Build Process" | "Privacy") => screen.getByRole("tab", { name });
 const activeTabName = () =>
   screen.getAllByRole("tab").find((t) => t.getAttribute("aria-selected") === "true")?.getAttribute("aria-label");
 
@@ -94,6 +95,7 @@ describe("Sidebar — real, shareable per-route URLs", () => {
     expect(screen.getByRole("link", { name: PIXELS_PROJECT.name }).getAttribute("href")).toBe(
       `/projects/${PIXELS_PROJECT.id}`,
     );
+    expect(screen.queryByRole("link", { name: "Privacy" })).toBeNull();
   });
 
   it("marks the current route with aria-current, and only that one", () => {
@@ -169,6 +171,29 @@ describe("AppShell — project-specific right panels", () => {
     expect(document.activeElement).toBe(
       within(drawer).getByRole("button", { name: "Close panel" }),
     );
+  });
+
+  it("shows Build Process and Privacy tabs only for the Radar project", async () => {
+    const user = userEvent.setup();
+    renderAt(`/projects/${RADAR_PROJECT.id}`, <div>Radar experience</div>);
+
+    expect(activeTabName()).toBe("Build Process");
+    expect(within(projectPanel()).getByText("Opportunity Score weights")).toBeDefined();
+    await user.click(tab("Privacy"));
+    expect(activeTabName()).toBe("Privacy");
+    expect(within(projectPanel()).getByText("Public data, limited purpose.")).toBeDefined();
+    expect(within(projectPanel()).queryByRole("tab", { name: "Live" })).toBeNull();
+  });
+
+  it("opens the Radar tabbed panel in the mobile drawer", async () => {
+    const user = userEvent.setup();
+    setViewport("narrow");
+    renderAt(`/projects/${RADAR_PROJECT.id}`, <div>Radar experience</div>);
+    await user.click(screen.getByRole("button", { name: "Show ranking process" }));
+
+    const drawer = screen.getByRole("dialog", { name: "Project panel" });
+    expect(within(drawer).getByRole("tab", { name: "Build Process" })).toBeDefined();
+    expect(within(drawer).getByRole("tab", { name: "Privacy" })).toBeDefined();
   });
 
   it("404s (renders nothing project-shaped) for an unknown project id — handled by notFound() in the real route", () => {

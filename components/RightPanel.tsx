@@ -8,8 +8,9 @@ import { LiveTrace } from "./LiveTrace";
 import { ProcessPanel } from "./ProcessPanel";
 import { PixelProcessPanel } from "./PixelProcessPanel";
 import { RadarProcessPanel } from "./RadarProcessPanel";
+import { RadarPrivacyPanel } from "./RadarPrivacyPanel";
 
-export type PanelTab = "live" | "process";
+export type PanelTab = "live" | "process" | "privacy";
 
 type Props = {
   variant?: "agent" | "pixels" | "radar";
@@ -24,6 +25,10 @@ type Props = {
 const TABS: { id: PanelTab; label: string }[] = [
   { id: "live", label: "Live" },
   { id: "process", label: "Build Process" },
+];
+const RADAR_TABS: { id: PanelTab; label: string }[] = [
+  { id: "process", label: "Build Process" },
+  { id: "privacy", label: "Privacy" },
 ];
 
 const FOCUSABLE = [
@@ -41,6 +46,8 @@ export function RightPanel({ variant = "agent", tab, onTabChange, steps, running
   const closeRef = useRef<HTMLButtonElement>(null);
   const isDrawer = useMediaQuery("(max-width: 1023px)");
   const modal = open && isDrawer;
+  const visibleTab = variant === "radar" && tab !== "privacy" ? "process" : tab;
+  const tabs = variant === "radar" ? RADAR_TABS : TABS;
 
   useEffect(() => {
     if (!modal) return;
@@ -87,9 +94,9 @@ export function RightPanel({ variant = "agent", tab, onTabChange, steps, running
         ].join(" ")}
       >
         <div className="flex h-[56px] shrink-0 items-center border-b border-line lg:h-[46px]">
-          {variant !== "agent" ? (
+          {variant === "pixels" ? (
             <div className="flex h-full min-w-0 flex-1 items-center justify-center border-b border-accent text-xs font-medium text-accent">
-              {variant === "radar" ? "Ranking Process" : "Build Process"}
+              Build Process
             </div>
           ) : (
             <div
@@ -97,8 +104,8 @@ export function RightPanel({ variant = "agent", tab, onTabChange, steps, running
               aria-label="Panel view"
               className="flex h-full min-w-0 flex-1 items-center"
             >
-              {TABS.map((item) => {
-              const active = tab === item.id;
+              {tabs.map((item) => {
+              const active = visibleTab === item.id;
               return (
                 <button
                   key={item.id}
@@ -135,12 +142,14 @@ export function RightPanel({ variant = "agent", tab, onTabChange, steps, running
 
         <div
           id="panel-body"
-          role={variant === "agent" ? "tabpanel" : undefined}
-          aria-labelledby={variant === "agent" ? `panel-tab-${tab}` : undefined}
+          role={variant !== "pixels" ? "tabpanel" : undefined}
+          aria-labelledby={variant !== "pixels" ? `panel-tab-${visibleTab}` : undefined}
           className="min-h-0 flex-1 overflow-y-auto p-4 lg:p-5"
         >
           {variant === "pixels" ? (
             <PixelProcessPanel />
+          ) : variant === "radar" && visibleTab === "privacy" ? (
+            <RadarPrivacyPanel />
           ) : variant === "radar" ? (
             <RadarProcessPanel />
           ) : tab === "live" ? (
