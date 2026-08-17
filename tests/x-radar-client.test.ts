@@ -17,18 +17,34 @@ describe("X radar search", () => {
     expect(url.searchParams.get("max_results")).toBe("10");
     expect(url.searchParams.get("query")).toContain("min_replies:3");
     expect(url.searchParams.get("query")).toContain("min_likes:20");
-    expect(url.searchParams.get("query")).toContain('"AI agents"');
-    expect(url.searchParams.get("query")).toContain("Anthropic");
-    expect(url.searchParams.get("query")).toContain("quality");
-    expect(url.searchParams.get("query")).toContain("architecture");
-    expect(url.searchParams.get("query")).toContain('"AI slop"');
-    expect(url.searchParams.get("query")).toContain("YouTube");
+    expect(url.searchParams.get("query")).toContain('"generated code"');
+    expect(url.searchParams.get("query")).toContain("model");
+    expect(url.searchParams.get("query")).toContain("prompt");
+    expect(url.searchParams.get("query")).toContain("harder");
+    expect(url.searchParams.get("query")).toContain("annoying");
+    expect(url.searchParams.get("query")).toContain("packages");
+    expect(url.searchParams.get("query")).toContain("strategy");
+    expect(url.searchParams.get("query")).toContain("outage");
     expect(url.searchParams.get("query")).toContain("announces");
+    expect(url.searchParams.get("query")).toContain("product");
+    expect(url.searchParams.get("user.fields")).toContain("verified");
     expect(url.searchParams.get("query")).toContain("ChatGPT");
     expect(url.searchParams.get("query")!.length).toBeLessThanOrEqual(512);
     expect(url.searchParams.get("query")).not.toContain("crypto");
     const ageHours = (Date.now() - new Date(url.searchParams.get("start_time")!).getTime()) / 3_600_000;
     expect(ageHours).toBeGreaterThan(11.9);
     expect(ageHours).toBeLessThan(12.1);
+  });
+
+  it("retains author authority metadata returned with a candidate", async () => {
+    vi.stubEnv("X_BEARER_TOKEN", "test-token");
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      data: [{ id: "p1", text: "What is harder about maintaining AI generated code?", author_id: "u1", created_at: "2026-08-17T12:00:00Z", public_metrics: { like_count: 30, reply_count: 5 } }],
+      includes: { users: [{ id: "u1", name: "Microsoft Learn", username: "MicrosoftLearn", verified: true, public_metrics: { followers_count: 1_000_000 } }] },
+    }), { status: 200 })));
+
+    const [result] = await searchRecentPosts();
+    expect(result.author.verified).toBe(true);
+    expect(result.author.followers).toBe(1_000_000);
   });
 });

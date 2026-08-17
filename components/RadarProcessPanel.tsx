@@ -2,8 +2,8 @@ const RANKING_STEPS = [
   {
     phase: "Collect",
     tool: "X API",
-    description: "Searches the previous 12 hours for active AI and software-engineering discussions involving concrete problems, disagreements, quality, cost, security, architecture, reliability, or meaningful technology announcements.",
-    why: "Requiring a substantive discussion signal suppresses generic tool polls, listicles, and promotional explainers while retaining the existing activity threshold.",
+    description: "Searches the previous 12 hours for active AI and software-engineering debates, developer pain, build-versus-dependency trade-offs, launches, outages, incidents, product announcements, and controversial professional opinions.",
+    why: "The query covers high-signal questions such as model-versus-prompt, maintaining generated code, vibe-coding failures, and package risk while still suppressing generic tool-choice polls and listicles.",
   },
   {
     phase: "Validate",
@@ -20,7 +20,7 @@ const RANKING_STEPS = [
   {
     phase: "Understand",
     tool: "Local analysis",
-    description: "Scores professional relevance, room to add value, and network fit with deterministic server-side analysis.",
+    description: "Scores professional relevance, room to add value, and author authority from follower scale and verification metadata with deterministic server-side analysis.",
     why: "X content stays inside the application by default. Gemini inference is available only after the disclosed processing is approved and paid-service data terms are confirmed.",
   },
   {
@@ -33,7 +33,7 @@ const RANKING_STEPS = [
     phase: "Rank",
     tool: "Hybrid score",
     description: "Combines every signal into a 0–100 Opportunity Score and orders all candidates from strongest to weakest.",
-    why: "Scores of 70+ surface the strongest candidates, 55–69 warrant judgment, and lower scores are easy to skip. Views and interactions dominate, while a quality floor prevents irrelevant virality from being recommended.",
+    why: "Scores of 70+ fit Ali best, 55–69 warrant judgment, and lower scores are easy to skip. Views and interactions dominate, while a quality floor prevents irrelevant virality from being recommended.",
   },
   {
     phase: "Cache",
@@ -57,8 +57,8 @@ const RANKING_STEPS = [
 
 const WEIGHTS = [
   ["View reach", "32%"], ["Existing interactions", "28%"],
-  ["Interaction velocity", "15%"], ["Professional relevance", "12%"],
-  ["Ability to add value", "7%"], ["Freshness", "4%"], ["Audience value", "2%"],
+  ["Interaction velocity", "15%"], ["Professional relevance", "10%"],
+  ["Ability to add value", "7%"], ["Author authority", "5%"], ["Freshness", "3%"],
 ] as const;
 
 export function RadarProcessPanel() {

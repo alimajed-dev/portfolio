@@ -45,6 +45,7 @@ describe("RadarExperience manual scan control", () => {
 
     render(<RadarExperience />);
     const row = (await screen.findByText("A technical discussion")).closest("li");
+    expect(screen.getByText(/ranked for my fit: higher scores signal stronger reach, active interaction, and more room for me to add value/i)).toBeTruthy();
     expect(row?.className.split(" ")).toContain("items-start");
     expect(screen.queryByText("Why reply")).toBeNull();
     expect(screen.queryByText("Angle:")).toBeNull();
@@ -52,10 +53,13 @@ describe("RadarExperience manual scan control", () => {
     const dialog = screen.getByRole("dialog", { name: "Score breakdown" });
     expect(within(dialog).getByText("What drives this score")).toBeTruthy();
     expect(within(dialog).getByText("View reach")).toBeTruthy();
+    expect(within(dialog).getByText("Author authority")).toBeTruthy();
     expect(screen.getByText("/100")).toBeTruthy();
     expect(screen.getByText(/Last scan .*(?:UTC|GMT(?:[+-]\d+)?)/)).toBeTruthy();
     expect(screen.queryByText("Skip")).toBeNull();
     expect(screen.queryByText(/Green:/)).toBeNull();
+    expect(screen.queryByText("Sort by")).toBeNull();
+    expect(screen.queryByRole("combobox")).toBeNull();
   });
 
   it("copies a concise contextual reply-writing prompt without another API request", async () => {

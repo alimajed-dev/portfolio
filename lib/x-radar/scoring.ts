@@ -2,7 +2,7 @@ import type { EngagementMetrics, RelevanceAnalysis, ScoringSignals } from "./typ
 
 export const OPPORTUNITY_WEIGHTS = {
   reach: 0.32, engagement: 0.28, velocity: 0.15,
-  relevance: 0.12, addValue: 0.07, freshness: 0.04, audience: 0.02,
+  relevance: 0.10, addValue: 0.07, freshness: 0.03, audience: 0.05,
 } as const;
 
 const clamp = (value: number) => Math.max(0, Math.min(100, Math.round(value)));

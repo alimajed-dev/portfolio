@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest";
 import { analyzeLocally } from "@/lib/x-radar/analysis";
 import type { XPost } from "@/lib/x-radar/types";
 
-function post(text: string, description = "Software engineering"): XPost {
+function post(text: string, description = "Software engineering", authority: { followers?: number; verified?: boolean } = {}): XPost {
   return {
     id: "1", text, createdAt: "2026-08-17T12:00:00Z",
-    author: { id: "u1", name: "Engineer", username: "engineer", description },
+    author: { id: "u1", name: "Engineer", username: "engineer", description, ...authority },
     metrics: { likes: 0, replies: 0, reposts: 0, quotes: 0 },
   };
 }
@@ -55,5 +55,26 @@ describe("local radar analysis", () => {
   it("recognizes meaningful technology-platform announcements", () => {
     const result = analyzeLocally(post("YouTube announces a major change to how video views are counted."));
     expect(result.relevance).toBeGreaterThanOrEqual(50);
+  });
+
+  it("keeps substantive model-versus-prompt questions eligible", () => {
+    const result = analyzeLocally(post("What's more important: the model or the prompt?", "AI learning", { followers: 1_000_000, verified: true }));
+    expect(result.abilityToAddValue).toBeGreaterThanOrEqual(70);
+    expect(result.audienceValue).toBeGreaterThanOrEqual(90);
+  });
+
+  it("keeps author authority separate from topical relevance", () => {
+    expect(analyzeLocally(post("AI agents, RAG, LLMs, prompts, APIs, and software development")).audienceValue).toBe(0);
+    expect(analyzeLocally(post("A software observation", "", { followers: 100_000, verified: true })).audienceValue).toBeGreaterThanOrEqual(90);
+  });
+
+  it("keeps AI-generated code maintainability and future-of-developer debates eligible", () => {
+    expect(analyzeLocally(post("What's harder: building with AI or maintaining AI generated code?")).abilityToAddValue).toBeGreaterThanOrEqual(70);
+    expect(analyzeLocally(post("If AI can build anything, what becomes the hardest part of being a developer?")).relevance).toBeGreaterThanOrEqual(68);
+  });
+
+  it("keeps relatable developer pain and dependency trade-offs eligible", () => {
+    expect(analyzeLocally(post("Most annoying part of vibe coding? AI writes 500 lines, then one button does not work.")).abilityToAddValue).toBeGreaterThanOrEqual(70);
+    expect(analyzeLocally(post("What's your strategy: build from scratch or depend on 50 mysterious packages?")).relevance).toBeGreaterThanOrEqual(68);
   });
 });

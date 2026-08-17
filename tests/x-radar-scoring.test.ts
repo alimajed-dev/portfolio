@@ -38,6 +38,14 @@ describe("Conversation Opportunity Radar scoring", () => {
     expect(visible.score - unseen.score).toBeGreaterThan(40);
   });
 
+  it("gives authoritative authors a meaningful but non-dominant advantage", () => {
+    const metrics = { likes: 120, replies: 30, reposts: 15, quotes: 8, impressions: 20_000 };
+    const authoritative = opportunityScore({ ...analysis, audienceValue: 100 }, metrics, "2026-08-17T10:00:00Z", now);
+    const unknown = opportunityScore({ ...analysis, audienceValue: 20 }, metrics, "2026-08-17T10:00:00Z", now);
+    expect(authoritative.score).toBeGreaterThan(unknown.score);
+    expect(authoritative.score - unknown.score).toBeLessThanOrEqual(5);
+  });
+
   it("maps scores to clear check, maybe, and skip guidance", () => {
     expect(scoreLabel(70)).toBe("Check");
     expect(scoreLabel(69)).toBe("Maybe");

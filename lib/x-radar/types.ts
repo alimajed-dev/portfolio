@@ -5,7 +5,7 @@ export type EngagementMetrics = {
 
 export type XPost = {
   id: string; text: string; createdAt: string;
-  author: { id: string; name: string; username: string; description?: string; followers?: number; profileImageUrl?: string };
+  author: { id: string; name: string; username: string; description?: string; followers?: number; verified?: boolean; profileImageUrl?: string };
   metrics: EngagementMetrics;
 };
 
