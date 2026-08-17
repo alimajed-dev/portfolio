@@ -2,8 +2,8 @@ const RANKING_STEPS = [
   {
     phase: "Collect",
     tool: "X API",
-    description: "Searches the previous 12 hours for active conversations about AI agents, AI-assisted SDLC, software engineering, RAG, AWS/Bedrock, AI problems, and tools such as Claude, ChatGPT, Gemini, Copilot, Cursor, and Windsurf.",
-    why: "The focused topic set matches Ali’s expertise, while minimum reply, like, or repost activity avoids spending the result set on unseen posts.",
+    description: "Searches the previous 12 hours for active AI-engineering discussions involving concrete problems, disagreements, quality, cost, security, architecture, reliability, or meaningful capability changes.",
+    why: "Requiring a substantive discussion signal suppresses generic tool polls, listicles, and promotional explainers while retaining the existing activity threshold.",
   },
   {
     phase: "Validate",
@@ -33,7 +33,7 @@ const RANKING_STEPS = [
     phase: "Rank",
     tool: "Hybrid score",
     description: "Combines every signal into a 0–100 Opportunity Score and orders all candidates from strongest to weakest.",
-    why: "Green means check (70+), orange means maybe (55–69), and red means skip (below 55). Views and interactions dominate, while a quality floor prevents irrelevant virality from being recommended.",
+    why: "Scores of 70+ surface the strongest candidates, 55–69 warrant judgment, and lower scores are easy to skip. Views and interactions dominate, while a quality floor prevents irrelevant virality from being recommended.",
   },
   {
     phase: "Cache",

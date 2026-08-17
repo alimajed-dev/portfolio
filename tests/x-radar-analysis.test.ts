@@ -39,4 +39,16 @@ describe("local radar analysis", () => {
     const result = analyzeLocally(post("Claude Code and GitHub Copilot changed how our team reviews pull requests."));
     expect(result.relevance).toBeGreaterThanOrEqual(80);
   });
+
+  it("penalizes generic tool polls even when they mention relevant products", () => {
+    const result = analyzeLocally(post("Which tool are you opening first: Cursor, Claude Code, ChatGPT, or Windsurf?"));
+    expect(result.abilityToAddValue).toBeLessThan(45);
+    expect(result.whyReply).toContain("generic tool poll");
+  });
+
+  it("keeps concrete AI product disagreements valuable", () => {
+    const result = analyzeLocally(post("Why is Anthropic repeating OpenAI's product decision when it creates a serious quality tradeoff?"));
+    expect(result.relevance).toBeGreaterThanOrEqual(68);
+    expect(result.abilityToAddValue).toBeGreaterThanOrEqual(70);
+  });
 });

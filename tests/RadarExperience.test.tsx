@@ -49,8 +49,11 @@ describe("RadarExperience manual scan control", () => {
     expect(screen.queryByText("Why reply")).toBeNull();
     expect(screen.queryByText("Angle:")).toBeNull();
     await user.click(screen.getByLabelText(/Explain score .* for Engineer/));
-    expect(screen.getByText("Score breakdown")).toBeTruthy();
+    const breakdown = screen.getByText("Score breakdown").closest("div");
+    expect(breakdown?.className).toContain("col-span-full");
+    expect(breakdown?.className).toContain("bg-panel");
     expect(screen.getByText("View reach")).toBeTruthy();
+    expect(screen.queryByText("Skip")).toBeNull();
     expect(screen.queryByText(/Green:/)).toBeNull();
   });
 });

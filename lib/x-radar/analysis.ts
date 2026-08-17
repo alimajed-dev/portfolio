@@ -2,24 +2,29 @@ import { generateText } from "ai";
 import { geminiModel } from "@/lib/models";
 import type { RelevanceAnalysis, XPost } from "./types";
 
-const TOPICS = ["AI agents and coding agents", "agentic AI", "AI-assisted SDLC and software engineering", "RAG and retrieval systems", "AWS and Amazon Bedrock", "context engineering", "LLM evaluation and observability", "AI reliability, security, hallucinations and implementation problems", "Claude, ChatGPT, Gemini, Copilot, Cursor, Windsurf and new AI developer tools"];
+const TOPICS = ["AI engineering disagreements and trade-offs", "AI product quality, cost and security", "AI-assisted SDLC and software engineering", "AI agents, RAG and production reliability", "meaningful model and developer-tool changes", "criticism of AI engineering practices"];
 
 export function analyzeLocally(post: XPost): RelevanceAnalysis {
   const text = `${post.text} ${post.author.description ?? ""}`.toLowerCase();
-  const hits = ["ai agent", "coding agent", "agentic ai", "artificial intelligence", "software engineering", "software development", "sdlc", "rag", "retrieval augmented", "aws", "bedrock", "context engineering", "llm", "eval", "observability", "hallucination", "guardrail", "prompt injection", "ai security", "model reliability", "developer tooling", "claude", "chatgpt", "gemini", "copilot", "cursor ai", "windsurf", "code review", "testing"].filter((term) => text.includes(term)).length;
+  const hits = ["ai agent", "coding agent", "agentic ai", "artificial intelligence", "software engineering", "software development", "sdlc", "rag", "retrieval augmented", "aws", "bedrock", "context engineering", "llm", "eval", "observability", "hallucination", "guardrail", "prompt injection", "ai security", "model reliability", "developer tooling", "claude", "anthropic", "openai", "chatgpt", "gemini", "copilot", "cursor ai", "windsurf", "code review", "testing", "ai slop", "watermark"].filter((term) => text.includes(term)).length;
   const asks = /\?|how |why |opinion|lesson|take|think|struggl|trade.?off|bottleneck/i.test(post.text);
-  const promotional = /check it out|buy now|like if|follow me|giveaway/i.test(post.text);
+  const promotional = /check it out|buy now|like if|\bfollow\b|giveaway/i.test(post.text);
+  const shallowPrompt = /which (?:ai )?tool|what(?:'s| is) your (?:favou?rite )?(?:ai )?tool|what tool (?:do you use|are you using)|are you using (?:claude|chatgpt|cursor|copilot|gemini|windsurf)|opening first|\b10 ai skills\b|only ai map|everything you need/i.test(post.text);
   // A declarative technical observation can still invite a valuable response;
   // questions get a boost, but are not the only eligible conversation shape.
   const relevance = Math.min(96, 44 + hits * 12);
-  const abilityToAddValue = Math.max(15, Math.min(94, 55 + (asks ? 22 : 0) - (promotional ? 42 : 0)));
+  const abilityToAddValue = Math.max(15, Math.min(94, 55 + (asks ? 22 : 0) - (promotional ? 42 : 0) - (shallowPrompt ? 38 : 0)));
   const whyReply = promotional
     ? "Promotional or engagement-bait language leaves little room for a credible professional contribution."
+    : shallowPrompt
+      ? "A generic tool poll or list offers little room for a substantive engineering contribution."
     : asks
       ? "A relevant professional discussion with a clear opening for a practical, experience-based contribution."
       : "A substantive technical observation where a concrete delivery or architecture lesson could extend the discussion.";
   const suggestedAngle = promotional
     ? "Skip unless the thread develops into a substantive technical discussion."
+    : shallowPrompt
+      ? "Skip unless the replies develop into a concrete engineering trade-off."
     : "Add a concrete delivery or architecture lesson that moves the discussion beyond the headline.";
   return { relevance, abilityToAddValue, audienceValue: Math.min(88, 50 + hits * 6), whyReply, suggestedAngle };
 }

@@ -18,5 +18,7 @@ describe("RadarProcessPanel", () => {
     expect(screen.getByText("32%")).toBeTruthy();
     expect(screen.getByText("Existing interactions")).toBeTruthy();
     expect(screen.getByText("28%")).toBeTruthy();
+    expect(screen.getByText(/suppresses generic tool polls/i)).toBeTruthy();
+    expect(screen.queryByText(/green means check/i)).toBeNull();
   });
 });
