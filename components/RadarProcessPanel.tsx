@@ -37,9 +37,9 @@ const RANKING_STEPS = [
   },
   {
     phase: "Owner scan",
-    tool: "Protected API",
-    description: "Allows an authenticated owner to request an immediate backend scan and restart the four-hour countdown.",
-    why: "A Railway-only secret, failed-attempt throttling, same-origin checks, a 50-per-month manual cap, and the overall X request cap prevent public abuse and bound spend.",
+    tool: "Secure backend",
+    description: "Allows the owner to request an immediate scan and restart the four-hour countdown through a protected server workflow.",
+    why: "Owner authorization and server-enforced usage controls keep the paid action private and spending bounded.",
   },
 ] as const;
 
