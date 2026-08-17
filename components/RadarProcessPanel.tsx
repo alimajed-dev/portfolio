@@ -29,6 +29,12 @@ const RANKING_STEPS = [
     description: "Combines every signal into a 0–100 Opportunity Score, then applies minimum relevance and contribution gates.",
     why: "The final order rewards conversations where Ali has something valuable to say and joining can realistically build credibility or network value.",
   },
+  {
+    phase: "Cache",
+    tool: "Railway volume",
+    description: "Writes only the latest successful snapshot and usage counter to the persistent /data volume; page visits read that cache and never call X.",
+    why: "One Railway replica owns the four-hour scheduler and concurrency lock. More replicas would create independent schedulers, duplicate paid scans, and multiply in-memory limits.",
+  },
 ] as const;
 
 const WEIGHTS = [
