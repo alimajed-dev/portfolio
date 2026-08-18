@@ -1,0 +1,38 @@
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { contentMaxAgeHours, lookbackHours, manualMonthlyRequestLimit, maxPostsPerScan, monthlyRequestLimit, refreshIntervalHours } from "@/lib/x-radar/config";
+
+afterEach(() => vi.unstubAllEnvs());
+
+describe("Radar numeric configuration", () => {
+  it("uses conservative fallbacks for missing or invalid values", () => {
+    vi.stubEnv("X_REFRESH_INTERVAL_HOURS", "invalid");
+    vi.stubEnv("X_CONTENT_MAX_AGE_HOURS", "invalid");
+    vi.stubEnv("X_MAX_POSTS_PER_SCAN", "invalid");
+    vi.stubEnv("X_LOOKBACK_HOURS", "invalid");
+    vi.stubEnv("X_MONTHLY_REQUEST_LIMIT", "invalid");
+    vi.stubEnv("X_MANUAL_MONTHLY_REQUEST_LIMIT", "invalid");
+
+    expect(refreshIntervalHours()).toBe(240);
+    expect(contentMaxAgeHours()).toBe(24);
+    expect(maxPostsPerScan()).toBe(10);
+    expect(lookbackHours()).toBe(12);
+    expect(monthlyRequestLimit()).toBe(14);
+    expect(manualMonthlyRequestLimit()).toBe(10);
+  });
+
+  it("clamps explicit values to hard safe bounds", () => {
+    vi.stubEnv("X_REFRESH_INTERVAL_HOURS", "9999");
+    vi.stubEnv("X_CONTENT_MAX_AGE_HOURS", "9999");
+    vi.stubEnv("X_MAX_POSTS_PER_SCAN", "9999");
+    vi.stubEnv("X_LOOKBACK_HOURS", "9999");
+    vi.stubEnv("X_MONTHLY_REQUEST_LIMIT", "9999");
+    vi.stubEnv("X_MANUAL_MONTHLY_REQUEST_LIMIT", "9999");
+
+    expect(refreshIntervalHours()).toBe(576);
+    expect(contentMaxAgeHours()).toBe(720);
+    expect(maxPostsPerScan()).toBe(10);
+    expect(lookbackHours()).toBe(168);
+    expect(monthlyRequestLimit()).toBe(200);
+    expect(manualMonthlyRequestLimit()).toBe(100);
+  });
+});

@@ -27,6 +27,16 @@ describe("radar request budget", () => {
     expect(await getRadarUsage()).toMatchObject({ manualRemaining: 0, manualLimit: 2 });
   });
 
+  it("allows up to 100 owner-configured manual scans", async () => {
+    temporaryDirectory = await mkdtemp(path.join(os.tmpdir(), "radar-budget-"));
+    vi.stubEnv("X_RADAR_DATA_DIR", temporaryDirectory);
+    vi.stubEnv("X_MANUAL_MONTHLY_REQUEST_LIMIT", "150");
+    vi.stubEnv("X_MONTHLY_REQUEST_LIMIT", "200");
+    const { getRadarUsage } = await import("@/lib/x-radar/cache");
+
+    expect(await getRadarUsage()).toMatchObject({ manualRemaining: 100, manualLimit: 100 });
+  });
+
   it("removes the legacy seen-post cache", async () => {
     temporaryDirectory = await mkdtemp(path.join(os.tmpdir(), "radar-seen-"));
     vi.stubEnv("X_RADAR_DATA_DIR", temporaryDirectory);

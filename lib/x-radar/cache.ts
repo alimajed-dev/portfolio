@@ -1,5 +1,6 @@
 import { mkdir, readFile, rename, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { manualMonthlyRequestLimit, monthlyRequestLimit } from "./config";
 import type { RadarSnapshot } from "./types";
 
 const directory = process.env.X_RADAR_DATA_DIR || path.join(process.cwd(), ".data");
@@ -7,18 +8,15 @@ const cachePath = path.join(directory, "x-radar.json");
 const usagePath = path.join(directory, "x-radar-usage.json");
 const seenPath = path.join(directory, "x-radar-seen.json");
 
-function manualLimit() {
-  return Math.min(50, Math.max(1, Number(process.env.X_MANUAL_MONTHLY_REQUEST_LIMIT) || 50));
-}
-
 export async function getRadarUsage() {
   const month = new Date().toISOString().slice(0, 7);
   let usage: { month: string; count: number; manualCount?: number } = { month, count: 0, manualCount: 0 };
   try { usage = JSON.parse(await readFile(usagePath, "utf8")); } catch {}
   const manualCount = usage.month === month && Number.isFinite(usage.manualCount) ? usage.manualCount! : 0;
   const totalCount = usage.month === month && Number.isFinite(usage.count) ? usage.count : 0;
-  const totalLimit = Math.max(1, Number(process.env.X_MONTHLY_REQUEST_LIMIT) || 180);
-  return { manualRemaining: Math.max(0, Math.min(manualLimit() - manualCount, totalLimit - totalCount)), manualLimit: manualLimit() };
+  const totalLimit = monthlyRequestLimit();
+  const manualLimit = manualMonthlyRequestLimit();
+  return { manualRemaining: Math.max(0, Math.min(manualLimit - manualCount, totalLimit - totalCount)), manualLimit };
 }
 
 export async function readSnapshot(): Promise<RadarSnapshot | null> {
@@ -49,8 +47,8 @@ export async function reserveMonthlyRequest(kind: RadarRequestKind = "scheduled"
   try { usage = JSON.parse(await readFile(usagePath, "utf8")); } catch {}
   if (usage.month !== month) usage = { month, count: 0, manualCount: 0 };
   usage.manualCount = Number.isFinite(usage.manualCount) ? usage.manualCount : 0;
-  const limit = Math.max(1, Number(process.env.X_MONTHLY_REQUEST_LIMIT) || 180);
-  const manualRequestLimit = manualLimit();
+  const limit = monthlyRequestLimit();
+  const manualRequestLimit = manualMonthlyRequestLimit();
   if (usage.count >= limit) return { ok: false as const, reason: "total" as const };
   if (kind === "manual" && usage.manualCount >= manualRequestLimit) return { ok: false as const, reason: "manual" as const };
   usage.count += 1;

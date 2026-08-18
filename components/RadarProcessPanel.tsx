@@ -33,7 +33,7 @@ const RANKING_STEPS = [
     phase: "Cache",
     tool: "Railway volume",
     description: "Writes only the latest successful scan snapshot and usage counter to the persistent /data volume; page visits read that snapshot and never call X.",
-    why: "Bounded server settings independently control scan cadence, snapshot retention, and monthly allowances. Long cadences lower cost but make the displayed snapshot older; one Railway replica prevents duplicate paid scans.",
+    why: "Server settings independently control scan cadence, lookback, candidate count, snapshot retention, and owner-adjustable manual and total monthly allowances. Every numeric control has a conservative fallback and a hard safe bound; one Railway replica prevents duplicate paid scans.",
   },
   {
     phase: "Observe",

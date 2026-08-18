@@ -3,24 +3,12 @@ import { clearLegacySeenPostCache, readSnapshot, reserveMonthlyRequest, writeSna
 import { analyzePosts } from "./analysis";
 import { opportunityScore, scoreLabel } from "./scoring";
 import { searchRecentPosts } from "./x-client";
+import { contentMaxAgeHours, refreshIntervalHours } from "./config";
 import type { RadarSnapshot, RankedPost, RelevanceAnalysis, XPost } from "./types";
 
+export { contentMaxAgeHours, refreshIntervalHours } from "./config";
+
 let refreshPromise: Promise<RadarSnapshot> | null = null;
-const MAX_REFRESH_INTERVAL_HOURS = 24 * 24;
-const MAX_CONTENT_AGE_HOURS = 30 * 24;
-
-function boundedHours(raw: string | undefined, fallback: number, maximum: number) {
-  const parsed = Number(raw);
-  return Number.isFinite(parsed) && parsed > 0 ? Math.min(maximum, Math.max(1, parsed)) : fallback;
-}
-
-export function refreshIntervalHours() {
-  return boundedHours(process.env.X_REFRESH_INTERVAL_HOURS, 4, MAX_REFRESH_INTERVAL_HOURS);
-}
-
-export function contentMaxAgeHours() {
-  return boundedHours(process.env.X_CONTENT_MAX_AGE_HOURS, 24, MAX_CONTENT_AGE_HOURS);
-}
 
 function rank(post: XPost, analysis: RelevanceAnalysis): RankedPost {
   const { score, signals } = opportunityScore(analysis, post.metrics, post.createdAt);
