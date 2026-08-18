@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, Mail, Menu, Radar, ScanLine, ShieldCheck, Terminal } from "lucide-react";
+import { Home, Mail, Menu, PawPrint, Radar, ScanLine, ShieldCheck, Terminal } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { PROJECTS } from "@/lib/site";
@@ -22,7 +22,19 @@ export function TopHeader({ onOpenSidebar, onOpenPanel, running }: Props) {
   const title = project ? project.name : contact ? "workspace/contact" : privacy ? "workspace/privacy" : "workspace/home";
   const mobileTitle = project ? project.name : contact ? "Contact" : privacy ? "Privacy" : "Portfolio";
   const subtitle = project ? project.subtitle : contact ? "Direct channels" : privacy ? "Data use & requests" : "Overview";
-  const Icon = project?.experience === "pixels" ? ScanLine : project?.experience === "radar" ? Radar : project ? Terminal : contact ? Mail : privacy ? ShieldCheck : Home;
+  const Icon = project?.experience === "pixels"
+    ? ScanLine
+    : project?.experience === "radar"
+      ? Radar
+      : project?.experience === "cursor-tiger"
+        ? PawPrint
+        : project
+          ? Terminal
+          : contact
+            ? Mail
+            : privacy
+              ? ShieldCheck
+              : Home;
 
   return (
     <header className="flex h-14 shrink-0 items-center justify-between border-b border-line bg-bg px-4 sm:px-6">

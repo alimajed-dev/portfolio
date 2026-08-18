@@ -3,6 +3,7 @@
 import { ProjectPane } from "@/components/panes/ProjectPane";
 import { PixelExperience } from "@/components/experiences/PixelExperience";
 import { RadarExperience } from "@/components/experiences/RadarExperience";
+import { CursorTigerExperience } from "@/components/experiences/CursorTigerExperience";
 import { useAgentRunContext } from "@/lib/agent-run-context";
 import type { Project } from "@/lib/site";
 
@@ -15,6 +16,8 @@ export function ProjectPageClient({ project }: { project: Project }) {
   }
 
   if (project.experience === "radar") return <RadarExperience />;
+
+  if (project.experience === "cursor-tiger") return <CursorTigerExperience />;
 
   return (
     <ProjectPane

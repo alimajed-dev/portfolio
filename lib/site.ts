@@ -72,7 +72,7 @@ export type Project = {
   id: string;
   name: string;
   subtitle: string;
-  experience: "agent" | "pixels" | "radar";
+  experience: "agent" | "pixels" | "radar" | "cursor-tiger";
   cardEyebrow: string;
   cardTitle: string;
   cardBody: string;
@@ -110,7 +110,20 @@ export const PROJECTS: Project[] = [
     cardBody:
       "Finds high-potential X conversations where I can contribute useful expertise, grow my network, and join discussions while they’re still active.",
   },
+  {
+    id: "cursor-tiger",
+    name: "Cursor Tiger",
+    subtitle: "Cursor-following character",
+    experience: "cursor-tiger",
+    cardEyebrow: "Interactive animation",
+    cardTitle: "A tiger that follows your cursor",
+    cardBody:
+      "Move across the screen to guide a baby tiger’s gaze through a continuous, pre-rendered character animation.",
+  },
 ];
+
+/** The approved source animation used by the Cursor Tiger experience. */
+export const CURSOR_TIGER_VIDEO_SRC = "/cursor-tiger/tiger-look.mp4?v=2";
 
 export type ProcessStep = {
   phase: string;

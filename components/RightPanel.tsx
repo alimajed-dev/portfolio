@@ -9,11 +9,12 @@ import { ProcessPanel } from "./ProcessPanel";
 import { PixelProcessPanel } from "./PixelProcessPanel";
 import { RadarProcessPanel } from "./RadarProcessPanel";
 import { RadarPrivacyPanel } from "./RadarPrivacyPanel";
+import { CursorTigerProcessPanel } from "./CursorTigerProcessPanel";
 
 export type PanelTab = "live" | "process" | "privacy";
 
 type Props = {
-  variant?: "agent" | "pixels" | "radar";
+  variant?: "agent" | "pixels" | "radar" | "cursor-tiger";
   tab: PanelTab;
   onTabChange: (tab: PanelTab) => void;
   steps: TraceStep[];
@@ -46,6 +47,7 @@ export function RightPanel({ variant = "agent", tab, onTabChange, steps, running
   const closeRef = useRef<HTMLButtonElement>(null);
   const isDrawer = useMediaQuery("(max-width: 1023px)");
   const modal = open && isDrawer;
+  const buildProcessOnly = variant === "pixels" || variant === "cursor-tiger";
   const visibleTab = variant === "radar" && tab !== "privacy" ? "process" : tab;
   const tabs = variant === "radar" ? RADAR_TABS : TABS;
 
@@ -93,8 +95,8 @@ export function RightPanel({ variant = "agent", tab, onTabChange, steps, running
           open ? "visible translate-x-0 shadow-2xl" : "invisible translate-x-full",
         ].join(" ")}
       >
-        <div className="flex h-[56px] shrink-0 items-center border-b border-line lg:h-[46px]">
-          {variant === "pixels" ? (
+        <div className="flex h-14 shrink-0 items-center border-b border-line">
+          {buildProcessOnly ? (
             <div className="flex h-full min-w-0 flex-1 items-center justify-center border-b border-accent text-xs font-medium text-accent">
               Build Process
             </div>
@@ -142,12 +144,14 @@ export function RightPanel({ variant = "agent", tab, onTabChange, steps, running
 
         <div
           id="panel-body"
-          role={variant !== "pixels" ? "tabpanel" : undefined}
-          aria-labelledby={variant !== "pixels" ? `panel-tab-${visibleTab}` : undefined}
+          role={!buildProcessOnly ? "tabpanel" : undefined}
+          aria-labelledby={!buildProcessOnly ? `panel-tab-${visibleTab}` : undefined}
           className="min-h-0 flex-1 overflow-y-auto p-4 lg:p-5"
         >
           {variant === "pixels" ? (
             <PixelProcessPanel />
+          ) : variant === "cursor-tiger" ? (
+            <CursorTigerProcessPanel />
           ) : variant === "radar" && visibleTab === "privacy" ? (
             <RadarPrivacyPanel />
           ) : variant === "radar" ? (

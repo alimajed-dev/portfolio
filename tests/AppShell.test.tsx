@@ -13,6 +13,7 @@ const PROJECT = PROJECTS[0];
 const PROJECT_PATH = `/projects/${PROJECT.id}`;
 const PIXELS_PROJECT = PROJECTS[1];
 const RADAR_PROJECT = PROJECTS.find((project) => project.experience === "radar")!;
+const CURSOR_TIGER_PROJECT = PROJECTS.find((project) => project.experience === "cursor-tiger")!;
 
 /**
  * AppShell reads the route via `usePathname()` and no longer decides which
@@ -148,6 +149,14 @@ describe("AppShell — project-specific right panels", () => {
     expect(panel()).toBeDefined();
   });
 
+  it("aligns every desktop project-panel divider with the main header", () => {
+    renderAt(`/projects/${PIXELS_PROJECT.id}`, <div>Pixel experience</div>);
+    const panelHeader = projectPanel().firstElementChild as HTMLElement;
+
+    expect(panelHeader.className.split(" ")).toContain("h-14");
+    expect(panelHeader.className).not.toContain("lg:h-[46px]");
+  });
+
   it("shows a Build Process-only panel for the Pixels project", () => {
     renderAt(`/projects/${PIXELS_PROJECT.id}`, <div>Pixel experience</div>);
     expect(screen.queryByRole("complementary", { name: "Agent panel" })).toBeNull();
@@ -171,6 +180,15 @@ describe("AppShell — project-specific right panels", () => {
     expect(document.activeElement).toBe(
       within(drawer).getByRole("button", { name: "Close panel" }),
     );
+  });
+
+  it("shows a Cursor Tiger-specific Build Process-only panel", () => {
+    renderAt(`/projects/${CURSOR_TIGER_PROJECT.id}`, <div>Cursor Tiger experience</div>);
+
+    expect(projectPanel()).toBeDefined();
+    expect(within(projectPanel()).getByText("Build Process")).toBeDefined();
+    expect(within(projectPanel()).getByText("How the tiger follows the cursor")).toBeDefined();
+    expect(within(projectPanel()).queryByRole("tab", { name: "Live" })).toBeNull();
   });
 
   it("shows Build Process and Privacy tabs only for the Radar project", async () => {

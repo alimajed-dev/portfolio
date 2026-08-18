@@ -1,4 +1,4 @@
-import { ArrowRight, Radar, ScanLine, Terminal } from "lucide-react";
+import { ArrowRight, PawPrint, Radar, ScanLine, Terminal } from "lucide-react";
 import Link from "next/link";
 import { OWNER, PROJECTS, SKILLS } from "@/lib/site";
 
@@ -32,13 +32,20 @@ export function HomePane() {
           <div className="flex flex-col gap-2">
             <h2 className="text-xl font-semibold text-ink">Projects</h2>
             <p className="text-[13px]/[1.55] text-neutral-600 sm:text-[14px]/[1.5]">
-              Most of my professional work is confidential, but here are a few things I’ve built for fun and exploration.
+              Most of my professional work is confidential, but here are a few things I’ve built for fun and exploration. Each project includes a concise Build Process view, so you can see how it was made.
             </p>
           </div>
           {PROJECTS.map((project) => {
-            const ProjectIcon = project.experience === "pixels" ? ScanLine : project.experience === "radar" ? Radar : Terminal;
+            const ProjectIcon = project.experience === "pixels"
+              ? ScanLine
+              : project.experience === "radar"
+                ? Radar
+                : project.experience === "cursor-tiger"
+                  ? PawPrint
+                  : Terminal;
             const displayName =
               project.experience === "pixels" ? "Learn how pixels create color" : project.name;
+            const inProgress = project.experience === "cursor-tiger";
             return (
               <Link
                 key={project.id}
@@ -53,9 +60,15 @@ export function HomePane() {
                     <span className="truncate text-[14px] font-semibold text-ink sm:text-[15px]">
                       {displayName}
                     </span>
-                    <span className="shrink-0 text-xs text-accent">
-                      <span className="sm:hidden">Demo inside</span>
-                      <span className="hidden sm:inline">{project.cardTitle}</span>
+                    <span
+                      className={[
+                        "shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.04em]",
+                        inProgress
+                          ? "border-warning/25 bg-warning/10 text-warning"
+                          : "border-success/25 bg-success/10 text-success",
+                      ].join(" ")}
+                    >
+                      {inProgress ? "In progress" : "Done"}
                     </span>
                   </span>
                   <span className="truncate text-[12px] text-neutral-600 sm:text-[13px]">{project.cardBody}</span>
