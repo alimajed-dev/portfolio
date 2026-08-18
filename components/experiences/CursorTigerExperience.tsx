@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { PawPrint } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { CURSOR_TIGER_VIDEO_SRC } from "@/lib/site";
 
 const FOLLOW_RATE = 18;
@@ -75,6 +76,7 @@ export function touchXToVideoTime(
 }
 
 export function CursorTigerExperience() {
+  const [videoStatus, setVideoStatus] = useState<"loading" | "ready" | "error">("loading");
   const experienceRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const latestTargetTimeRef = useRef(0);
@@ -219,6 +221,9 @@ export function CursorTigerExperience() {
       isSeekingRef.current = false;
       displayedTimeRef.current = videoElement.currentTime;
       lastSeekTimeRef.current = videoElement.currentTime;
+      if (videoElement.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+        setVideoStatus("ready");
+      }
       measureNextVisibleFrame();
 
       const latestDesiredTime = pendingSeekRef.current ?? latestTargetTimeRef.current;
@@ -452,7 +457,7 @@ export function CursorTigerExperience() {
   return (
     <div
       ref={experienceRef}
-      className="relative min-h-0 flex-1 overflow-hidden bg-black"
+      className="relative min-h-0 flex-1 overflow-hidden bg-bg"
       style={{ cursor: LADYBUG_CURSOR }}
       aria-label="Cursor Tiger interactive experience"
     >
@@ -466,9 +471,54 @@ export function CursorTigerExperience() {
         muted
         playsInline
         preload="auto"
+        onCanPlay={() => setVideoStatus("ready")}
+        onError={() => setVideoStatus("error")}
         aria-label="Baby tiger following the visitor’s horizontal pointer"
-        className="block h-full w-full object-cover"
+        className={[
+          "block h-full w-full object-cover transition-opacity duration-300",
+          videoStatus === "ready" ? "opacity-100" : "opacity-0",
+        ].join(" ")}
       />
+
+      <div
+        className={[
+          "absolute inset-0 z-10 flex items-center justify-center overflow-hidden bg-bg px-6 transition-opacity duration-300",
+          videoStatus === "ready" ? "pointer-events-none opacity-0" : "opacity-100",
+        ].join(" ")}
+        aria-hidden={videoStatus === "ready"}
+      >
+        <div className="absolute -left-20 top-1/4 size-64 rounded-full bg-warning/10 blur-3xl" />
+        <div className="absolute -right-20 bottom-1/4 size-64 rounded-full bg-accent/10 blur-3xl" />
+
+        <div className="relative w-full max-w-xs rounded-2xl border border-line bg-panel/95 px-7 py-8 text-center shadow-xl backdrop-blur-sm">
+          <div className="relative mx-auto flex size-14 items-center justify-center rounded-2xl border border-warning/20 bg-warning/10 text-warning">
+            {videoStatus === "loading" && (
+              <span className="absolute inset-0 rounded-2xl border border-warning/30 motion-safe:animate-ping" />
+            )}
+            <PawPrint
+              size={25}
+              strokeWidth={1.8}
+              className={videoStatus === "loading" ? "motion-safe:animate-pulse" : undefined}
+              aria-hidden
+            />
+          </div>
+
+          <h2 className="mt-5 text-[15px] font-semibold text-ink">
+            {videoStatus === "error" ? "The tiger is taking a break" : "Waking up the tiger"}
+          </h2>
+          <p className="mt-2 text-[12px]/[1.5] text-neutral-600" role="status" aria-live="polite">
+            {videoStatus === "error"
+              ? "The interactive video could not load. Refresh the page to try again."
+              : "Preparing the interactive scene…"}
+          </p>
+
+          {videoStatus === "loading" && (
+            <div className="mx-auto mt-5 h-1 w-28 overflow-hidden rounded-full bg-panel-raised">
+              <div className="h-full w-2/3 rounded-full bg-warning motion-safe:animate-pulse" />
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

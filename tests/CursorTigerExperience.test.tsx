@@ -109,6 +109,19 @@ describe("CursorTigerExperience", () => {
     expect(video.className).toContain("object-cover");
   });
 
+  it("shows a themed loading state until the video can display a frame", () => {
+    render(<CursorTigerExperience />);
+    const video = screen.getByLabelText("Baby tiger following the visitor’s horizontal pointer") as HTMLVideoElement;
+
+    expect(screen.getByText("Waking up the tiger")).toBeDefined();
+    expect(screen.getByRole("status").textContent).toContain("Preparing the interactive scene");
+    expect(video.className).toContain("opacity-0");
+
+    fireEvent.canPlay(video);
+
+    expect(video.className).toContain("opacity-100");
+  });
+
   it("starts on the neutral center frame when metadata loads", () => {
     render(<CursorTigerExperience />);
     const video = screen.getByLabelText("Baby tiger following the visitor’s horizontal pointer") as HTMLVideoElement;
