@@ -124,7 +124,7 @@ export const PROJECTS: Project[] = [
 
 /** The approved source animation used by the Cursor Tiger experience. */
 export const CURSOR_TIGER_VIDEO_SRC =
-  "https://github.com/alimajed-dev/portfolio/releases/download/cursor-tiger-assets-v1/tiger-look.mp4";
+  "https://onhhmw1qzwhqj5i5.public.blob.vercel-storage.com/tiger-look.mp4";
 
 export type ProcessStep = {
   phase: string;
