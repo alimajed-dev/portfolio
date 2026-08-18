@@ -73,6 +73,7 @@ export type Project = {
   name: string;
   subtitle: string;
   experience: "agent" | "pixels" | "radar" | "cursor-tiger";
+  status: "done" | "in-progress" | "halted";
   cardEyebrow: string;
   cardTitle: string;
   cardBody: string;
@@ -85,6 +86,7 @@ export const PROJECTS: Project[] = [
     name: "Agent Orchestration Demo",
     subtitle: "Multi-agent workflow demo",
     experience: "agent",
+    status: "done",
     cardEyebrow: "Project",
     cardTitle: "Agent orchestration in action",
     cardBody:
@@ -95,6 +97,7 @@ export const PROJECTS: Project[] = [
     name: "How Pixels Create Color",
     subtitle: "Interactive RGB study",
     experience: "pixels",
+    status: "done",
     cardEyebrow: "Interactive 3D",
     cardTitle: "Look closer at every color on your screen",
     cardBody:
@@ -105,6 +108,7 @@ export const PROJECTS: Project[] = [
     name: "Conversation Opportunity Radar",
     subtitle: "AI opportunity finder",
     experience: "radar",
+    status: "in-progress",
     cardEyebrow: "AI-powered tool",
     cardTitle: "Find the conversations worth joining",
     cardBody:
@@ -115,6 +119,7 @@ export const PROJECTS: Project[] = [
     name: "Cursor Tiger",
     subtitle: "Cursor-following character",
     experience: "cursor-tiger",
+    status: "halted",
     cardEyebrow: "Interactive animation",
     cardTitle: "A tiger that follows your cursor",
     cardBody:

@@ -45,7 +45,20 @@ export function HomePane() {
                   : Terminal;
             const displayName =
               project.experience === "pixels" ? "Learn how pixels create color" : project.name;
-            const inProgress = project.experience === "cursor-tiger";
+            const status = {
+              done: {
+                label: "Done",
+                className: "border-success/25 bg-success/10 text-success",
+              },
+              "in-progress": {
+                label: "In progress",
+                className: "border-warning/25 bg-warning/10 text-warning",
+              },
+              halted: {
+                label: "Halted",
+                className: "border-line-strong bg-panel-raised text-neutral-600",
+              },
+            }[project.status];
             return (
               <Link
                 key={project.id}
@@ -63,12 +76,10 @@ export function HomePane() {
                     <span
                       className={[
                         "shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.04em]",
-                        inProgress
-                          ? "border-warning/25 bg-warning/10 text-warning"
-                          : "border-success/25 bg-success/10 text-success",
+                        status.className,
                       ].join(" ")}
                     >
-                      {inProgress ? "In progress" : "Done"}
+                      {status.label}
                     </span>
                   </span>
                   <span className="truncate text-[12px] text-neutral-600 sm:text-[13px]">{project.cardBody}</span>
