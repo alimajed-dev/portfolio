@@ -15,8 +15,8 @@ vi.mock("@/lib/x-radar/x-client", () => client);
 vi.mock("@/lib/x-radar/analysis", () => analysis);
 vi.mock("@/lib/monitoring", () => monitoring);
 
-import { refreshRadar } from "@/lib/x-radar/service";
-import type { XPost } from "@/lib/x-radar/types";
+import { contentMaxAgeHours, getSnapshot, refreshIntervalHours, refreshRadar } from "@/lib/x-radar/service";
+import type { RankedPost, XPost } from "@/lib/x-radar/types";
 
 const candidate: XPost = {
   id: "same-post",
@@ -26,6 +26,15 @@ const candidate: XPost = {
   metrics: { likes: 100, replies: 20, reposts: 10, quotes: 5, impressions: 10_000 },
 };
 const relevance = { relevance: 90, abilityToAddValue: 85, audienceValue: 70, whyReply: "Useful", suggestedAngle: "Add context" };
+const rankedCandidate: RankedPost = {
+  ...candidate,
+  opportunityScore: 80,
+  label: "Check",
+  signals: { ...relevance, engagement: 75, reach: 70, velocity: 65 },
+  whyReply: relevance.whyReply,
+  suggestedAngle: relevance.suggestedAngle,
+  url: `https://x.com/${candidate.author.username}/status/${candidate.id}`,
+};
 
 beforeEach(() => {
   cache.clearLegacySeenPostCache.mockReset().mockResolvedValue(undefined);
@@ -40,9 +49,36 @@ beforeEach(() => {
   vi.spyOn(console, "error").mockImplementation(() => undefined);
 });
 
-afterEach(() => vi.restoreAllMocks());
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.unstubAllEnvs();
+});
 
 describe("Radar scan lifecycle", () => {
+  it("accepts a 240-hour cadence while bounding unsafe timer values", () => {
+    vi.stubEnv("X_REFRESH_INTERVAL_HOURS", "240");
+    expect(refreshIntervalHours()).toBe(240);
+
+    vi.stubEnv("X_REFRESH_INTERVAL_HOURS", "1000");
+    expect(refreshIntervalHours()).toBe(576);
+  });
+
+  it("keeps a ten-day snapshot when retention is configured independently", async () => {
+    vi.stubEnv("X_CONTENT_MAX_AGE_HOURS", "264");
+    cache.readSnapshot.mockResolvedValue({
+      posts: [rankedCandidate],
+      lastRefreshedAt: new Date(Date.now() - 240 * 3_600_000).toISOString(),
+      source: "x",
+      stats: { scanned: 1, rejected: 0, opportunities: 1 },
+    });
+
+    expect(contentMaxAgeHours()).toBe(264);
+    expect((await getSnapshot())?.posts).toHaveLength(1);
+
+    vi.stubEnv("X_CONTENT_MAX_AGE_HOURS", "1000");
+    expect(contentMaxAgeHours()).toBe(720);
+  });
+
   it.each(["manual", "scheduled"] as const)("ranks every post in the same 12-hour result set for a %s scan", async (kind) => {
     const snapshot = await refreshRadar(undefined, kind);
 

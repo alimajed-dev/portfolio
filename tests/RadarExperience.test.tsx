@@ -2,11 +2,20 @@
 import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { RadarExperience } from "@/components/experiences/RadarExperience";
+import { formatRadarCountdown, RadarExperience } from "@/components/experiences/RadarExperience";
 
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 
 describe("RadarExperience manual scan control", () => {
+  it("shows days before the existing clock for long scan intervals", () => {
+    const now = new Date("2026-08-18T00:00:00Z").getTime();
+
+    expect(formatRadarCountdown(new Date(now + 240 * 3_600_000).toISOString(), now)).toBe("Next scan in 10 days 00:00:00");
+    expect(formatRadarCountdown(new Date(now + 25 * 3_600_000).toISOString(), now)).toBe("Next scan in 1 day 01:00:00");
+    expect(formatRadarCountdown(new Date(now + 4 * 3_600_000).toISOString(), now)).toBe("Next scan in 04:00:00");
+    expect(formatRadarCountdown("not-a-date", now)).toBe("Scheduling next scan…");
+  });
+
   it("disables manual scanning when the persistent monthly allowance is exhausted", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({
       posts: [], lastRefreshedAt: "2026-08-17T12:00:00Z", nextRefreshAt: "2026-08-17T16:00:00Z",
@@ -47,6 +56,7 @@ describe("RadarExperience manual scan control", () => {
     const row = (await screen.findByText("A technical discussion")).closest("li");
     expect(screen.getByText("A technical discussion").className.split(" ")).toContain("line-clamp-5");
     expect(screen.getByText(/ranked for my fit: higher scores signal active interaction, professional relevance, credible authors, and more room for me to add value/i)).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Latest scan candidates" })).toBeTruthy();
     expect(row?.className.split(" ")).toContain("items-start");
     expect(screen.queryByText("Why reply")).toBeNull();
     expect(screen.queryByText("Angle:")).toBeNull();

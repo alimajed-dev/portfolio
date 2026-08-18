@@ -12,6 +12,8 @@ describe("RadarPrivacyPanel", () => {
     expect(screen.getByText(/plus quoted-source context returned in the same response/i)).toBeTruthy();
     expect(screen.getByText(/interaction depth and velocity/i)).toBeTruthy();
     expect(screen.getByText(/latest successful result set and usage counters/i)).toBeTruthy();
+    expect(screen.getByText(/public snapshot expires after the configured retention period/i)).toBeTruthy();
+    expect(screen.getByText(/removal requests are handled within 24 hours/i)).toBeTruthy();
     expect(screen.getByText("Operational monitoring")).toBeTruthy();
     expect(screen.getByText(/post text, post and author IDs, credentials, owner tokens, and visitor data are never included/i)).toBeTruthy();
     expect(screen.getByRole("link", { name: /@/ }).getAttribute("href")).toContain("mailto:");

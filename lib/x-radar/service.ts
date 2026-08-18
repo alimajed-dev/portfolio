@@ -6,6 +6,21 @@ import { searchRecentPosts } from "./x-client";
 import type { RadarSnapshot, RankedPost, RelevanceAnalysis, XPost } from "./types";
 
 let refreshPromise: Promise<RadarSnapshot> | null = null;
+const MAX_REFRESH_INTERVAL_HOURS = 24 * 24;
+const MAX_CONTENT_AGE_HOURS = 30 * 24;
+
+function boundedHours(raw: string | undefined, fallback: number, maximum: number) {
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) && parsed > 0 ? Math.min(maximum, Math.max(1, parsed)) : fallback;
+}
+
+export function refreshIntervalHours() {
+  return boundedHours(process.env.X_REFRESH_INTERVAL_HOURS, 4, MAX_REFRESH_INTERVAL_HOURS);
+}
+
+export function contentMaxAgeHours() {
+  return boundedHours(process.env.X_CONTENT_MAX_AGE_HOURS, 24, MAX_CONTENT_AGE_HOURS);
+}
 
 function rank(post: XPost, analysis: RelevanceAnalysis): RankedPost {
   const { score, signals } = opportunityScore(analysis, post.metrics, post.createdAt);
@@ -21,7 +36,7 @@ function isOpportunity(post: RankedPost) {
 export async function getSnapshot() {
   const snapshot = await readSnapshot();
   if (!snapshot) return null;
-  const maxAgeHours = Math.min(24, Math.max(1, Number(process.env.X_CONTENT_MAX_AGE_HOURS) || 24));
+  const maxAgeHours = contentMaxAgeHours();
   if (Date.now() - new Date(snapshot.lastRefreshedAt).getTime() >= maxAgeHours * 3_600_000) return null;
   return { ...snapshot, posts: snapshot.posts.map((post) => {
     const analysis = { relevance: post.signals.relevance, abilityToAddValue: post.signals.abilityToAddValue, audienceValue: post.signals.audienceValue, whyReply: post.whyReply, suggestedAngle: post.suggestedAngle };
@@ -77,7 +92,7 @@ export function getNextRefreshAt() {
 }
 
 function intervalMs() {
-  return Math.max(1, Number(process.env.X_REFRESH_INTERVAL_HOURS) || 4) * 3_600_000;
+  return refreshIntervalHours() * 3_600_000;
 }
 
 function scheduleAfter(delay: number) {

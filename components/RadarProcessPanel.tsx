@@ -32,8 +32,8 @@ const RANKING_STEPS = [
   {
     phase: "Cache",
     tool: "Railway volume",
-    description: "Writes only the latest successful snapshot and usage counter to the persistent /data volume; page visits read that cache and never call X.",
-    why: "A server environment variable controls the scan cadence without a code change. One Railway replica owns that scheduler and its concurrency lock, preventing duplicate paid scans.",
+    description: "Writes only the latest successful scan snapshot and usage counter to the persistent /data volume; page visits read that snapshot and never call X.",
+    why: "Bounded server settings independently control scan cadence, snapshot retention, and monthly allowances. Long cadences lower cost but make the displayed snapshot older; one Railway replica prevents duplicate paid scans.",
   },
   {
     phase: "Observe",

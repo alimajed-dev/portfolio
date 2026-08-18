@@ -13,7 +13,9 @@ describe("RadarProcessPanel", () => {
     expect(screen.getByText("Observe")).toBeTruthy();
     expect(screen.getByText("Better Stack")).toBeTruthy();
     expect(screen.getByText("Railway volume")).toBeTruthy();
-    expect(screen.getByText(/environment variable controls the scan cadence/i)).toBeTruthy();
+    expect(screen.getByText(/bounded server settings independently control scan cadence, snapshot retention, and monthly allowances/i)).toBeTruthy();
+    expect(screen.getByText(/long cadences lower cost but make the displayed snapshot older/i)).toBeTruthy();
+    expect(screen.getByText(/one Railway replica prevents duplicate paid scans/i)).toBeTruthy();
     expect(screen.getByText("Opportunity Score weights")).toBeTruthy();
     expect(screen.getByText("Professional relevance")).toBeTruthy();
     expect(screen.getByText("View reach")).toBeTruthy();
