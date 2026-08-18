@@ -56,6 +56,8 @@ describe("RadarExperience manual scan control", () => {
     expect(within(dialog).getByText("View reach")).toBeTruthy();
     expect(within(dialog).getByText("Author authority")).toBeTruthy();
     expect(within(dialog).getByText("Existing interactions")).toBeTruthy();
+    expect(within(dialog).getByText(/60\/100 · Useful/)).toBeTruthy();
+    expect(within(dialog).getByText(/60\/100 · Add context/)).toBeTruthy();
     expect(within(dialog).getByText(/120 avg posts\/mo/)).toBeTruthy();
     expect(within(dialog).getByText(/9 bookmarks/)).toBeTruthy();
     expect(within(dialog).queryByText("Freshness")).toBeNull();
@@ -85,7 +87,11 @@ describe("RadarExperience manual scan control", () => {
     await user.click(await screen.findByRole("button", { name: /Copy a reply prompt/ }));
     expect(writeText).toHaveBeenCalledOnce();
     expect(writeText.mock.calls[0][0]).toContain("strongest replies, and relevant quote posts");
-    expect(writeText.mock.calls[0][0]).toContain("40–80 words");
+    expect(writeText.mock.calls[0][0]).toContain("35–70 words");
+    expect(writeText.mock.calls[0][0]).toContain("lead with a direct answer or position");
+    expect(writeText.mock.calls[0][0]).toContain("acknowledge the other side");
+    expect(writeText.mock.calls[0][0]).toContain("Use first person only when supported by the provided context");
+    expect(writeText.mock.calls[0][0]).toContain("forced question");
     expect(writeText.mock.calls[0][0]).toContain("Sound human, not AI-generated");
     expect(writeText.mock.calls[0][0]).toContain("Quoted post by @cursor_ai");
     expect(writeText.mock.calls[0][0]).toContain("Origin, our code hosting platform, is now live.");

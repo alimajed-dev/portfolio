@@ -14,10 +14,10 @@ function scoreDetails(post: RankedPost) {
   return [
     ["Existing interactions", "32%", `${compact.format(post.metrics.replies)} replies · ${compact.format(post.metrics.likes)} likes · ${compact.format(post.metrics.reposts)} reposts · ${compact.format(post.metrics.quotes)} quotes · ${compact.format(post.metrics.bookmarks ?? 0)} bookmarks · ${engagement}/100`],
     ["Interaction velocity", "28%", `${velocity}/100`],
-    ["Professional relevance", "15%", `${relevance}/100`],
+    ["Professional relevance", "15%", `${relevance}/100 · ${post.whyReply}`],
     ["Author authority", "10%", `${authorityDetails} · ${audienceValue}/100`],
     ["View reach", "8%", `${compact.format(post.metrics.impressions ?? 0)} views · ${reach}/100`],
-    ["Ability to add value", "7%", `${abilityToAddValue}/100`],
+    ["Ability to add value", "7%", `${abilityToAddValue}/100 · ${post.suggestedAngle}`],
   ] as const;
 }
 
@@ -31,7 +31,7 @@ function formatScanTime(iso: string) {
 function replyPrompt(post: RankedPost) {
   const quotedContext = post.quotedPost ? `\n\nQuoted post${post.quotedPost.authorUsername ? ` by @${post.quotedPost.authorUsername}` : ""}:\n${post.quotedPost.text}` : "";
   const quotedInstruction = post.quotedPost ? " Treat the quoted post as context and respond to the original author's commentary, not as if the quoted source wrote it." : "";
-  return `Help me write a thoughtful reply to this X post:\n${post.url}\n\nOriginal post by @${post.author.username}:\n${post.text}${quotedContext}\n\nCurrent public metrics: ${post.metrics.replies} replies, ${post.metrics.likes} likes, ${post.metrics.reposts} reposts, ${post.metrics.quotes} quote posts, ${post.metrics.bookmarks ?? 0} bookmarks${post.metrics.impressions === undefined ? "" : `, ${post.metrics.impressions} views`}.\n\nBefore drafting, inspect the live post, its strongest replies, and relevant quote posts.${quotedInstruction} Identify what is driving meaningful interaction, what has already been said, and where I can add a distinct point without copying anyone.\n\nWrite as me: Ali Majed, a full-stack software engineer and solutions architect focused on practical AI systems, agentic workflows, architecture, and reliable product delivery. Match my direct, curious, practical tone. Sound human, not AI-generated: no generic praise, canned opening, inflated language, unnecessary summary, hashtags, sales pitch, or claims about experience I have not provided.\n\nReturn one concise reply of roughly 40–80 words, normally 2–4 sentences. It should contribute a concrete observation, question, trade-off, or implementation perspective and feel natural in the existing conversation. Output only the reply.`;
+  return `Help me write a thoughtful reply to this X post:\n${post.url}\n\nOriginal post by @${post.author.username}:\n${post.text}${quotedContext}\n\nCurrent public metrics: ${post.metrics.replies} replies, ${post.metrics.likes} likes, ${post.metrics.reposts} reposts, ${post.metrics.quotes} quote posts, ${post.metrics.bookmarks ?? 0} bookmarks${post.metrics.impressions === undefined ? "" : `, ${post.metrics.impressions} views`}.\n\nBefore drafting, inspect the live post, its strongest replies, and relevant quote posts.${quotedInstruction} Identify what is driving meaningful interaction, what has already been said, and where I can add a distinct point without copying anyone.\n\nWrite as me: Ali Majed, a full-stack software engineer and solutions architect focused on practical AI systems, agentic workflows, architecture, and reliable product delivery. Match my observed reply style: lead with a direct answer or position, add one concrete practical reason, and acknowledge the other side when there is a real trade-off. Use first person only when supported by the provided context; never invent experience. Sound human, not AI-generated: no generic praise, canned opening, inflated language, unnecessary summary, forced question, hashtags, or sales pitch.\n\nReturn one concise reply of roughly 35–70 words, normally 2–3 sentences. It should contribute a concrete observation, question, trade-off, or implementation perspective and feel natural in the existing conversation. Output only the reply.`;
 }
 
 function ScoreBreakdown({ post }: { post: RankedPost }) {

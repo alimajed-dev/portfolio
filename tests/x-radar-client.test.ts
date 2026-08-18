@@ -9,6 +9,7 @@ afterEach(() => {
 describe("X radar search", () => {
   it("requests active, relevant candidates from an explicit 12-hour window", async () => {
     vi.stubEnv("X_BEARER_TOKEN", "test-token");
+    vi.stubEnv("X_OWNER_USERNAME", "123456789012345");
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({ data: [] }), { status: 200 })));
 
     await searchRecentPosts();
@@ -19,16 +20,22 @@ describe("X radar search", () => {
     expect(url.searchParams.get("query")).toContain("min_likes:20");
     expect(url.searchParams.get("query")).toContain("GitHub");
     expect(url.searchParams.get("query")).toContain('"source control"');
+    expect(url.searchParams.get("query")).toContain("coding");
+    expect(url.searchParams.get("query")).toContain("Codex");
     expect(url.searchParams.get("query")).toContain("model");
     expect(url.searchParams.get("query")).toContain("prompt");
     expect(url.searchParams.get("query")).toContain("harder");
     expect(url.searchParams.get("query")).toContain("annoying");
     expect(url.searchParams.get("query")).toContain("strategy");
+    expect(url.searchParams.get("query")).toContain('"hot take"');
+    expect(url.searchParams.get("query")).toContain("limit");
+    expect(url.searchParams.get("query")).toContain("market");
+    expect(url.searchParams.get("query")).toContain('"could have"');
     expect(url.searchParams.get("query")).toContain("outage");
     expect(url.searchParams.get("query")).toContain("announces");
-    expect(url.searchParams.get("query")).toContain("tradeoff OR debate OR replacement OR alternative) -has:links OR outage");
+    expect(url.searchParams.get("query")).toContain('tradeoff OR limit OR market OR replacement OR "could have") -has:links');
     expect(url.searchParams.get("query")).toContain('"now live"');
-    expect(url.searchParams.get("query")).toContain('"not planned"');
+    expect(url.searchParams.get("query")).toContain("timing OR planned");
     expect(url.searchParams.get("query")).toContain("is:quote");
     expect(url.searchParams.get("tweet.fields")).toContain("article");
     expect(url.searchParams.get("tweet.fields")).toContain("note_tweet");

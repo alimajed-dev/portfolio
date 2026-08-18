@@ -2,8 +2,8 @@ const RANKING_STEPS = [
   {
     phase: "Collect",
     tool: "X API",
-    description: "Every scheduled and owner scan uses the same X search for the best active posts from the previous 12 hours: AI and software-engineering debates, developer pain, source-control and dependency trade-offs, launches, outages, incidents, announcements, and controversial professional opinions.",
-    why: "Discussion-style matches must be link-free, while launches, releases, outages, and incidents can still include links. A narrow quote-reaction branch covers high-activity timing discussions without opening the search to unrelated quote posts.",
+    description: "Every scheduled and owner scan uses the same X search for the best active posts from the previous 12 hours: reply-worthy AI and software questions, AI-tool friction, builder-versus-distribution trade-offs, source-control debates, capability claims, launches, and outages.",
+    why: "Representative posts tune reusable topic patterns rather than creating an allowlist. Discussion-style matches must be link-free, while launches and outages can include links; a narrow quote-reaction branch covers high-activity timing discussions.",
   },
   {
     phase: "Validate",
@@ -14,7 +14,7 @@ const RANKING_STEPS = [
   {
     phase: "Understand",
     tool: "Local analysis",
-    description: "Scores professional relevance, room to add value, and author authority from follower scale, verification, and average posting activity. For quote posts, the quoted source is expanded in the same response and used as relevance context.",
+    description: "Scores professional relevance and room to add value across practical questions, builder trade-offs, AI-tool constraints, consequential capability claims, and technical events. Author authority uses follower scale, verification, and average posting activity; quoted sources provide same-response context.",
     why: "X content stays inside the application by default. Gemini inference is available only after the disclosed processing is approved and paid-service data terms are confirmed.",
   },
   {
@@ -50,8 +50,8 @@ const RANKING_STEPS = [
   {
     phase: "Reply prep",
     tool: "Clipboard prompt",
-    description: "Provides clearly labeled, clickable actions to open the post or copy a concise, context-rich reply prompt built from the cached post, quoted-source context when present, its metrics, and Ali’s professional voice.",
-    why: "The prompt asks ChatGPT to inspect live replies and quote posts before drafting, so the portfolio makes no additional X request and never auto-posts.",
+    description: "Provides clearly labeled, clickable actions to open the post or copy a concise, context-rich reply prompt built from the cached post, quoted-source context when present, its metrics, and Ali’s observed professional voice.",
+    why: "The prompt favors a direct position, one concrete reason, and a balanced trade-off without inventing experience or forcing a question. It asks ChatGPT to inspect live discussion context, while the portfolio makes no additional X request and never auto-posts.",
   },
 ] as const;
 

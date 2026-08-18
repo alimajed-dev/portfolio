@@ -74,6 +74,38 @@ describe("local radar analysis", () => {
     expect(result.abilityToAddValue).toBeGreaterThanOrEqual(60);
   });
 
+  it("recognizes thoughtful future-of-work questions without treating them like tool polls", () => {
+    const result = analyzeLocally(post("What do you think is the one skill that will never be replaced by AI?", "Fullstack developer writing about AI and code"));
+    expect(result.relevance).toBeGreaterThanOrEqual(75);
+    expect(result.abilityToAddValue).toBeGreaterThanOrEqual(70);
+    expect(result.whyReply).toContain("human judgment");
+  });
+
+  it("recognizes concise builder-versus-distribution debates", () => {
+    const hotTake = analyzeLocally(post("Hot take: coding is easier than selling.", "Founder building software"));
+    const marketerQuestion = analyzeLocally(post("A marketer can build almost anything now. But can a developer market anything?", "Building a developer product"));
+    for (const result of [hotTake, marketerQuestion]) {
+      expect(result.relevance).toBeGreaterThanOrEqual(75);
+      expect(result.abilityToAddValue).toBeGreaterThanOrEqual(65);
+      expect(result.whyReply).toContain("builder-versus-distribution");
+    }
+  });
+
+  it("recognizes AI-tool limits that have become workflow constraints", () => {
+    const result = analyzeLocally(post("When Codex launched the five-hour usage limit felt unlimited. Now I hit the weekly limit by Tuesday.", "Playing with AI tools"));
+    expect(result.relevance).toBeGreaterThanOrEqual(75);
+    expect(result.abilityToAddValue).toBeGreaterThanOrEqual(65);
+    expect(result.whyReply).toContain("real workflows");
+  });
+
+  it("recognizes consequential AI memory and privacy claims", () => {
+    const result = analyzeLocally(post("ChatGPT could have perfect context of your whole life within six months.", "Building in tech"));
+    expect(result.relevance).toBeGreaterThanOrEqual(75);
+    expect(result.abilityToAddValue).toBeGreaterThanOrEqual(60);
+    expect(result.whyReply).toContain("privacy, trust");
+    expect(result.suggestedAngle).toContain("data ownership");
+  });
+
   it("keeps substantive model-versus-prompt questions eligible", () => {
     const result = analyzeLocally(post("What's more important: the model or the prompt?", "AI learning", { followers: 1_000_000, postsPerMonth: 300, verified: true }));
     expect(result.abilityToAddValue).toBeGreaterThanOrEqual(70);
