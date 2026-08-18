@@ -1,4 +1,5 @@
 function boundedInteger(raw: string | undefined, fallback: number, minimum: number, maximum: number) {
+  if (!raw?.trim()) return fallback;
   const parsed = Number(raw);
   if (!Number.isFinite(parsed)) return fallback;
   return Math.min(maximum, Math.max(minimum, Math.floor(parsed)));

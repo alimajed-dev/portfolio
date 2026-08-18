@@ -20,6 +20,22 @@ describe("Radar numeric configuration", () => {
     expect(manualMonthlyRequestLimit()).toBe(10);
   });
 
+  it("treats blank Railway values as missing", () => {
+    vi.stubEnv("X_REFRESH_INTERVAL_HOURS", " ");
+    vi.stubEnv("X_CONTENT_MAX_AGE_HOURS", " ");
+    vi.stubEnv("X_MAX_POSTS_PER_SCAN", " ");
+    vi.stubEnv("X_LOOKBACK_HOURS", " ");
+    vi.stubEnv("X_MONTHLY_REQUEST_LIMIT", " ");
+    vi.stubEnv("X_MANUAL_MONTHLY_REQUEST_LIMIT", " ");
+
+    expect(refreshIntervalHours()).toBe(240);
+    expect(contentMaxAgeHours()).toBe(24);
+    expect(maxPostsPerScan()).toBe(10);
+    expect(lookbackHours()).toBe(12);
+    expect(monthlyRequestLimit()).toBe(14);
+    expect(manualMonthlyRequestLimit()).toBe(10);
+  });
+
   it("clamps explicit values to hard safe bounds", () => {
     vi.stubEnv("X_REFRESH_INTERVAL_HOURS", "9999");
     vi.stubEnv("X_CONTENT_MAX_AGE_HOURS", "9999");
