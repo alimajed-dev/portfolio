@@ -43,7 +43,8 @@ describe("ProcessPanel content", () => {
     fireEvent.click(summary!);
     expect(stack.open).toBe(true);
     expect(within(stack).getByText("Usage controls", { exact: true })).toBeDefined();
-    expect(within(stack).getByText("Railway volume, keyed IP hashes", { exact: true })).toBeDefined();
+    expect(within(stack).getByText("Railway volume, keyed IP hashes, bounded server settings", { exact: true })).toBeDefined();
+    expect(within(stack).getByText(/conservative fallbacks and hard bounds protect every configurable run/i)).toBeDefined();
     for (const item of TECH_STACK) {
       expect(within(stack).getByText(item.area, { exact: true })).toBeDefined();
       expect(within(stack).getByText(new RegExp(item.why.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")))).toBeDefined();

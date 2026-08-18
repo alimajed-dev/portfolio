@@ -52,17 +52,23 @@ problem it was collapsed to fix.
   server→browser. No WebSockets needed.
 - **Rate limiting:** daily usage is persisted on the Railway `/data` volume
   using keyed hashes rather than raw IP addresses; active concurrency slots
-  remain in memory (`lib/rate-limit.ts`). Per IP:
-  5 runs/day, 1 concurrent. Across all visitors: 200 runs/day, 6 concurrent —
+  remain in memory (`lib/rate-limit.ts`). Safe defaults are 5 runs/day and 1
+  concurrent per IP, with 200 runs/day and 6 concurrent across all visitors —
   the per-IP key is only as trustworthy as the proxy chain, so the global caps
-  are what actually bound free-tier spend. The IP is read from the *rightmost*
+  are what actually bound free-tier spend. Every configurable numeric agent
+  control is read through `lib/agent-config.ts`, which supplies a conservative
+  fallback for missing, blank, or invalid values and clamps explicit values to
+  a hard bound.
+  The IP is read from the *rightmost*
   `X-Forwarded-For` entry (the hop Railway appends); `TRUSTED_PROXY_HOPS`
   adjusts that if another proxy is ever put in front.
   **This assumes exactly one Railway instance** — the attached volume and
   in-process concurrency locks are not a distributed rate limiter. Use Redis
   or another atomic shared store before scaling horizontally.
-- **Run budget:** each model call is capped at 60s (`lib/orchestrator.ts`) and
-  the whole run at 180s (`AGENT_RUN_TIMEOUT_MS`, in `app/api/agent/route.ts`).
+- **Run budget:** each model call defaults to a 60s cap and the whole run to a
+  180s cap. Timeouts, researcher fan-out, input size, output-token budgets,
+  daily quotas, concurrency, and trusted proxy depth are server-configurable
+  within the hard bounds in `lib/agent-config.ts`.
 - **Icons:** Lucide (`lucide-react`) — matches the mockup exactly.
 - **Font:** Archivo, **self-hosted** at `app/fonts/archivo-latin-variable.woff2`
   via `next/font/local`. Not `next/font/google`: that fetches from Google at

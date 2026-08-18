@@ -4,7 +4,9 @@
  * clearly abusive, so the public demo can't be trivially used to generate it.
  */
 
-export const MAX_INPUT_LENGTH = 2000;
+import { agentMaxInputLength } from "./agent-config";
+
+export const MAX_INPUT_LENGTH = agentMaxInputLength();
 
 /** Collapse common obfuscations (l33tspeak, spacing, repeats) before matching. */
 function normalize(input: string): string {

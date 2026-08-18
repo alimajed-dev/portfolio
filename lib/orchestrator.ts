@@ -1,4 +1,5 @@
 import { generateText, streamText, type LanguageModel } from "ai";
+import { agentCallTimeoutMs, agentMaxResearchers, criticOutputTokens, plannerOutputTokens, researcherOutputTokens, writerOutputTokens } from "./agent-config";
 import type { AgentEvent, StepStatus, TraceStep } from "./agent-types";
 import { captureOperationalError } from "./monitoring";
 import { geminiModel, groqModel } from "./models";
@@ -6,12 +7,8 @@ import { MODEL_LABELS, REASONS, initialSteps, makeStep } from "./pipeline-plan";
 
 export type Emit = (event: AgentEvent) => void;
 
-/** Per-model-call ceiling, so one hung provider can't stall the whole run. */
-const CALL_TIMEOUT_MS = 60_000;
-const MAX_RESEARCHERS = 3;
-
 function timeoutSignal(outer: AbortSignal): AbortSignal {
-  return AbortSignal.any([outer, AbortSignal.timeout(CALL_TIMEOUT_MS)]);
+  return AbortSignal.any([outer, AbortSignal.timeout(agentCallTimeoutMs())]);
 }
 
 /**
@@ -35,14 +32,14 @@ async function callModel(opts: {
   system: string;
   prompt: string;
   signal: AbortSignal;
-  maxOutputTokens?: number;
+  maxOutputTokens: number;
 }): Promise<string> {
   const { text } = await generateText({
     model: opts.model,
     system: opts.system,
     prompt: opts.prompt,
     temperature: 0.4,
-    maxOutputTokens: opts.maxOutputTokens ?? 700,
+    maxOutputTokens: opts.maxOutputTokens,
     abortSignal: timeoutSignal(opts.signal),
   });
   return text.trim();
@@ -54,7 +51,7 @@ function parseSubTasks(raw: string, fallback: string): string[] {
     values
       .map((t) => t.trim())
       .filter(Boolean)
-      .slice(0, MAX_RESEARCHERS);
+      .slice(0, agentMaxResearchers());
 
   // 1. A well-formed array, with or without surrounding prose/fences.
   const match = raw.match(/\[[\s\S]*\]/);
@@ -128,11 +125,11 @@ export async function runPipeline(
       model: geminiModel,
       system:
         "You are the planner in a multi-agent system. Break the user's request into at most " +
-        `${MAX_RESEARCHERS} concrete, independently researchable sub-tasks. ` +
+        `${agentMaxResearchers()} concrete, independently researchable sub-tasks. ` +
         "Reply with ONLY a JSON array of short strings. No prose, no markdown fences.",
       prompt: userMessage,
       signal,
-      maxOutputTokens: 1500,
+      maxOutputTokens: plannerOutputTokens(),
     });
     subTasks = parseSubTasks(raw, userMessage);
     setStatus("planner", "done", `Split the request into ${subTasks.length} sub-task${subTasks.length === 1 ? "" : "s"}`);
@@ -190,7 +187,7 @@ export async function runPipeline(
           "No preamble, no conclusion.",
         prompt: `Overall request: ${userMessage}\n\nYour sub-task: ${task}`,
         signal,
-        maxOutputTokens: 500,
+        maxOutputTokens: researcherOutputTokens(),
       });
       findings.push({ task, notes });
       setStatus(id, "done");
@@ -232,7 +229,7 @@ export async function runPipeline(
           "must be careful about. At most 5 short bullets. If the notes are solid, say so briefly.",
         prompt: `User's request:\n${userMessage}\n\nResearch notes:\n${research}`,
         signal,
-        maxOutputTokens: 1500,
+        maxOutputTokens: criticOutputTokens(),
       });
       setStatus("critic", "done");
       emit({ type: "agent_output", label: "Critic", text: critique });
@@ -275,7 +272,7 @@ export async function runPipeline(
       system: writerSystem,
       prompt: writerPrompt,
       temperature: 0.5,
-      maxOutputTokens: 4000,
+      maxOutputTokens: writerOutputTokens(),
       abortSignal: timeoutSignal(signal),
     });
     for await (const chunk of result.textStream) {

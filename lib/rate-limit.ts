@@ -1,6 +1,7 @@
 import { createHash, createHmac } from "node:crypto";
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { agentConcurrentPerIp, agentGlobalConcurrent, agentGlobalRunsPerDay, agentRunsPerDay, trustedProxyHops } from "./agent-config";
 
 /**
  * Daily usage survives deployments on the Railway volume. Active concurrency
@@ -9,18 +10,18 @@ import path from "node:path";
  * distributed lock or atomic multi-process rate-limit store.
  */
 
-const RUNS_PER_DAY = 5;
+const RUNS_PER_DAY = agentRunsPerDay();
 const WINDOW_MS = 24 * 60 * 60 * 1000;
 /** Guard against one visitor holding several streams open at once. */
-const MAX_CONCURRENT_PER_IP = 1;
+const MAX_CONCURRENT_PER_IP = agentConcurrentPerIp();
 
 /**
  * Ceilings across every visitor. Per-IP keys are only as trustworthy as the
  * proxy chain (see `clientIp`), so these bound total provider spend even if
  * someone is rotating forged addresses.
  */
-const GLOBAL_RUNS_PER_DAY = 200;
-const MAX_CONCURRENT_GLOBAL = 6;
+const GLOBAL_RUNS_PER_DAY = agentGlobalRunsPerDay();
+const MAX_CONCURRENT_GLOBAL = agentGlobalConcurrent();
 
 export const LIMITS = {
   RUNS_PER_DAY,
@@ -180,10 +181,7 @@ export function reserveRun(ip: string): RateLimitResult {
  * quota key straight to the caller. Raise this only if another trusted proxy or
  * CDN is put in front of Railway.
  */
-const TRUSTED_PROXY_HOPS = (() => {
-  const parsed = Number.parseInt(process.env.TRUSTED_PROXY_HOPS ?? "", 10);
-  return Number.isInteger(parsed) && parsed >= 1 ? parsed : 1;
-})();
+const TRUSTED_PROXY_HOPS = trustedProxyHops();
 
 const IPV4 = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
 

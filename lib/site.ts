@@ -196,8 +196,8 @@ export const TECH_STACK: TechStackItem[] = [
   },
   {
     area: "Usage controls",
-    tools: "Railway volume, keyed IP hashes",
-    why: "Persists daily limits across deployments without storing raw visitor IP addresses.",
+    tools: "Railway volume, keyed IP hashes, bounded server settings",
+    why: "Persists daily limits across deployments without storing raw visitor IP addresses, while conservative fallbacks and hard bounds protect every configurable run, concurrency, timeout, fan-out, input, and output budget.",
   },
   {
     area: "Deployment",

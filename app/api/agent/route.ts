@@ -1,5 +1,6 @@
 import type { NextRequest } from "next/server";
 import type { AgentEvent } from "@/lib/agent-types";
+import { agentRunTimeoutMs } from "@/lib/agent-config";
 import { checkInput } from "@/lib/content-filter";
 import { missingKeys } from "@/lib/models";
 import { captureOperationalError } from "@/lib/monitoring";
@@ -20,13 +21,6 @@ export const dynamic = "force-dynamic";
  * visitor's one active run slot and a server stream the whole time. This makes
  * the total a deliberate number instead of an emergent one.
  */
-const DEFAULT_RUN_TIMEOUT_MS = 180_000;
-
-function runTimeoutMs(): number {
-  const parsed = Number.parseInt(process.env.AGENT_RUN_TIMEOUT_MS ?? "", 10);
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : DEFAULT_RUN_TIMEOUT_MS;
-}
-
 const SSE_HEADERS = {
   "Content-Type": "text/event-stream; charset=utf-8",
   "Cache-Control": "no-cache, no-transform",
@@ -97,7 +91,7 @@ export async function POST(request: NextRequest) {
   const deadline = setTimeout(() => {
     timedOut = true;
     abort.abort();
-  }, runTimeoutMs());
+  }, agentRunTimeoutMs());
 
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {

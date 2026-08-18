@@ -59,7 +59,7 @@ describe("clientIp", () => {
     );
   });
 
-  it("ignores a non-numeric or out-of-range TRUSTED_PROXY_HOPS and falls back to one hop", async () => {
+  it("falls back or clamps to one hop for malformed and below-minimum proxy values", async () => {
     for (const value of ["nonsense", "0", "-3"]) {
       const { clientIp } = await freshModule({ TRUSTED_PROXY_HOPS: value });
       expect(clientIp(headers({ "x-forwarded-for": "9.9.9.9, 203.0.113.7" })), value).toBe(
@@ -108,6 +108,22 @@ describe("reserveRun", () => {
     if (result.ok) result.release();
     return result;
   };
+
+  it("uses bounded environment-configured daily and concurrency limits", async () => {
+    const configured = await freshModule({
+      AGENT_RUNS_PER_DAY: "2",
+      AGENT_GLOBAL_RUNS_PER_DAY: "3",
+      AGENT_MAX_CONCURRENT_PER_IP: "2",
+      AGENT_MAX_CONCURRENT_GLOBAL: "4",
+    });
+
+    expect(configured.LIMITS).toMatchObject({
+      RUNS_PER_DAY: 2,
+      GLOBAL_RUNS_PER_DAY: 3,
+      MAX_CONCURRENT_PER_IP: 2,
+      MAX_CONCURRENT_GLOBAL: 4,
+    });
+  });
 
   it("allows the daily quota and rejects the run after it", () => {
     for (let i = 0; i < mod.LIMITS.RUNS_PER_DAY; i += 1) {
