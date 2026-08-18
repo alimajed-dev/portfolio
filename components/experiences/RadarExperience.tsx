@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight, Check, Clock3, Copy, Eye, Heart, Info, MessageCircle, Quote, Radar, RefreshCw, Repeat2, Sparkles, X } from "lucide-react";
+import { ArrowUpRight, Bookmark, Check, Clock3, Copy, Eye, Heart, Info, MessageCircle, Quote, Radar, RefreshCw, Repeat2, Sparkles, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { RadarSnapshot, RankedPost } from "@/lib/x-radar/types";
 
@@ -12,7 +12,7 @@ function scoreDetails(post: RankedPost) {
   const { reach, engagement, velocity, relevance, abilityToAddValue, audienceValue } = post.signals;
   const authorityDetails = [`${compact.format(post.author.followers ?? 0)} followers`, post.author.postsPerMonth === undefined ? null : `${compact.format(post.author.postsPerMonth)} avg posts/mo`, post.author.verified ? "verified" : null].filter(Boolean).join(" · ");
   return [
-    ["Existing interactions", "32%", `${compact.format(post.metrics.replies)} replies · ${compact.format(post.metrics.likes)} likes · ${compact.format(post.metrics.reposts)} reposts · ${compact.format(post.metrics.quotes)} quotes · ${engagement}/100`],
+    ["Existing interactions", "32%", `${compact.format(post.metrics.replies)} replies · ${compact.format(post.metrics.likes)} likes · ${compact.format(post.metrics.reposts)} reposts · ${compact.format(post.metrics.quotes)} quotes · ${compact.format(post.metrics.bookmarks ?? 0)} bookmarks · ${engagement}/100`],
     ["Interaction velocity", "28%", `${velocity}/100`],
     ["Professional relevance", "15%", `${relevance}/100`],
     ["Author authority", "10%", `${authorityDetails} · ${audienceValue}/100`],
@@ -29,7 +29,9 @@ function formatScanTime(iso: string) {
 }
 
 function replyPrompt(post: RankedPost) {
-  return `Help me write a thoughtful reply to this X post:\n${post.url}\n\nOriginal post by @${post.author.username}:\n${post.text}\n\nCurrent public metrics: ${post.metrics.replies} replies, ${post.metrics.likes} likes, ${post.metrics.reposts} reposts, ${post.metrics.quotes} quote posts${post.metrics.impressions === undefined ? "" : `, ${post.metrics.impressions} views`}.\n\nBefore drafting, inspect the live post, its strongest replies, and relevant quote posts. Identify what is driving meaningful interaction, what has already been said, and where I can add a distinct point without copying anyone.\n\nWrite as me: Ali Majed, a full-stack software engineer and solutions architect focused on practical AI systems, agentic workflows, architecture, and reliable product delivery. Match my direct, curious, practical tone. Sound human, not AI-generated: no generic praise, canned opening, inflated language, unnecessary summary, hashtags, sales pitch, or claims about experience I have not provided.\n\nReturn one concise reply of roughly 40–80 words, normally 2–4 sentences. It should contribute a concrete observation, question, trade-off, or implementation perspective and feel natural in the existing conversation. Output only the reply.`;
+  const quotedContext = post.quotedPost ? `\n\nQuoted post${post.quotedPost.authorUsername ? ` by @${post.quotedPost.authorUsername}` : ""}:\n${post.quotedPost.text}` : "";
+  const quotedInstruction = post.quotedPost ? " Treat the quoted post as context and respond to the original author's commentary, not as if the quoted source wrote it." : "";
+  return `Help me write a thoughtful reply to this X post:\n${post.url}\n\nOriginal post by @${post.author.username}:\n${post.text}${quotedContext}\n\nCurrent public metrics: ${post.metrics.replies} replies, ${post.metrics.likes} likes, ${post.metrics.reposts} reposts, ${post.metrics.quotes} quote posts, ${post.metrics.bookmarks ?? 0} bookmarks${post.metrics.impressions === undefined ? "" : `, ${post.metrics.impressions} views`}.\n\nBefore drafting, inspect the live post, its strongest replies, and relevant quote posts.${quotedInstruction} Identify what is driving meaningful interaction, what has already been said, and where I can add a distinct point without copying anyone.\n\nWrite as me: Ali Majed, a full-stack software engineer and solutions architect focused on practical AI systems, agentic workflows, architecture, and reliable product delivery. Match my direct, curious, practical tone. Sound human, not AI-generated: no generic praise, canned opening, inflated language, unnecessary summary, hashtags, sales pitch, or claims about experience I have not provided.\n\nReturn one concise reply of roughly 40–80 words, normally 2–4 sentences. It should contribute a concrete observation, question, trade-off, or implementation perspective and feel natural in the existing conversation. Output only the reply.`;
 }
 
 function ScoreBreakdown({ post }: { post: RankedPost }) {
@@ -47,7 +49,7 @@ function countdown(target?: string) {
 }
 
 function Metrics({ post }: { post: RankedPost }) {
-  const items = [[MessageCircle, post.metrics.replies, "replies"], [Heart, post.metrics.likes, "likes"], [Repeat2, post.metrics.reposts, "reposts"], [Quote, post.metrics.quotes, "quote posts"], ...(post.metrics.impressions === undefined ? [] : [[Eye, post.metrics.impressions, "impressions"]] as const)] as const;
+  const items = [[MessageCircle, post.metrics.replies, "replies"], [Heart, post.metrics.likes, "likes"], [Repeat2, post.metrics.reposts, "reposts"], [Quote, post.metrics.quotes, "quote posts"], [Bookmark, post.metrics.bookmarks ?? 0, "bookmarks"], ...(post.metrics.impressions === undefined ? [] : [[Eye, post.metrics.impressions, "impressions"]] as const)] as const;
   return <span className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-neutral-600">{items.map(([Icon, value, label]) => <span key={label} title={label} className="inline-flex items-center gap-1"><Icon size={12} aria-hidden />{compact.format(value)}</span>)}</span>;
 }
 

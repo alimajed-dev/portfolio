@@ -57,6 +57,23 @@ describe("local radar analysis", () => {
     expect(result.relevance).toBeGreaterThanOrEqual(50);
   });
 
+  it("recognizes concrete code-hosting launches and ecosystem theses", () => {
+    const launch = analyzeLocally(post("Origin, our code hosting platform, is now live and deeply integrated with Cursor."));
+    const thesis = analyzeLocally(post("A paid GitHub replacement could weaken how GitHub sustains the open source ecosystem."));
+    expect(launch.relevance).toBeGreaterThanOrEqual(75);
+    expect(launch.abilityToAddValue).toBeGreaterThanOrEqual(60);
+    expect(thesis.relevance).toBeGreaterThanOrEqual(75);
+    expect(thesis.abilityToAddValue).toBeGreaterThanOrEqual(60);
+  });
+
+  it("uses quoted-source text to understand a concise reaction", () => {
+    const quoteReaction = post("No, the timing was not planned");
+    quoteReaction.quotedPost = { text: "Origin, our code hosting platform, is now live and deeply integrated with Cursor.", authorUsername: "cursor_ai" };
+    const result = analyzeLocally(quoteReaction);
+    expect(result.relevance).toBeGreaterThanOrEqual(75);
+    expect(result.abilityToAddValue).toBeGreaterThanOrEqual(60);
+  });
+
   it("keeps substantive model-versus-prompt questions eligible", () => {
     const result = analyzeLocally(post("What's more important: the model or the prompt?", "AI learning", { followers: 1_000_000, postsPerMonth: 300, verified: true }));
     expect(result.abilityToAddValue).toBeGreaterThanOrEqual(70);

@@ -9,7 +9,7 @@ const clamp = (value: number) => Math.max(0, Math.min(100, Math.round(value)));
 
 export function metricSignals(metrics: EngagementMetrics, createdAt: string, now = new Date()) {
   const ageHours = Math.max(0.08, (now.getTime() - new Date(createdAt).getTime()) / 3_600_000);
-  const interactions = metrics.replies * 5 + metrics.quotes * 4 + metrics.reposts * 2.5 + metrics.likes;
+  const interactions = metrics.replies * 5 + metrics.quotes * 4 + metrics.reposts * 2.5 + (metrics.bookmarks ?? 0) * 2 + metrics.likes;
   const impressions = metrics.impressions ?? 0;
   // Interaction depth and interaction velocity are independent of raw views.
   // Age is used only to measure the rate at which real interactions arrive.

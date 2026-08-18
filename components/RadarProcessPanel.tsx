@@ -2,25 +2,25 @@ const RANKING_STEPS = [
   {
     phase: "Collect",
     tool: "X API",
-    description: "Every scheduled and owner scan uses the same X search for the best active posts from the previous 12 hours: AI and software-engineering debates, developer pain, build-versus-dependency trade-offs, launches, outages, incidents, announcements, and controversial professional opinions.",
-    why: "Discussion-style matches must be link-free, while launches, releases, outages, and incidents can still include links. Long notes, articles, generic tool-choice polls, and listicles are downranked without another paid X request.",
+    description: "Every scheduled and owner scan uses the same X search for the best active posts from the previous 12 hours: AI and software-engineering debates, developer pain, source-control and dependency trade-offs, launches, outages, incidents, announcements, and controversial professional opinions.",
+    why: "Discussion-style matches must be link-free, while launches, releases, outages, and incidents can still include links. A narrow quote-reaction branch covers high-activity timing discussions without opening the search to unrelated quote posts.",
   },
   {
     phase: "Validate",
     tool: "Rules",
     description: "Removes Ali’s own posts, reposts, and malformed results before scoring; posts from an earlier scan can appear again when they remain among the best current matches.",
-    why: "Every valid candidate returned by the paid search is ranked, while the score makes spam, promotions, and engagement bait easy to skip.",
+    why: "Every valid candidate returned by the paid search is ranked, while the score downranks long notes, articles, generic tool-choice polls, spam, promotions, and engagement bait without another paid X request.",
   },
   {
     phase: "Understand",
     tool: "Local analysis",
-    description: "Scores professional relevance, room to add value, and author authority from follower scale, verification, and average posting activity returned with the candidate.",
+    description: "Scores professional relevance, room to add value, and author authority from follower scale, verification, and average posting activity. For quote posts, the quoted source is expanded in the same response and used as relevance context.",
     why: "X content stays inside the application by default. Gemini inference is available only after the disclosed processing is approved and paid-service data terms are confirmed.",
   },
   {
     phase: "Measure",
     tool: "Metrics",
-    description: "Scores replies and quote posts most strongly, followed by reposts and likes, plus how quickly those interactions accumulated. Views remain a separate, lower-weight reach signal.",
+    description: "Scores replies and quote posts most strongly, followed by reposts, bookmarks, and likes, plus how quickly those interactions accumulated. Views remain a separate, lower-weight reach signal.",
     why: "Real participation matters more than passive exposure. Freshness is not scored because every candidate already comes from the configured 12-hour window.",
   },
   {
@@ -50,7 +50,7 @@ const RANKING_STEPS = [
   {
     phase: "Reply prep",
     tool: "Clipboard prompt",
-    description: "Provides clearly labeled, clickable actions to open the post or copy a concise, context-rich reply prompt built from the cached post, its metrics, and Ali’s professional voice.",
+    description: "Provides clearly labeled, clickable actions to open the post or copy a concise, context-rich reply prompt built from the cached post, quoted-source context when present, its metrics, and Ali’s professional voice.",
     why: "The prompt asks ChatGPT to inspect live replies and quote posts before drafting, so the portfolio makes no additional X request and never auto-posts.",
   },
 ] as const;

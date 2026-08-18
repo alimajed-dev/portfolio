@@ -7,27 +7,34 @@ type AiRelevanceAnalysis = Omit<RelevanceAnalysis, "audienceValue">;
 
 function replyLengthPenalty(post: XPost) {
   const longForm = post.format === "note" || post.format === "article" || post.text.length > 600;
-  const announcement = /announc|launch|releas|introduc|now live/i.test(post.text);
+  const announcement = /announc|launch|releas|introduc|now live|roll(?:ing)? out|ships?|shipped|beta/i.test(post.text);
   return longForm ? (announcement ? 6 : 14) : post.text.length > 360 ? 6 : 0;
 }
 
 export function analyzeLocally(post: XPost): RelevanceAnalysis {
-  const text = `${post.text} ${post.author.description ?? ""}`.toLowerCase();
-  const hits = ["ai", "ai agent", "coding agent", "agentic ai", "artificial intelligence", "developer", "generated code", "vibe coding", "build", "package", "dependency", "maintain", "software engineering", "software development", "sdlc", "rag", "retrieval augmented", "aws", "bedrock", "cloud", "api", "context engineering", "llm", "model", "prompt", "eval", "observability", "hallucination", "guardrail", "prompt injection", "ai security", "model reliability", "developer tooling", "claude", "anthropic", "openai", "chatgpt", "gemini", "copilot", "cursor ai", "windsurf", "youtube", "code review", "testing", "ai slop", "watermark"].filter((term) => text.includes(term)).length;
-  const asks = /\?|how |why |opinion|lesson|take|think|struggl|trade.?off|bottleneck/i.test(post.text);
-  const promotional = /check it out|buy now|like if|\bfollow\b|giveaway/i.test(post.text);
-  const shallowPrompt = /which (?:ai )?tool|what(?:'s| is) your (?:favou?rite )?(?:ai )?tool|what tool (?:do you use|are you using)|are you using (?:claude|chatgpt|cursor|copilot|gemini|windsurf)|opening first|\b10 ai skills\b|only ai map|(?:all|everything) you need|here(?:'s| is) how i(?:'d| would) prepare|generic .* roadmap/i.test(post.text);
+  const contextualPost = `${post.text} ${post.quotedPost?.text ?? ""}`;
+  const text = `${contextualPost} ${post.author.description ?? ""}`.toLowerCase();
+  const hits = ["ai", "ai agent", "coding agent", "agentic ai", "artificial intelligence", "developer", "generated code", "vibe coding", "build", "code hosting", "source control", "open source", "github", "repository", "package", "dependency", "maintain", "software engineering", "software development", "sdlc", "rag", "retrieval augmented", "aws", "bedrock", "cloud", "api", "context engineering", "llm", "model", "prompt", "eval", "observability", "hallucination", "guardrail", "prompt injection", "ai security", "model reliability", "developer tooling", "claude", "anthropic", "openai", "chatgpt", "gemini", "copilot", "cursor ai", "windsurf", "youtube", "code review", "testing", "ai slop", "watermark"].filter((term) => text.includes(term)).length;
+  const asks = /\?|how |why |opinion|lesson|take|think|struggl|trade.?off|bottleneck/i.test(contextualPost);
+  const announcement = /announc|launch|releas|introduc|now live|roll(?:ing)? out|ships?|shipped|beta/i.test(contextualPost);
+  const industryThesis = /replacement|alternative|open source ecosystem|will not|won't|unsustain|industry risk|the real problem/i.test(contextualPost);
+  const promotional = /check it out|buy now|like if|\bfollow\b|giveaway/i.test(contextualPost);
+  const shallowPrompt = /which (?:ai )?tool|what(?:'s| is) your (?:favou?rite )?(?:ai )?tool|what tool (?:do you use|are you using)|are you using (?:claude|chatgpt|cursor|copilot|gemini|windsurf)|opening first|\b10 ai skills\b|only ai map|(?:all|everything) you need|here(?:'s| is) how i(?:'d| would) prepare|generic .* roadmap/i.test(contextualPost);
   const lengthPenalty = replyLengthPenalty(post);
   // A declarative technical observation can still invite a valuable response;
   // questions get a boost, but are not the only eligible conversation shape.
-  const relevance = Math.min(96, 44 + hits * 12);
-  const abilityToAddValue = Math.max(15, Math.min(94, 55 + (asks ? 22 : 0) - (promotional ? 42 : 0) - (shallowPrompt ? 38 : 0) - lengthPenalty));
+  const relevance = Math.min(96, 44 + hits * 12 + (announcement || industryThesis ? 8 : 0));
+  const abilityToAddValue = Math.max(15, Math.min(94, 55 + (asks ? 22 : industryThesis ? 14 : announcement ? 12 : 0) - (promotional ? 42 : 0) - (shallowPrompt ? 38 : 0) - lengthPenalty));
   const whyReply = promotional
     ? "Promotional or engagement-bait language leaves little room for a credible professional contribution."
     : shallowPrompt
       ? "A generic tool poll or list offers little room for a substantive engineering contribution."
     : asks
       ? "A relevant professional discussion with a clear opening for a practical, experience-based contribution."
+      : industryThesis
+        ? "A concrete industry thesis with an active trade-off where a practical architecture perspective can add value."
+      : announcement
+        ? "A meaningful product or platform change where an implementation perspective can extend the announcement."
       : "A substantive technical observation where a concrete delivery or architecture lesson could extend the discussion.";
   const suggestedAngle = promotional
     ? "Skip unless the thread develops into a substantive technical discussion."

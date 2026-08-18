@@ -38,7 +38,7 @@ describe("RadarExperience manual scan control", () => {
   it("top-aligns every cell in a candidate row", async () => {
     const user = userEvent.setup();
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({
-      posts: [{ id: "p1", text: "A technical discussion", createdAt: "2026-08-17T12:00:00Z", author: { id: "a1", name: "Engineer", username: "engineer", followers: 12_000, postsPerMonth: 120, verified: true }, metrics: { likes: 1, replies: 1, reposts: 0, quotes: 0 }, opportunityScore: 30, label: "Skip", signals: { relevance: 60, abilityToAddValue: 60, audienceValue: 50, engagement: 20, reach: 0, velocity: 30, whyReply: "Useful", suggestedAngle: "Add context" }, whyReply: "Useful", suggestedAngle: "Add context", url: "https://x.com/engineer/status/p1" }],
+      posts: [{ id: "p1", text: "A technical discussion", createdAt: "2026-08-17T12:00:00Z", author: { id: "a1", name: "Engineer", username: "engineer", followers: 12_000, postsPerMonth: 120, verified: true }, metrics: { likes: 1, replies: 1, reposts: 0, quotes: 0, bookmarks: 9 }, opportunityScore: 30, label: "Skip", signals: { relevance: 60, abilityToAddValue: 60, audienceValue: 50, engagement: 20, reach: 0, velocity: 30, whyReply: "Useful", suggestedAngle: "Add context" }, whyReply: "Useful", suggestedAngle: "Add context", url: "https://x.com/engineer/status/p1" }],
       lastRefreshedAt: "2026-08-17T12:00:00Z", nextRefreshAt: "2026-08-17T16:00:00Z", source: "x",
       stats: { scanned: 1, rejected: 0, opportunities: 1 }, manualRefresh: { enabled: false, manualRemaining: 50, manualLimit: 50 },
     }), { status: 200, headers: { "content-type": "application/json" } })));
@@ -57,6 +57,7 @@ describe("RadarExperience manual scan control", () => {
     expect(within(dialog).getByText("Author authority")).toBeTruthy();
     expect(within(dialog).getByText("Existing interactions")).toBeTruthy();
     expect(within(dialog).getByText(/120 avg posts\/mo/)).toBeTruthy();
+    expect(within(dialog).getByText(/9 bookmarks/)).toBeTruthy();
     expect(within(dialog).queryByText("Freshness")).toBeNull();
     expect(screen.getByText("/100")).toBeTruthy();
     expect(screen.getByText(/Last scan .*(?:UTC|GMT(?:[+-]\d+)?)/)).toBeTruthy();
@@ -75,7 +76,7 @@ describe("RadarExperience manual scan control", () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     vi.stubGlobal("navigator", { clipboard: { writeText } });
     const apiFetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({
-      posts: [{ id: "p1", text: "A concrete AI engineering trade-off", createdAt: "2026-08-17T12:00:00Z", author: { id: "a1", name: "Engineer", username: "engineer" }, metrics: { likes: 20, replies: 4, reposts: 2, quotes: 1, impressions: 1000 }, opportunityScore: 72, label: "Check", signals: { relevance: 80, abilityToAddValue: 75, audienceValue: 60, engagement: 55, reach: 70, velocity: 65, whyReply: "Useful", suggestedAngle: "Add context" }, whyReply: "Useful", suggestedAngle: "Add context", url: "https://x.com/engineer/status/p1" }],
+      posts: [{ id: "p1", text: "No, the timing was not planned", quotedPost: { text: "Origin, our code hosting platform, is now live.", authorUsername: "cursor_ai" }, createdAt: "2026-08-17T12:00:00Z", author: { id: "a1", name: "Engineer", username: "engineer" }, metrics: { likes: 20, replies: 4, reposts: 2, quotes: 1, bookmarks: 12, impressions: 1000 }, opportunityScore: 72, label: "Check", signals: { relevance: 80, abilityToAddValue: 75, audienceValue: 60, engagement: 55, reach: 70, velocity: 65, whyReply: "Useful", suggestedAngle: "Add context" }, whyReply: "Useful", suggestedAngle: "Add context", url: "https://x.com/engineer/status/p1" }],
       lastRefreshedAt: "2026-08-17T12:00:00Z", nextRefreshAt: "2026-08-17T16:00:00Z", source: "x", stats: { scanned: 1, rejected: 0, opportunities: 1 }, manualRefresh: { enabled: false, manualRemaining: 50, manualLimit: 50 },
     }), { status: 200, headers: { "content-type": "application/json" } }));
     vi.stubGlobal("fetch", apiFetch);
@@ -86,6 +87,10 @@ describe("RadarExperience manual scan control", () => {
     expect(writeText.mock.calls[0][0]).toContain("strongest replies, and relevant quote posts");
     expect(writeText.mock.calls[0][0]).toContain("40–80 words");
     expect(writeText.mock.calls[0][0]).toContain("Sound human, not AI-generated");
+    expect(writeText.mock.calls[0][0]).toContain("Quoted post by @cursor_ai");
+    expect(writeText.mock.calls[0][0]).toContain("Origin, our code hosting platform, is now live.");
+    expect(writeText.mock.calls[0][0]).toContain("12 bookmarks");
+    expect(writeText.mock.calls[0][0]).toContain("respond to the original author's commentary");
     expect(apiFetch).toHaveBeenCalledOnce();
   });
 });

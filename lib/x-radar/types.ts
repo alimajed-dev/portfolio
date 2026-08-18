@@ -1,11 +1,12 @@
 export type EngagementMetrics = {
   likes: number; replies: number; reposts: number; quotes: number;
-  impressions?: number;
+  bookmarks?: number; impressions?: number;
 };
 
 export type XPost = {
   id: string; text: string; createdAt: string;
   format?: "standard" | "note" | "article";
+  quotedPost?: { text: string; authorUsername?: string };
   author: { id: string; name: string; username: string; description?: string; followers?: number; postsPerMonth?: number; verified?: boolean; profileImageUrl?: string };
   metrics: EngagementMetrics;
 };

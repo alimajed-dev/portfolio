@@ -9,6 +9,7 @@ describe("RadarPrivacyPanel", () => {
     expect(screen.getByText("Information processed")).toBeTruthy();
     expect(screen.getByText("Storage and removal")).toBeTruthy();
     expect(screen.getByText(/follower and posting-activity signals/i)).toBeTruthy();
+    expect(screen.getByText(/plus quoted-source context returned in the same response/i)).toBeTruthy();
     expect(screen.getByText(/interaction depth and velocity/i)).toBeTruthy();
     expect(screen.getByText(/latest successful result set and usage counters/i)).toBeTruthy();
     expect(screen.getByText("Operational monitoring")).toBeTruthy();

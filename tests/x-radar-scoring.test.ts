@@ -30,10 +30,12 @@ describe("Conversation Opportunity Radar scoring", () => {
     const replies = metricSignals({ likes: 0, replies: 10, reposts: 0, quotes: 0 }, createdAt, now).engagement;
     const quotes = metricSignals({ likes: 0, replies: 0, reposts: 0, quotes: 10 }, createdAt, now).engagement;
     const reposts = metricSignals({ likes: 0, replies: 0, reposts: 10, quotes: 0 }, createdAt, now).engagement;
+    const bookmarks = metricSignals({ likes: 0, replies: 0, reposts: 0, quotes: 0, bookmarks: 10 }, createdAt, now).engagement;
     const likes = metricSignals({ likes: 10, replies: 0, reposts: 0, quotes: 0 }, createdAt, now).engagement;
     expect(replies).toBeGreaterThan(quotes);
     expect(quotes).toBeGreaterThan(reposts);
-    expect(reposts).toBeGreaterThan(likes);
+    expect(reposts).toBeGreaterThan(bookmarks);
+    expect(bookmarks).toBeGreaterThan(likes);
   });
 
   it("requires more than relevance alone for a top score", () => {
