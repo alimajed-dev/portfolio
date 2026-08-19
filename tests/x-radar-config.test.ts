@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { contentMaxAgeHours, lookbackHours, manualMonthlyRequestLimit, maxPostsPerScan, monthlyRequestLimit, radarUseCaseApproved, refreshIntervalHours } from "@/lib/x-radar/config";
+import { contentMaxAgeHours, lookbackHours, manualMonthlyRequestLimit, maxPostsPerScan, monthlyRequestLimit, refreshIntervalHours } from "@/lib/x-radar/config";
 
 afterEach(() => vi.unstubAllEnvs());
 
@@ -50,13 +50,5 @@ describe("Radar numeric configuration", () => {
     expect(lookbackHours()).toBe(168);
     expect(monthlyRequestLimit()).toBe(200);
     expect(manualMonthlyRequestLimit()).toBe(100);
-  });
-
-  it("requires an explicit true approval flag", () => {
-    expect(radarUseCaseApproved()).toBe(false);
-    vi.stubEnv("X_RADAR_USE_CASE_APPROVED", "TRUE");
-    expect(radarUseCaseApproved()).toBe(false);
-    vi.stubEnv("X_RADAR_USE_CASE_APPROVED", "true");
-    expect(radarUseCaseApproved()).toBe(true);
   });
 });

@@ -21,10 +21,6 @@ export function lookbackHours() {
   return boundedInteger(process.env.X_LOOKBACK_HOURS, 24, 12, 168);
 }
 
-export function radarUseCaseApproved() {
-  return process.env.X_RADAR_USE_CASE_APPROVED === "true";
-}
-
 export function monthlyRequestLimit() {
   return boundedInteger(process.env.X_MONTHLY_REQUEST_LIMIT, 14, 1, 200);
 }

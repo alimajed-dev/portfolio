@@ -3,7 +3,7 @@ import { blockedRadarPostIds, clearLegacySeenPostCache, deleteSnapshot, radarPos
 import { analyzePosts } from "./analysis";
 import { opportunityScore, scoreLabel } from "./scoring";
 import { searchRecentPosts } from "./x-client";
-import { contentMaxAgeHours, radarUseCaseApproved, refreshIntervalHours } from "./config";
+import { contentMaxAgeHours, refreshIntervalHours } from "./config";
 import type { RadarSnapshot, RankedPost, RelevanceAnalysis, XPost } from "./types";
 
 export { contentMaxAgeHours, refreshIntervalHours } from "./config";
@@ -27,10 +27,6 @@ function isOpportunity(post: RankedPost) {
 }
 
 export async function getSnapshot() {
-  if (!radarUseCaseApproved()) {
-    await deleteSnapshot();
-    return null;
-  }
   const snapshot = await readSnapshot();
   if (!snapshot) return null;
   const maxAgeHours = contentMaxAgeHours();
@@ -50,7 +46,6 @@ export async function refreshRadar(signal?: AbortSignal, kind: "scheduled" | "ma
     const startedAt = Date.now();
     const previous = await readSnapshot();
     try {
-      if (!radarUseCaseApproved()) throw new Error("The revised X API use case must be approved before scanning");
       await clearLegacySeenPostCache();
       const reservation = await reserveMonthlyRequest(kind);
       if (!reservation.ok) throw new Error(reservation.reason === "manual" ? "Monthly manual scan limit reached" : "Monthly X request guard reached");
@@ -75,7 +70,7 @@ export async function refreshRadar(signal?: AbortSignal, kind: "scheduled" | "ma
       console.error("[x-radar] scan failed", { kind, durationMs: Date.now() - startedAt, errorName: typeof source?.name === "string" ? source.name : "Error", status });
       captureOperationalError(error, { area: "x-radar", operation: kind, code: "radar_scan_failed" });
       const previousIsFresh = previous && Date.now() - new Date(previous.lastRefreshedAt).getTime() < contentMaxAgeHours() * 3_600_000;
-      if (previousIsFresh && kind === "scheduled" && radarUseCaseApproved()) {
+      if (previousIsFresh && kind === "scheduled") {
         const stale = { ...previous, warning: `The latest scheduled scan failed: ${error instanceof Error ? error.message : "Unknown error"}. Showing the last successful results.` };
         await writeSnapshot(stale);
         scheduleContentExpiry(stale.lastRefreshedAt);

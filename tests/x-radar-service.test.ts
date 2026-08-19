@@ -30,7 +30,6 @@ const rankedCandidate: RankedPost = {
 };
 
 beforeEach(() => {
-  vi.stubEnv("X_RADAR_USE_CASE_APPROVED", "true");
   cache.blockedRadarPostIds.mockReset().mockResolvedValue(new Set());
   cache.clearLegacySeenPostCache.mockReset().mockResolvedValue(undefined);
   cache.deleteSnapshot.mockReset().mockResolvedValue(undefined);
@@ -94,20 +93,6 @@ describe("Radar scan lifecycle", () => {
     const snapshot = await refreshRadar(undefined, "manual");
     expect(analysis.analyzePosts).toHaveBeenCalledWith([], undefined);
     expect(snapshot.posts).toEqual([]);
-  });
-
-  it("does not consume a scan allowance before use-case approval", async () => {
-    vi.stubEnv("X_RADAR_USE_CASE_APPROVED", "false");
-    await expect(refreshRadar(undefined, "manual")).rejects.toThrow(/must be approved/i);
-    expect(cache.reserveMonthlyRequest).not.toHaveBeenCalled();
-    expect(client.searchRecentPosts).not.toHaveBeenCalled();
-  });
-
-  it("never falls back to cached content when use-case approval is disabled", async () => {
-    vi.stubEnv("X_RADAR_USE_CASE_APPROVED", "false");
-    cache.readSnapshot.mockResolvedValue({ posts: [rankedCandidate], lastRefreshedAt: new Date().toISOString(), source: "x", stats: { scanned: 1, rejected: 0, opportunities: 1 } });
-    await expect(refreshRadar(undefined, "scheduled")).rejects.toThrow(/must be approved/i);
-    expect(cache.deleteSnapshot).toHaveBeenCalledOnce();
   });
 
   it("records a successful result set with no qualifying opportunities", async () => {

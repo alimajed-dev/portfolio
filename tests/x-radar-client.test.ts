@@ -7,15 +7,13 @@ afterEach(() => {
 });
 
 function allowApi() {
-  vi.stubEnv("X_RADAR_USE_CASE_APPROVED", "true");
   vi.stubEnv("X_BEARER_TOKEN", "test-token");
 }
 
 describe("X radar search", () => {
-  it("refuses to access X before the revised use case is approved", async () => {
-    vi.stubEnv("X_BEARER_TOKEN", "test-token");
+  it("refuses to access X without a server-side bearer token", async () => {
     vi.stubGlobal("fetch", vi.fn());
-    await expect(searchRecentPosts()).rejects.toThrow(/approved X API use case/i);
+    await expect(searchRecentPosts()).rejects.toThrow(/X_BEARER_TOKEN is not configured/i);
     expect(fetch).not.toHaveBeenCalled();
   });
 

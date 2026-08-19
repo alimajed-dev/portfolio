@@ -6,13 +6,11 @@ import { RadarProcessPanel } from "@/components/RadarProcessPanel";
 describe("RadarProcessPanel", () => {
   it("documents the compliance-first personalized filtering pipeline", () => {
     render(<RadarProcessPanel />);
-    for (const phase of ["Approve", "Collect", "Minimize", "Understand", "Measure", "Filter", "Display", "Expire", "Remove", "Observe"]) expect(screen.getByText(phase)).toBeTruthy();
-    expect(screen.getByText("Policy gate")).toBeTruthy();
+    for (const phase of ["Collect", "Minimize", "Understand", "Measure", "Filter", "Display", "Expire", "Remove", "Observe"]) expect(screen.getByText(phase)).toBeTruthy();
     expect(screen.getByText("Official X API")).toBeTruthy();
     expect(screen.getByText("Local ranker")).toBeTruthy();
     expect(screen.getByText("Quality gates")).toBeTruthy();
     expect(screen.getByText("Owner purge")).toBeTruthy();
-    expect(screen.getByText(/refuses to call X until the revised conversation-analysis use case/i)).toBeTruthy();
     expect(screen.getByText(/never scraping or browser automation/i)).toBeTruthy();
     expect(screen.getByText(/not sent to an external AI provider/i)).toBeTruthy();
     expect(screen.getByText(/never used to train or fine-tune a model/i)).toBeTruthy();

@@ -11,18 +11,17 @@ terms. Review the current sources before every material change to the Radar:
 - [Post display requirements](https://docs.x.com/developer-terms/display-requirements)
 - [X brand toolkit](https://about.x.com/en/who-we-are/brand-toolkit)
 
-## Approved use-case gate
+## Registered use case
 
-The X developer application description is binding. Before deployment, disclose
-that this owner-only portfolio tool searches a bounded set of recent public
-original posts, locally scores them for professional conversation fit and public
-reply activity, caches only the latest qualifying results for no more than 24
-hours, and displays at most six posts with X attribution. It performs no write
+The existing application is registered for the Conversation Opportunity Radar:
+a public portfolio feature that searches a bounded set of recent public original
+posts, locally scores them for professional conversation fit and public reply
+activity, caches only the latest qualifying results for no more than 24 hours,
+and displays at most six posts with X attribution. Only the owner can trigger a
+manual scan or decide whether to engage. The application performs no write
 actions, external AI processing, model training, sensitive inference,
-advertising, surveillance, or off-X identity matching.
-
-Keep `X_RADAR_USE_CASE_APPROVED=false` until X approves that description. The
-server refuses to scan and deletes any cached snapshot while the flag is false.
+advertising, surveillance, or off-X identity matching. Reassess the registered
+use case before any material change to those analyses, displays, or actions.
 
 ## Enforced product boundaries
 
@@ -57,7 +56,7 @@ generation, or automated X actions to the post.
   Content; an authorized manual scan can repopulate it sooner.
 - A successful scan replaces the previous snapshot. An independent expiry timer
   removes the snapshot at the retention boundary; expired, legacy, or
-  approval-gated snapshots are also deleted on read rather than displayed.
+  incompatible snapshots are also deleted on read rather than displayed.
 - Removal requests go to the address on `/privacy` and must be handled within
   24 hours. Use the protected `POST /api/conversation-radar/remove` endpoint
   with `{ "postId": "..." }`; it purges the post and stores only a one-way hash

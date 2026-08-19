@@ -1,5 +1,5 @@
 import type { PostEntity, XPost } from "./types";
-import { lookbackHours, maxPostsPerScan, radarUseCaseApproved } from "./config";
+import { lookbackHours, maxPostsPerScan } from "./config";
 
 type ApiEntities = {
   urls?: Array<{ start?: number; end?: number; url?: string; display_url?: string }>;
@@ -25,7 +25,6 @@ function postEntities(source?: ApiEntities) {
 }
 
 export async function searchRecentPosts(signal?: AbortSignal): Promise<XPost[]> {
-  if (!radarUseCaseApproved()) throw new Error("The approved X API use case has not been confirmed");
   const token = process.env.X_BEARER_TOKEN;
   if (!token) throw new Error("X_BEARER_TOKEN is not configured");
   const max = maxPostsPerScan();

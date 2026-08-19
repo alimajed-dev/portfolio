@@ -1,11 +1,5 @@
 const RANKING_STEPS = [
   {
-    phase: "Approve",
-    tool: "Policy gate",
-    description: "The server refuses to call X until the revised conversation-analysis use case is disclosed to X and the deployment explicitly confirms approval.",
-    why: "X treats the approved use-case description as binding and requires approval before a substantive change begins processing X Content.",
-  },
-  {
     phase: "Collect",
     tool: "Official X API",
     description: "Searches recent public, English, original posts across AI tools, software, Git, SaaS, building, and product-platform discussions. The query favors direct questions, debatable positions, switching decisions, friction, and fast-changing claims.",
