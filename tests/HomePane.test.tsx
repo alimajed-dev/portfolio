@@ -46,14 +46,20 @@ describe("HomePane projects", () => {
     expect(tigerCard.querySelector(".lucide-paw-print")).not.toBeNull();
   });
 
-  it("marks Radar in progress, Cursor Tiger halted, and completed projects done", () => {
+  it("marks Radar in progress, Cursor Tiger on hold, and completed projects done", () => {
     render(<HomePane />);
 
     const radarCard = screen.getByRole("link", { name: /Conversation Opportunity Radar/ });
     const tigerCard = screen.getByRole("link", { name: /Cursor Tiger/ });
+    const inProgressTag = screen.getByText("In progress");
+    const onHoldTag = screen.getByText("On hold");
+    const doneTags = screen.getAllByText("Done");
 
     expect(radarCard.textContent).toContain("In progress");
-    expect(tigerCard.textContent).toContain("Halted");
-    expect(screen.getAllByText("Done")).toHaveLength(PROJECTS.length - 2);
+    expect(tigerCard.textContent).toContain("On hold");
+    expect(doneTags).toHaveLength(PROJECTS.length - 2);
+    expect(inProgressTag.className).toContain("bg-warning/15");
+    expect(onHoldTag.className).toContain("bg-neutral-500/15");
+    expect(doneTags[0].className).toContain("bg-success/15");
   });
 });

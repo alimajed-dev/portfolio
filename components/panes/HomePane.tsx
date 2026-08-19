@@ -48,15 +48,15 @@ export function HomePane() {
             const status = {
               done: {
                 label: "Done",
-                className: "border-success/25 bg-success/10 text-success",
+                className: "border-success/40 bg-success/15 text-success",
               },
               "in-progress": {
                 label: "In progress",
-                className: "border-warning/25 bg-warning/10 text-warning",
+                className: "border-warning/45 bg-warning/15 text-warning",
               },
               halted: {
-                label: "Halted",
-                className: "border-line-strong bg-panel-raised text-neutral-600",
+                label: "On hold",
+                className: "border-neutral-500/45 bg-neutral-500/15 text-neutral-700",
               },
             }[project.status];
             return (
