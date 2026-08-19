@@ -1,33 +1,33 @@
 import type { EngagementMetrics, RelevanceAnalysis, ScoringSignals } from "./types";
 
 export const OPPORTUNITY_WEIGHTS = {
-  engagement: 0.32, velocity: 0.28, relevance: 0.15,
-  audience: 0.10, reach: 0.08, addValue: 0.07,
+  personalFit: 0.22, conversationOpening: 0.22, momentum: 0.22,
+  replyDensity: 0.14, brevity: 0.12, reach: 0.08,
 } as const;
 
 const clamp = (value: number) => Math.max(0, Math.min(100, Math.round(value)));
 
 export function metricSignals(metrics: EngagementMetrics, createdAt: string, now = new Date()) {
   const ageHours = Math.max(0.08, (now.getTime() - new Date(createdAt).getTime()) / 3_600_000);
-  const interactions = metrics.replies * 5 + metrics.quotes * 4 + metrics.reposts * 2.5 + (metrics.bookmarks ?? 0) * 2 + metrics.likes;
   const impressions = metrics.impressions ?? 0;
-  // Interaction depth and interaction velocity are independent of raw views.
-  // Age is used only to measure the rate at which real interactions arrive.
-  const engagement = clamp(Math.log10(1 + interactions) * 35);
-  const reach = clamp(Math.log10(1 + impressions) * 25);
-  const velocity = clamp(Math.log10(1 + interactions / ageHours) * 30);
-  return { engagement, reach, velocity };
+  const repliesPerHour = metrics.replies / ageHours;
+  const fallbackDenominator = Math.max(1, metrics.likes + metrics.reposts + metrics.quotes);
+  const repliesPerThousandViews = impressions > 0 ? metrics.replies / impressions * 1_000 : metrics.replies / fallbackDenominator * 100;
+  const momentum = clamp(15 + Math.log10(1 + metrics.replies) * 25 + Math.log10(1 + repliesPerHour) * 45);
+  const replyDensity = clamp(30 + Math.log10(1 + repliesPerThousandViews) * 45);
+  const reach = clamp(Math.log10(1 + impressions) * 20);
+  return { momentum, replyDensity, reach };
 }
 
 export function opportunityScore(analysis: RelevanceAnalysis, metrics: EngagementMetrics, createdAt: string, now = new Date()) {
   const deterministic = metricSignals(metrics, createdAt, now);
   const signals: ScoringSignals = { ...analysis, ...deterministic };
   const weightedScore = clamp(
-    signals.engagement * OPPORTUNITY_WEIGHTS.engagement + signals.velocity * OPPORTUNITY_WEIGHTS.velocity +
-    signals.relevance * OPPORTUNITY_WEIGHTS.relevance + signals.audienceValue * OPPORTUNITY_WEIGHTS.audience +
-    signals.reach * OPPORTUNITY_WEIGHTS.reach + signals.abilityToAddValue * OPPORTUNITY_WEIGHTS.addValue,
+    signals.personalFit * OPPORTUNITY_WEIGHTS.personalFit + signals.conversationOpening * OPPORTUNITY_WEIGHTS.conversationOpening +
+    signals.momentum * OPPORTUNITY_WEIGHTS.momentum + signals.replyDensity * OPPORTUNITY_WEIGHTS.replyDensity +
+    signals.brevity * OPPORTUNITY_WEIGHTS.brevity + signals.reach * OPPORTUNITY_WEIGHTS.reach,
   );
-  const score = signals.relevance < 40 || signals.abilityToAddValue < 35 ? Math.min(54, weightedScore) : weightedScore;
+  const score = signals.personalFit < 50 || signals.conversationOpening < 50 || metrics.replies < 3 ? Math.min(54, weightedScore) : weightedScore;
   return { score, signals };
 }
 

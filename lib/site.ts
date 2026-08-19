@@ -106,10 +106,10 @@ export const PROJECTS: Project[] = [
   {
     id: "conversation-opportunity-radar",
     name: "Conversation Opportunity Radar",
-    subtitle: "AI opportunity finder",
+    subtitle: "Personalized conversation filter",
     experience: "radar",
     status: "in-progress",
-    cardEyebrow: "AI-powered tool",
+    cardEyebrow: "Local smart filter",
     cardTitle: "Find the conversations worth joining",
     cardBody:
       "Finds high-potential X conversations where I can contribute useful expertise, grow my network, and join discussions while they’re still active.",

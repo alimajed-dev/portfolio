@@ -6,91 +6,106 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 
+function allowApi() {
+  vi.stubEnv("X_RADAR_USE_CASE_APPROVED", "true");
+  vi.stubEnv("X_BEARER_TOKEN", "test-token");
+}
+
 describe("X radar search", () => {
-  it("requests active, relevant candidates from an explicit 12-hour window", async () => {
+  it("refuses to access X before the revised use case is approved", async () => {
     vi.stubEnv("X_BEARER_TOKEN", "test-token");
-    vi.stubEnv("X_OWNER_USERNAME", "123456789012345");
+    vi.stubGlobal("fetch", vi.fn());
+    await expect(searchRecentPosts()).rejects.toThrow(/approved X API use case/i);
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("requests a broad, recent, original-post candidate pool through the official API", async () => {
+    allowApi();
+    vi.stubEnv("X_OWNER_USERNAME", "AliMajed93");
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({ data: [] }), { status: 200 })));
 
     await searchRecentPosts();
     const url = new URL(String(vi.mocked(fetch).mock.calls[0][0]));
-    expect(url.searchParams.get("sort_order")).toBe("relevancy");
-    expect(url.searchParams.get("max_results")).toBe("10");
-    expect(url.searchParams.get("query")).toContain("min_replies:3");
-    expect(url.searchParams.get("query")).toContain("min_likes:20");
-    expect(url.searchParams.get("query")).toContain("GitHub");
-    expect(url.searchParams.get("query")).toContain('"source control"');
-    expect(url.searchParams.get("query")).toContain("coding");
-    expect(url.searchParams.get("query")).toContain("Codex");
-    expect(url.searchParams.get("query")).toContain("model");
-    expect(url.searchParams.get("query")).toContain("prompt");
-    expect(url.searchParams.get("query")).toContain("harder");
-    expect(url.searchParams.get("query")).toContain("annoying");
-    expect(url.searchParams.get("query")).toContain("strategy");
-    expect(url.searchParams.get("query")).toContain('"hot take"');
-    expect(url.searchParams.get("query")).toContain("limit");
-    expect(url.searchParams.get("query")).toContain("market");
-    expect(url.searchParams.get("query")).toContain('"could have"');
-    expect(url.searchParams.get("query")).toContain("outage");
-    expect(url.searchParams.get("query")).toContain("announces");
-    expect(url.searchParams.get("query")).toContain('tradeoff OR limit OR market OR replacement OR "could have") -has:links');
-    expect(url.searchParams.get("query")).toContain('"now live"');
-    expect(url.searchParams.get("query")).toContain("timing OR planned");
-    expect(url.searchParams.get("query")).toContain("is:quote");
-    expect(url.searchParams.get("tweet.fields")).toContain("article");
-    expect(url.searchParams.get("tweet.fields")).toContain("note_tweet");
-    expect(url.searchParams.get("user.fields")).toContain("verified");
-    expect(url.searchParams.get("user.fields")).toContain("created_at");
-    expect(url.searchParams.get("user.fields")).toContain("public_metrics");
-    expect(url.searchParams.get("expansions")).toContain("referenced_tweets.id");
-    expect(url.searchParams.get("query")).toContain("ChatGPT");
-    expect(url.searchParams.get("query")!.length).toBeLessThanOrEqual(512);
-    expect(url.searchParams.get("query")).not.toContain("crypto");
+    const query = url.searchParams.get("query")!;
+    expect(url.searchParams.get("sort_order")).toBe("recency");
+    expect(url.searchParams.get("max_results")).toBe("30");
+    expect(query).toContain("min_replies:3");
+    expect(query).toContain("min_likes:20");
+    expect(query).toContain('"hot take"');
+    expect(query).toContain('"one thing"');
+    expect(query).toContain("cancelling");
+    expect(query).toContain("Threads");
+    expect(query).toContain("SaaS");
+    expect(query).toContain("GitHub");
+    expect(query).toContain("-is:reply");
+    expect(query).toContain("-is:retweet");
+    expect(query).toContain("-is:quote");
+    expect(query).toContain("-is:nullcast");
+    expect(query).toContain("-has:links");
+    expect(query.length).toBeLessThanOrEqual(512);
+    expect(url.searchParams.get("tweet.fields")).toContain("entities");
+    expect(url.searchParams.get("tweet.fields")).toContain("withheld");
+    expect(url.searchParams.get("user.fields")).toBe("name,username,profile_image_url");
     const ageHours = (Date.now() - new Date(url.searchParams.get("start_time")!).getTime()) / 3_600_000;
-    expect(ageHours).toBeGreaterThan(11.9);
-    expect(ageHours).toBeLessThan(12.1);
+    expect(ageHours).toBeGreaterThan(23.9);
+    expect(ageHours).toBeLessThan(24.1);
   });
 
-  it("retains author authority metadata returned with a candidate", async () => {
-    vi.stubEnv("X_BEARER_TOKEN", "test-token");
+  it("retains only display-required author data, public metrics, and linked entities", async () => {
+    allowApi();
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({
-      data: [{ id: "p1", text: "What is harder about maintaining AI generated code?", author_id: "u1", created_at: "2026-08-17T12:00:00Z", note_tweet: { text: "Full note" }, public_metrics: { like_count: 30, reply_count: 5, repost_count: 4, bookmark_count: 9 } }],
-      includes: { users: [{ id: "u1", name: "Microsoft Learn", username: "MicrosoftLearn", created_at: "2020-01-01T00:00:00Z", verified: true, public_metrics: { followers_count: 1_000_000, post_count: 12_000 } }] },
+      data: [{ id: "123", text: "Ask @engineer about #RAG at https://t.co/example", author_id: "456", created_at: "2026-08-19T08:00:00Z", entities: {
+        mentions: [{ start: 4, end: 13, username: "engineer" }],
+        hashtags: [{ start: 20, end: 24, tag: "RAG" }],
+        urls: [{ start: 28, end: 48, url: "https://t.co/example", display_url: "example.com/post" }],
+      }, public_metrics: { like_count: 30, reply_count: 8, repost_count: 2, quote_count: 1, bookmark_count: 4, impression_count: 2_000 } }],
+      includes: { users: [{ id: "456", name: "Engineer", username: "engineer", profile_image_url: "https://pbs.twimg.com/avatar.jpg", description: "not requested", public_metrics: { followers_count: 999 } }] },
     }), { status: 200 })));
 
     const [result] = await searchRecentPosts();
-    expect(result.author.verified).toBe(true);
-    expect(result.author.followers).toBe(1_000_000);
-    expect(result.author.postsPerMonth).toBeGreaterThan(0);
-    expect(result.format).toBe("note");
-    expect(result.metrics.reposts).toBe(4);
-    expect(result.metrics.bookmarks).toBe(9);
+    expect(result.author).toEqual({ id: "456", name: "Engineer", username: "engineer", profileImageUrl: "https://pbs.twimg.com/avatar.jpg" });
+    expect(result.metrics).toMatchObject({ likes: 30, replies: 8, reposts: 2, quotes: 1, bookmarks: 4, impressions: 2_000 });
+    expect(result.entities).toEqual([
+      { start: 4, end: 13, kind: "mention", value: "engineer", href: "https://x.com/engineer" },
+      { start: 20, end: 24, kind: "hashtag", value: "RAG", href: "https://x.com/hashtag/RAG" },
+      { start: 28, end: 48, kind: "url", value: "example.com/post", href: "https://t.co/example" },
+    ]);
+    expect(result.author).not.toHaveProperty("followers");
+    expect(result.author).not.toHaveProperty("description");
   });
 
-  it("retains quoted-source context from the same search response", async () => {
-    vi.stubEnv("X_BEARER_TOKEN", "test-token");
+  it("uses the complete note text and note entities while rejecting article posts", async () => {
+    allowApi();
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({
-      data: [{ id: "q1", text: "No, the timing was not planned", author_id: "u1", created_at: "2026-08-17T12:00:00Z", referenced_tweets: [{ type: "quoted", id: "origin" }], public_metrics: { like_count: 805, reply_count: 76, repost_count: 15, quote_count: 5, bookmark_count: 51 } }],
-      includes: {
-        users: [
-          { id: "u1", name: "Krista", username: "kristaletz", public_metrics: { followers_count: 50_000 } },
-          { id: "u2", name: "Cursor", username: "cursor_ai", public_metrics: { followers_count: 500_000 } },
-        ],
-        tweets: [{ id: "origin", text: "Origin, our code hosting platform, is now live and deeply integrated with Cursor.", author_id: "u2" }],
-      },
+      data: [
+        { id: "note", text: "Truncated…", note_tweet: { text: "Complete note with #Review", entities: { hashtags: [{ start: 19, end: 26, tag: "Review" }] } }, author_id: "u1", created_at: "2026-08-19T08:00:00Z", public_metrics: { reply_count: 20 } },
+        { id: "article", text: "Article teaser", article: { title: "Long article" }, author_id: "u1", created_at: "2026-08-19T08:00:00Z", public_metrics: { reply_count: 50 } },
+      ],
+      includes: { users: [{ id: "u1", name: "One", username: "one", profile_image_url: "https://example.com/one.jpg" }] },
     }), { status: 200 })));
 
-    const [result] = await searchRecentPosts();
-    expect(result.quotedPost).toEqual({
-      text: "Origin, our code hosting platform, is now live and deeply integrated with Cursor.",
-      authorUsername: "cursor_ai",
-    });
+    await expect(searchRecentPosts()).resolves.toMatchObject([{
+      id: "note", text: "Complete note with #Review", format: "note",
+      entities: [{ start: 19, end: 26, kind: "hashtag", value: "Review", href: "https://x.com/hashtag/Review" }],
+    }]);
+  });
+
+  it("rejects replies, reposts, quotes, and records missing display attribution", async () => {
+    allowApi();
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      data: [
+        { id: "1", text: "Reply", author_id: "u1", created_at: "2026-08-19T08:00:00Z", referenced_tweets: [{ type: "replied_to", id: "0" }], public_metrics: {} },
+        { id: "2", text: "Missing image", author_id: "u2", created_at: "2026-08-19T08:00:00Z", public_metrics: {} },
+        { id: "3", text: "Withheld", author_id: "u1", created_at: "2026-08-19T08:00:00Z", withheld: { country_codes: ["US"] }, public_metrics: {} },
+      ],
+      includes: { users: [{ id: "u1", name: "One", username: "one", profile_image_url: "https://example.com/one.jpg" }, { id: "u2", name: "Two", username: "two" }] },
+    }), { status: 200 })));
+    await expect(searchRecentPosts()).resolves.toEqual([]);
   });
 
   it("retains a safe upstream status for scan diagnostics", async () => {
-    vi.stubEnv("X_BEARER_TOKEN", "test-token");
+    allowApi();
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(null, { status: 429 })));
-
     await expect(searchRecentPosts()).rejects.toMatchObject({ message: "X API rate limit reached", status: 429 });
   });
 });

@@ -1,12 +1,12 @@
 import { OWNER } from "@/lib/site";
 
 const SECTIONS = [
-  ["Information processed", "Up to 10 recent public candidate posts per scan, plus quoted-source context returned in the same response. This can include post text and identifiers, timestamps, public author details, follower and posting-activity signals, verification status, and public engagement metrics. Protected posts, Direct Messages, email addresses, private metrics, and precise location data are not accessed."],
-  ["How it is used", "The radar ranks professional conversations using interaction depth and velocity, professional relevance, author authority, view reach, and room to contribute. It never posts, replies, likes, reposts, follows, or messages anyone."],
-  ["Analysis", "Analysis runs locally using deterministic application logic by default. External AI processing remains disabled unless the required data terms and approvals are in place."],
-  ["Storage and removal", "Only the latest successful result set and usage counters are cached privately on the Railway volume. The public snapshot expires after the configured retention period, and new successful scans replace it. Account owners may request correction or removal at any time; removal requests are handled within 24 hours."],
+  ["Information processed", "A bounded set of recent public original posts from the official X API: post text and identifiers, timestamp, linked entities, author name, @username and profile image, and public engagement metrics. Protected posts, replies, Direct Messages, private metrics, location, and sensitive inferred attributes are not accessed."],
+  ["How it is used", "Local scoring filters for personal topic fit, a real conversational opening, reply momentum and density, brevity, and public reach. Only posts that clear every gate are displayed. The radar never posts, replies, likes, reposts, follows, or messages anyone."],
+  ["AI and models", "X Content is not sent to an external AI provider and is never used to train or fine-tune a model. The server refuses to scan until the revised X API analysis use case is approved and deployment confirmation is enabled."],
+  ["Storage and removal", "Only the latest qualifying snapshot, non-content usage counters, and a content-free last-scan timestamp are cached privately. An independent expiry timer removes X Content within 24 hours at the absolute latest. A protected purge removes a requested post immediately and retains only a one-way hash so it cannot reappear; removal requests are handled within 24 hours."],
   ["Operational monitoring", "Better Stack receives only controlled scan status, result counts, duration, and safe failure codes. Post text, post and author IDs, credentials, owner tokens, and visitor data are never included."],
-  ["Sharing", "X data is not sold, licensed, offered as a dataset, used for surveillance, matched to off-platform identities, or used for advertising."],
+  ["Sharing", "X data is not sold, licensed, offered as a dataset, shared with external AI providers, used for surveillance, matched to off-platform identities, or used for advertising."],
 ] as const;
 
 export function RadarPrivacyPanel() {

@@ -1,144 +1,69 @@
 import { describe, expect, it } from "vitest";
-import { analyzeLocally } from "@/lib/x-radar/analysis";
+import { analyzeLocally, analyzePosts } from "@/lib/x-radar/analysis";
 import type { XPost } from "@/lib/x-radar/types";
 
-function post(text: string, description = "Software engineering", authority: { followers?: number; postsPerMonth?: number; verified?: boolean } = {}, format: XPost["format"] = "standard"): XPost {
+function post(text: string, format: XPost["format"] = "standard"): XPost {
   return {
-    id: "1", text, createdAt: "2026-08-17T12:00:00Z", format,
-    author: { id: "u1", name: "Engineer", username: "engineer", description, ...authority },
-    metrics: { likes: 0, replies: 0, reposts: 0, quotes: 0 },
+    id: "1", text, createdAt: "2026-08-19T08:00:00Z", format,
+    author: { id: "u1", name: "Builder", username: "builder", profileImageUrl: "https://example.com/avatar.jpg" },
+    metrics: { likes: 40, replies: 8, reposts: 2, quotes: 0, impressions: 2_000 },
   };
 }
 
-describe("local radar analysis", () => {
-  it("keeps substantive declarative engineering observations eligible", () => {
-    const result = analyzeLocally(post("We use architecture decision records as context for coding agents."));
-    expect(result.relevance).toBeGreaterThanOrEqual(50);
-    expect(result.abilityToAddValue).toBeGreaterThanOrEqual(45);
+describe("local personalized radar analysis", () => {
+  it("strongly recognizes concise, debatable AI positions", () => {
+    const result = analyzeLocally(post("Hot take: junior developers should learn AI with strict review guardrails."));
+    expect(result.personalFit).toBeGreaterThanOrEqual(88);
+    expect(result.conversationOpening).toBeGreaterThanOrEqual(90);
+    expect(result.brevity).toBe(100);
+    expect(result.whyReply).toContain("debatable position");
   });
 
-  it("penalizes promotional engagement bait", () => {
-    const result = analyzeLocally(post("Launching our AI giveaway — check it out, follow me and like if you agree!"));
-    expect(result.abilityToAddValue).toBeLessThan(45);
-    expect(result.whyReply).toContain("Promotional");
-    expect(result.suggestedAngle).toContain("Skip");
+  it("recognizes direct SaaS and builder questions", () => {
+    const result = analyzeLocally(post("What is one mistake you would never repeat while building a SaaS?"));
+    expect(result.personalFit).toBeGreaterThanOrEqual(75);
+    expect(result.conversationOpening).toBeGreaterThanOrEqual(70);
+    expect(result.suggestedAngle).toContain("product-delivery");
   });
 
-  it("keeps unrelated crypto promotion outside the professional topic lane", () => {
-    const result = analyzeLocally(post("A new token is pumping across crypto markets today.", "Crypto trader"));
-    expect(result.relevance).toBeLessThan(50);
+  it("recognizes concrete AI tool-switching decisions", () => {
+    const result = analyzeLocally(post("I am cancelling one coding assistant and moving to another. Is reliability now the deciding factor?"));
+    expect(result.personalFit).toBeGreaterThanOrEqual(85);
+    expect(result.conversationOpening).toBeGreaterThanOrEqual(80);
+    expect(result.suggestedAngle).toContain("workflow fit");
   });
 
-  it("recognizes RAG and AI engineering implementation problems", () => {
-    const result = analyzeLocally(post("How are teams evaluating RAG reliability and hallucinations on AWS Bedrock?"));
-    expect(result.relevance).toBeGreaterThanOrEqual(80);
-    expect(result.abilityToAddValue).toBeGreaterThanOrEqual(70);
+  it("recognizes Git debates and proposes a traceability angle", () => {
+    const result = analyzeLocally(post("What if agent-written software no longer needs Git?"));
+    expect(result.personalFit).toBeGreaterThanOrEqual(90);
+    expect(result.conversationOpening).toBeGreaterThanOrEqual(70);
+    expect(result.suggestedAngle).toContain("traceability");
   });
 
-  it("recognizes discussions about new AI developer tools", () => {
-    const result = analyzeLocally(post("Claude Code and GitHub Copilot changed how our team reviews pull requests."));
-    expect(result.relevance).toBeGreaterThanOrEqual(80);
+  it("keeps broader social-product debates in the owner preference lane", () => {
+    const result = analyzeLocally(post("Why did a new social platform fail even with a huge existing audience?"));
+    expect(result.personalFit).toBeGreaterThanOrEqual(68);
+    expect(result.conversationOpening).toBeGreaterThanOrEqual(70);
   });
 
-  it("penalizes generic tool polls even when they mention relevant products", () => {
-    const result = analyzeLocally(post("Which tool are you opening first: Cursor, Claude Code, ChatGPT, or Windsurf?"));
-    expect(result.abilityToAddValue).toBeLessThan(45);
-    expect(result.whyReply).toContain("generic tool poll");
+  it("rejects promotion and generic tool polls", () => {
+    expect(analyzeLocally(post("Follow me and like if you use AI—check out my product now.")).conversationOpening).toBeLessThan(50);
+    expect(analyzeLocally(post("What is your favorite AI tool?")).conversationOpening).toBeLessThan(50);
   });
 
-  it("keeps concrete AI product disagreements valuable", () => {
-    const result = analyzeLocally(post("Why is Anthropic repeating OpenAI's product decision when it creates a serious quality tradeoff?"));
-    expect(result.relevance).toBeGreaterThanOrEqual(68);
-    expect(result.abilityToAddValue).toBeGreaterThanOrEqual(70);
+  it("keeps unrelated content outside the personal lane", () => {
+    expect(analyzeLocally(post("A token is moving across crypto markets today.")).personalFit).toBeLessThan(50);
   });
 
-  it("recognizes meaningful technology-platform announcements", () => {
-    const result = analyzeLocally(post("YouTube announces a major change to how video views are counted."));
-    expect(result.relevance).toBeGreaterThanOrEqual(50);
+  it("makes brevity a material signal while allowing the scorer to handle exceptional trends", () => {
+    const concise = analyzeLocally(post("Should coding agents always require review?"));
+    const long = analyzeLocally(post("A changing AI landscape creates new workflow questions. ".repeat(16), "note"));
+    expect(concise.brevity).toBe(100);
+    expect(long.brevity).toBe(10);
   });
 
-  it("recognizes concrete code-hosting launches and ecosystem theses", () => {
-    const launch = analyzeLocally(post("Origin, our code hosting platform, is now live and deeply integrated with Cursor."));
-    const thesis = analyzeLocally(post("A paid GitHub replacement could weaken how GitHub sustains the open source ecosystem."));
-    expect(launch.relevance).toBeGreaterThanOrEqual(75);
-    expect(launch.abilityToAddValue).toBeGreaterThanOrEqual(60);
-    expect(thesis.relevance).toBeGreaterThanOrEqual(75);
-    expect(thesis.abilityToAddValue).toBeGreaterThanOrEqual(60);
-  });
-
-  it("uses quoted-source text to understand a concise reaction", () => {
-    const quoteReaction = post("No, the timing was not planned");
-    quoteReaction.quotedPost = { text: "Origin, our code hosting platform, is now live and deeply integrated with Cursor.", authorUsername: "cursor_ai" };
-    const result = analyzeLocally(quoteReaction);
-    expect(result.relevance).toBeGreaterThanOrEqual(75);
-    expect(result.abilityToAddValue).toBeGreaterThanOrEqual(60);
-  });
-
-  it("recognizes thoughtful future-of-work questions without treating them like tool polls", () => {
-    const result = analyzeLocally(post("What do you think is the one skill that will never be replaced by AI?", "Fullstack developer writing about AI and code"));
-    expect(result.relevance).toBeGreaterThanOrEqual(75);
-    expect(result.abilityToAddValue).toBeGreaterThanOrEqual(70);
-    expect(result.whyReply).toContain("human judgment");
-  });
-
-  it("recognizes concise builder-versus-distribution debates", () => {
-    const hotTake = analyzeLocally(post("Hot take: coding is easier than selling.", "Founder building software"));
-    const marketerQuestion = analyzeLocally(post("A marketer can build almost anything now. But can a developer market anything?", "Building a developer product"));
-    for (const result of [hotTake, marketerQuestion]) {
-      expect(result.relevance).toBeGreaterThanOrEqual(75);
-      expect(result.abilityToAddValue).toBeGreaterThanOrEqual(65);
-      expect(result.whyReply).toContain("builder-versus-distribution");
-    }
-  });
-
-  it("recognizes AI-tool limits that have become workflow constraints", () => {
-    const result = analyzeLocally(post("When Codex launched the five-hour usage limit felt unlimited. Now I hit the weekly limit by Tuesday.", "Playing with AI tools"));
-    expect(result.relevance).toBeGreaterThanOrEqual(75);
-    expect(result.abilityToAddValue).toBeGreaterThanOrEqual(65);
-    expect(result.whyReply).toContain("real workflows");
-  });
-
-  it("recognizes consequential AI memory and privacy claims", () => {
-    const result = analyzeLocally(post("ChatGPT could have perfect context of your whole life within six months.", "Building in tech"));
-    expect(result.relevance).toBeGreaterThanOrEqual(75);
-    expect(result.abilityToAddValue).toBeGreaterThanOrEqual(60);
-    expect(result.whyReply).toContain("privacy, trust");
-    expect(result.suggestedAngle).toContain("data ownership");
-  });
-
-  it("keeps substantive model-versus-prompt questions eligible", () => {
-    const result = analyzeLocally(post("What's more important: the model or the prompt?", "AI learning", { followers: 1_000_000, postsPerMonth: 300, verified: true }));
-    expect(result.abilityToAddValue).toBeGreaterThanOrEqual(70);
-    expect(result.audienceValue).toBeGreaterThanOrEqual(90);
-  });
-
-  it("keeps author authority separate from topical relevance", () => {
-    expect(analyzeLocally(post("AI agents, RAG, LLMs, prompts, APIs, and software development")).audienceValue).toBe(0);
-    expect(analyzeLocally(post("A software observation", "", { followers: 100_000, postsPerMonth: 300, verified: true })).audienceValue).toBeGreaterThanOrEqual(80);
-  });
-
-  it("rewards active, verified authors without changing topical relevance", () => {
-    const inactive = analyzeLocally(post("A concrete software architecture trade-off", "", { followers: 10_000 }));
-    const active = analyzeLocally(post("A concrete software architecture trade-off", "", { followers: 10_000, postsPerMonth: 300, verified: true }));
-    expect(active.audienceValue).toBeGreaterThan(inactive.audienceValue);
-    expect(active.relevance).toBe(inactive.relevance);
-  });
-
-  it("keeps AI-generated code maintainability and future-of-developer debates eligible", () => {
-    expect(analyzeLocally(post("What's harder: building with AI or maintaining AI generated code?")).abilityToAddValue).toBeGreaterThanOrEqual(70);
-    expect(analyzeLocally(post("If AI can build anything, what becomes the hardest part of being a developer?")).relevance).toBeGreaterThanOrEqual(68);
-  });
-
-  it("keeps relatable developer pain and dependency trade-offs eligible", () => {
-    expect(analyzeLocally(post("Most annoying part of vibe coding? AI writes 500 lines, then one button does not work.")).abilityToAddValue).toBeGreaterThanOrEqual(70);
-    expect(analyzeLocally(post("What's your strategy: build from scratch or depend on 50 mysterious packages?")).relevance).toBeGreaterThanOrEqual(68);
-  });
-
-  it("prefers concise discussions without banning valuable long announcements", () => {
-    const concise = analyzeLocally(post("What's harder about maintaining AI generated code?"));
-    const longGuide = analyzeLocally(post("All you need to prepare for software engineering: here's how I'd prepare with a generic FAANG roadmap. ".repeat(8), "", {}, "note"));
-    const longAnnouncement = analyzeLocally(post("Cursor launched an important AI coding platform update. ".repeat(12), "", {}, "note"));
-    expect(concise.abilityToAddValue).toBeGreaterThan(longGuide.abilityToAddValue);
-    expect(longAnnouncement.abilityToAddValue).toBeGreaterThanOrEqual(45);
+  it("never switches to external-model processing", async () => {
+    const candidate = post("Why should AI code always be reviewed?");
+    await expect(analyzePosts([candidate])).resolves.toEqual([analyzeLocally(candidate)]);
   });
 });

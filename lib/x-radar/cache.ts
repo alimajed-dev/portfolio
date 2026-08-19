@@ -1,4 +1,5 @@
 import { mkdir, readFile, rename, unlink, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import path from "node:path";
 import { manualMonthlyRequestLimit, monthlyRequestLimit } from "./config";
 import type { RadarSnapshot } from "./types";
@@ -7,6 +8,17 @@ const directory = process.env.X_RADAR_DATA_DIR || path.join(process.cwd(), ".dat
 const cachePath = path.join(directory, "x-radar.json");
 const usagePath = path.join(directory, "x-radar-usage.json");
 const seenPath = path.join(directory, "x-radar-seen.json");
+const removalsPath = path.join(directory, "x-radar-removals.json");
+const schedulePath = path.join(directory, "x-radar-schedule.json");
+
+function removalKey(postId: string) {
+  return createHash("sha256").update(`x-radar-removal:${postId}`).digest("hex");
+}
+
+async function safeUnlink(target: string) {
+  try { await unlink(target); }
+  catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; }
+}
 
 export async function getRadarUsage() {
   const month = new Date().toISOString().slice(0, 7);
@@ -30,12 +42,55 @@ export async function writeSnapshot(snapshot: RadarSnapshot) {
   await rename(temporary, cachePath);
 }
 
+export async function deleteSnapshot() {
+  await safeUnlink(cachePath);
+}
+
+export async function readLastSuccessfulScanAt() {
+  try {
+    const parsed = JSON.parse(await readFile(schedulePath, "utf8")) as { lastSuccessfulScanAt?: unknown };
+    if (typeof parsed.lastSuccessfulScanAt !== "string" || !Number.isFinite(new Date(parsed.lastSuccessfulScanAt).getTime())) return null;
+    return parsed.lastSuccessfulScanAt;
+  } catch { return null; }
+}
+
+export async function writeLastSuccessfulScanAt(lastSuccessfulScanAt: string) {
+  if (!Number.isFinite(new Date(lastSuccessfulScanAt).getTime())) throw new Error("Invalid Radar scan timestamp");
+  await mkdir(directory, { recursive: true });
+  const temporary = `${schedulePath}.tmp`;
+  await writeFile(temporary, JSON.stringify({ lastSuccessfulScanAt }));
+  await rename(temporary, schedulePath);
+}
+
+export async function blockedRadarPostIds() {
+  try {
+    const parsed = JSON.parse(await readFile(removalsPath, "utf8")) as { hashes?: unknown };
+    return new Set(Array.isArray(parsed.hashes) ? parsed.hashes.filter((value): value is string => typeof value === "string") : []);
+  } catch { return new Set<string>(); }
+}
+
+export async function blockRadarPost(postId: string) {
+  const hashes = await blockedRadarPostIds();
+  hashes.add(removalKey(postId));
+  await mkdir(directory, { recursive: true });
+  const temporary = `${removalsPath}.tmp`;
+  await writeFile(temporary, JSON.stringify({ hashes: [...hashes] }));
+  await rename(temporary, removalsPath);
+  const snapshot = await readSnapshot();
+  if (snapshot?.posts.some((post) => post.id === postId)) await writeSnapshot({ ...snapshot, posts: snapshot.posts.filter((post) => post.id !== postId) });
+}
+
+export function radarPostRemovalKey(postId: string) {
+  return removalKey(postId);
+}
+
+export async function purgeAllRadarContent() {
+  await Promise.all([safeUnlink(cachePath), safeUnlink(removalsPath), safeUnlink(seenPath), safeUnlink(schedulePath)]);
+}
+
 /** Remove the obsolete deduplication cache left by older deployments. */
 export async function clearLegacySeenPostCache() {
-  try { await unlink(seenPath); }
-  catch (error) {
-    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
-  }
+  await safeUnlink(seenPath);
 }
 
 export type RadarRequestKind = "scheduled" | "manual";

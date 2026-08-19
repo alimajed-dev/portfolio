@@ -10,15 +10,19 @@ export function refreshIntervalHours() {
 }
 
 export function contentMaxAgeHours() {
-  return boundedInteger(process.env.X_CONTENT_MAX_AGE_HOURS, 24, 1, 30 * 24);
+  return boundedInteger(process.env.X_CONTENT_MAX_AGE_HOURS, 12, 1, 24);
 }
 
 export function maxPostsPerScan() {
-  return boundedInteger(process.env.X_MAX_POSTS_PER_SCAN, 10, 10, 10);
+  return boundedInteger(process.env.X_MAX_POSTS_PER_SCAN, 30, 10, 100);
 }
 
 export function lookbackHours() {
-  return boundedInteger(process.env.X_LOOKBACK_HOURS, 12, 12, 168);
+  return boundedInteger(process.env.X_LOOKBACK_HOURS, 24, 12, 168);
+}
+
+export function radarUseCaseApproved() {
+  return process.env.X_RADAR_USE_CASE_APPROVED === "true";
 }
 
 export function monthlyRequestLimit() {
