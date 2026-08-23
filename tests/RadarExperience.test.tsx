@@ -68,7 +68,7 @@ describe("RadarExperience", () => {
     expect(screen.getByTitle("Open post on X")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Copy a suggested reply prompt for Engineer's post" })).toBeTruthy();
     expect(screen.getByTitle("Copy suggested reply prompt")).toBeTruthy();
-    expect(screen.getByText("Suggest reply")).toBeTruthy();
+    expect(screen.queryByText("Suggest reply")).toBeNull();
     expect(screen.getByTitle("Explain opportunity score")).toBeTruthy();
     expect(screen.getByRole("link", { name: "#AgentCode" }).getAttribute("href")).toContain("/hashtag/AgentCode");
     expect(screen.getByText((_, element) => element?.tagName === "P" && element.textContent?.includes("12 withheld") === true)).toBeTruthy();
@@ -96,7 +96,8 @@ describe("RadarExperience", () => {
     expect(prompt).toContain(rankedPost.text);
     expect(prompt).toContain(rankedPost.suggestedAngle);
     expect(prompt).toContain(rankedPost.whyReply);
-    expect(prompt).toContain("Ali Majed's voice");
+    expect(prompt).toContain("Write in my voice");
+    expect(prompt).toContain("writing examples I have already shared");
     expect(prompt).toContain("concise, simple, direct, and human");
     expect(prompt).toContain("Return only the reply");
   });
