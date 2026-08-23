@@ -42,9 +42,10 @@ use case before any material change to those analyses, displays, or actions.
 
 Each displayed post must include its full unmodified text, linked entities,
 author profile image, linked display name, linked @username, linked timestamp,
-official X mark, public metrics, and a visible `View on X` permalink. Do not
-truncate or spell-correct the post. Do not attach third-party sharing, reply
-generation, or automated X actions to the post.
+official X mark, public metrics, and a titled X permalink. Do not truncate or
+spell-correct the post. A user-initiated Suggest reply control may copy a local
+writing brief, but it must not send X Content to an AI provider or post or
+automate actions on X.
 
 ## Retention and removals
 

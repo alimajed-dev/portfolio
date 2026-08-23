@@ -32,8 +32,8 @@ const RANKING_STEPS = [
   {
     phase: "Display",
     tool: "X attribution",
-    description: "Renders the full unmodified post text with linked entities, author avatar, display name, @username, timestamp, official X mark, public metrics, and a visible View on X permalink.",
-    why: "The custom rendering follows X’s display requirements and never attaches automated reply, like, repost, follow, or third-party sharing actions.",
+    description: "Renders the full unmodified post text with linked entities, author avatar, display name, @username, timestamp, official X mark, public metrics, and a titled X permalink.",
+    why: "The custom rendering follows X’s display requirements. The optional Suggest reply control only copies a local writing brief; it never calls an AI provider or posts, likes, reposts, follows, or shares anything on X.",
   },
   {
     phase: "Expire",

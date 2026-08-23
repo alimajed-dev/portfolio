@@ -2,7 +2,7 @@
 import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { formatRadarCountdown, RadarExperience } from "@/components/experiences/RadarExperience";
+import { buildReplyPrompt, formatRadarCountdown, RadarExperience } from "@/components/experiences/RadarExperience";
 
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 
@@ -61,11 +61,16 @@ describe("RadarExperience", () => {
     expect(text.className.split(" ")).toContain("whitespace-pre-wrap");
     expect(screen.getByRole("heading", { name: "Best current conversations" })).toBeTruthy();
     expect(screen.getByRole("link", { name: "Engineer@engineer" }).getAttribute("href")).toBe("https://x.com/engineer");
-    expect(screen.getByRole("link", { name: /View on X/ }).getAttribute("href")).toBe(rankedPost.url);
+    expect(screen.getByTitle("Open @engineer's X profile")).toBeTruthy();
+    expect(screen.queryByRole("link", { name: /View on X/ })).toBeNull();
     expect(screen.getByRole("img", { name: "X" })).toBeTruthy();
-    expect(screen.getByRole("link", { name: "View Engineer's post on X" }).getAttribute("href")).toBe(rankedPost.url);
+    expect(screen.getByRole("link", { name: "Open Engineer's post on X in a new tab" }).getAttribute("href")).toBe(rankedPost.url);
+    expect(screen.getByTitle("Open post on X")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Copy a suggested reply prompt for Engineer's post" })).toBeTruthy();
+    expect(screen.getByTitle("Copy suggested reply prompt")).toBeTruthy();
+    expect(screen.getByText("Suggest reply")).toBeTruthy();
+    expect(screen.getByTitle("Explain opportunity score")).toBeTruthy();
     expect(screen.getByRole("link", { name: "#AgentCode" }).getAttribute("href")).toContain("/hashtag/AgentCode");
-    expect(screen.queryByTitle("Copy reply prompt")).toBeNull();
     expect(screen.getByText((_, element) => element?.tagName === "P" && element.textContent?.includes("12 withheld") === true)).toBeTruthy();
 
     await user.click(screen.getByLabelText(/Explain score .* for Engineer/));
@@ -83,5 +88,16 @@ describe("RadarExperience", () => {
     render(<RadarExperience />);
     expect(await screen.findByText("No conversation cleared the quality gates.")).toBeTruthy();
     expect(screen.getByText(/rather return nothing/i)).toBeTruthy();
+  });
+
+  it("builds a concise, contextual reply brief in Ali's voice", () => {
+    const prompt = buildReplyPrompt(rankedPost as Parameters<typeof buildReplyPrompt>[0]);
+    expect(prompt).toContain(rankedPost.url);
+    expect(prompt).toContain(rankedPost.text);
+    expect(prompt).toContain(rankedPost.suggestedAngle);
+    expect(prompt).toContain(rankedPost.whyReply);
+    expect(prompt).toContain("Ali Majed's voice");
+    expect(prompt).toContain("concise, simple, direct, and human");
+    expect(prompt).toContain("Return only the reply");
   });
 });
