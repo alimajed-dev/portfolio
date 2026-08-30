@@ -65,13 +65,17 @@ trimming them truncates results silently rather than erroring.
 
 1. **Planner** — Gemini 3.6 Flash — splits the request into up to 3 sub-tasks.
    *Selected for strong reasoning during task planning.*
-2. **Researchers** — Groq / Llama 3.3 70B — one focused worker per sub-task,
+2. **Researchers** — Groq / GPT-OSS 120B — one focused worker per sub-task,
    run sequentially so every result is visible before the next begins.
    *Selected for fast, focused research.*
 3. **Critic** — Gemini 3.6 Flash — reviews the notes for gaps before write-up.
    *Selected for careful review and error checking.*
 4. **Writer** — Gemini 3.6 Flash, streamed — compiles the final answer.
    *Selected for clear, high-quality final writing.*
+
+Groq retired `llama-3.3-70b-versatile` for developer-tier users on August 16,
+2026. The pipeline now uses Groq's recommended `openai/gpt-oss-120b`
+replacement with low reasoning effort for its concise, latency-sensitive work.
 
 The one-line reasons are pre-written per role, never generated — free, instant,
 and always accurate about the routing decision that was actually made.

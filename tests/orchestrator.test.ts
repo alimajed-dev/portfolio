@@ -19,7 +19,12 @@ vi.mock("@/lib/monitoring", () => ({ captureOperationalError }));
 const GEMINI = "gemini::mock";
 const GROQ = "groq::mock";
 
-type CallOpts = { model: string; prompt: string; system: string };
+type CallOpts = {
+  model: string;
+  prompt: string;
+  system: string;
+  providerOptions?: { groq?: { reasoningEffort?: string } };
+};
 
 let generateText: ReturnType<typeof vi.fn>;
 let streamText: ReturnType<typeof vi.fn>;
@@ -128,7 +133,9 @@ describe("runPipeline — happy path", () => {
 
     const systems = generateText.mock.calls.map((call) => call[0] as CallOpts);
     expect(systems.find((o) => o.system.startsWith("You are the planner"))?.model).toBe(GEMINI);
-    expect(systems.find((o) => o.system.startsWith("You are a research"))?.model).toBe(GROQ);
+    const researcher = systems.find((o) => o.system.startsWith("You are a research"));
+    expect(researcher?.model).toBe(GROQ);
+    expect(researcher?.providerOptions).toEqual({ groq: { reasoningEffort: "low" } });
     expect(systems.find((o) => o.system.startsWith("You are the critic"))?.model).toBe(GEMINI);
     expect(streamText.mock.calls[0][0].model).toBe(GEMINI);
   });
@@ -336,6 +343,9 @@ describe("runPipeline — writer degradation", () => {
     // The badge has to name the model that actually ran.
     expect(writer?.model).toBe(MODEL_LABELS.groq);
     expect(writer?.reason).toMatch(/fallback/i);
+    expect(streamText.mock.calls[1][0].providerOptions).toEqual({
+      groq: { reasoningEffort: "low" },
+    });
   });
 
   it("treats an empty Gemini stream as a failure, not a successful blank answer", async () => {

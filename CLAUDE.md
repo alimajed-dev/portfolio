@@ -133,7 +133,7 @@ the shared palette and surfaces, not older interaction/layout details.)
     do not leave the public explanation describing an older flow.
   - **Live** (default): real-time agent trace. Each entry: small icon
     (checkmark = done, spinner = in progress, empty box = pending), agent
-    name, a model badge (e.g. "Gemini 3.6 Flash", "Groq / Llama 3.3 70B"),
+    name, a model badge (e.g. "Gemini 3.6 Flash", "Groq / GPT-OSS 120B"),
     one-line action description, and an italic one-line "Why this model:" note.
     These reason strings are **pre-written per agent role, not generated
     live** (see Agent pipeline below) — free, instant, always accurate.
@@ -157,8 +157,8 @@ Real multi-agent orchestration behind the chat interface. Sample flow to
 implement:
 1. **Planner** — Gemini 3.6 Flash — breaks the user's request into sub-tasks.
    Why this model: "Selected for strong reasoning during task planning."
-2. **Researcher** (one worker per sub-task, run sequentially) — Groq / Llama
-   3.3 70B — gathers/summarizes information relevant to the sub-tasks. Each
+2. **Researcher** (one worker per sub-task, run sequentially) — Groq / GPT-OSS
+   120B — gathers/summarizes information relevant to the sub-tasks. Each
    result is sent to the chat before the next worker starts. Why this model:
    "Selected for fast, focused research."
 3. **Critic** — Gemini 3.6 Flash — reviews the draft output for gaps/errors.
@@ -173,6 +173,12 @@ all — verified against the live API. Switched to `gemini-3.6-flash`. It is a
 thinking model, so most of each call's token budget goes to reasoning rather
 than visible output; the budgets in `lib/orchestrator.ts` are sized for that,
 and cutting them causes silently truncated output rather than an error.
+
+Groq retired `llama-3.3-70b-versatile` for developer-tier users on August 16,
+2026. The research workers and Groq writer fallback now use Groq's recommended
+`openai/gpt-oss-120b` replacement with low reasoning effort to keep these short,
+latency-sensitive calls efficient. Keep the public model badge in
+`lib/pipeline-plan.ts` synchronized with the ID in `lib/models.ts`.
 
 Each step emits SSE events that update the Live trace in real time (status:
 pending → in-progress → done, plus the description/model/reason) and add the

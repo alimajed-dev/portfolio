@@ -4,7 +4,7 @@ import type { TraceStep } from "./agent-types";
 
 export const MODEL_LABELS = {
   gemini: "Gemini 3.6 Flash",
-  groq: "Groq / Llama 3.3 70B",
+  groq: "Groq / GPT-OSS 120B",
 } as const;
 
 /**

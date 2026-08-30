@@ -7,6 +7,10 @@ import { MODEL_LABELS, REASONS, initialSteps, makeStep } from "./pipeline-plan";
 
 export type Emit = (event: AgentEvent) => void;
 
+const GROQ_PROVIDER_OPTIONS = {
+  groq: { reasoningEffort: "low" as const },
+};
+
 function timeoutSignal(outer: AbortSignal): AbortSignal {
   return AbortSignal.any([outer, AbortSignal.timeout(agentCallTimeoutMs())]);
 }
@@ -33,6 +37,7 @@ async function callModel(opts: {
   prompt: string;
   signal: AbortSignal;
   maxOutputTokens: number;
+  providerOptions?: typeof GROQ_PROVIDER_OPTIONS;
 }): Promise<string> {
   const { text } = await generateText({
     model: opts.model,
@@ -41,6 +46,7 @@ async function callModel(opts: {
     temperature: 0.4,
     maxOutputTokens: opts.maxOutputTokens,
     abortSignal: timeoutSignal(opts.signal),
+    providerOptions: opts.providerOptions,
   });
   return text.trim();
 }
@@ -188,6 +194,7 @@ export async function runPipeline(
         prompt: `Overall request: ${userMessage}\n\nYour sub-task: ${task}`,
         signal,
         maxOutputTokens: researcherOutputTokens(),
+        providerOptions: GROQ_PROVIDER_OPTIONS,
       });
       findings.push({ task, notes });
       setStatus(id, "done");
@@ -274,6 +281,7 @@ export async function runPipeline(
       temperature: 0.5,
       maxOutputTokens: writerOutputTokens(),
       abortSignal: timeoutSignal(signal),
+      providerOptions: model === groqModel ? GROQ_PROVIDER_OPTIONS : undefined,
     });
     for await (const chunk of result.textStream) {
       if (chunk) {

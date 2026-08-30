@@ -31,7 +31,7 @@ Sidebar entry opens contact info/CTA in the main area.
 - Each agent's action is paired with a plain-language note on which model is handling it and why (pre-written per role, not generated live — free, instant, accurate).
 - Model routing:
   - Planner, Critic, Writer agents → Gemini 2.5 Flash (reasoning-heavy steps)
-  - Research/Worker agents → Groq (Llama 3.3 70B) (speed-visible steps)
+  - Research/Worker agents → Groq (GPT-OSS 120B) (speed-visible steps)
   - Both free tier.
 - Abuse/cost control: hard per-visitor run cap. Basic content filter only, no topic restriction.
 

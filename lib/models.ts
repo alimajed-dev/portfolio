@@ -28,5 +28,11 @@ const groq = createGroq({ apiKey: groqApiKey });
  */
 export const geminiModel: LanguageModel = google("gemini-3.6-flash");
 
+/**
+ * Groq retired Llama 3.3 70B for developer-tier users on 2026-08-16 and
+ * recommends GPT-OSS 120B as its production replacement.
+ */
+export const GROQ_MODEL_ID = "openai/gpt-oss-120b";
+
 /** Fast, focused research steps whose outputs are shown one at a time. */
-export const groqModel: LanguageModel = groq("llama-3.3-70b-versatile");
+export const groqModel: LanguageModel = groq(GROQ_MODEL_ID);
