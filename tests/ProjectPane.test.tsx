@@ -6,13 +6,17 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { ProjectPane } from "@/components/panes/ProjectPane";
 import { PROJECTS } from "@/lib/site";
 
+const AGENT_PROJECT = PROJECTS.find(
+  (project) => project.experience === "agent" && !project.externalUrl,
+)!;
+
 afterEach(cleanup);
 
 describe("ProjectPane composer", () => {
   it("uses a padded rounded composer without the old add control", () => {
     const { container } = render(
       <ProjectPane
-        project={PROJECTS[0]}
+        project={AGENT_PROJECT}
         messages={[]}
         running={false}
         onSend={vi.fn()}
@@ -43,7 +47,7 @@ describe("ProjectPane composer", () => {
   it("renders assistant Markdown bold markers as bold text", () => {
     const { container } = render(
       <ProjectPane
-        project={PROJECTS[0]}
+        project={AGENT_PROJECT}
         messages={[
           {
             id: "critic-result",

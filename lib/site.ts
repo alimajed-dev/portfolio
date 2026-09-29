@@ -73,14 +73,28 @@ export type Project = {
   name: string;
   subtitle: string;
   experience: "agent" | "pixels" | "radar" | "cursor-tiger";
+  /** Projects with an external URL are listed here but are not portfolio routes. */
+  externalUrl?: string;
   status: "done" | "in-progress" | "halted";
   cardEyebrow: string;
   cardTitle: string;
   cardBody: string;
 };
 
-/** The sidebar and static project routes are both generated from this list. */
+/** The project lists and internal project routes are both generated from this list. */
 export const PROJECTS: Project[] = [
+  {
+    id: "meen-dod-meen",
+    name: "Meen Dod Meen",
+    subtitle: "Social trivia for game night",
+    experience: "agent",
+    externalUrl: "https://meendodmeen.com/",
+    status: "in-progress",
+    cardEyebrow: "Game-night trivia",
+    cardTitle: "Bring the whole room into the game",
+    cardBody:
+      "A host-led trivia experience for two teams, one shared screen, and lively game nights.",
+  },
   {
     id: "agent-orchestration-demo",
     name: "Agent Orchestration Demo",
@@ -126,6 +140,10 @@ export const PROJECTS: Project[] = [
       "Move across the screen to guide a baby tiger’s gaze through a continuous, pre-rendered character animation.",
   },
 ];
+
+export function projectHref(project: Project) {
+  return project.externalUrl ?? `/projects/${project.id}`;
+}
 
 /** The approved source animation used by the Cursor Tiger experience. */
 export const CURSOR_TIGER_VIDEO_SRC =

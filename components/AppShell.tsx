@@ -30,7 +30,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const collapsed = collapsedOverride ?? false;
 
   const activeProjectId = pathname.match(/^\/projects\/([^/]+)/)?.[1];
-  const project = activeProjectId ? PROJECTS.find((p) => p.id === activeProjectId) : undefined;
+  const project = activeProjectId
+    ? PROJECTS.find((p) => p.id === activeProjectId && !p.externalUrl)
+    : undefined;
 
   // GA's base snippet already reports whichever URL the visitor actually
   // landed on, so only report *changes* after mount — otherwise the first

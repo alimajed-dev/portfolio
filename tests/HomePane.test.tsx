@@ -22,9 +22,23 @@ describe("HomePane projects", () => {
 
     expect(
       screen.getByText(
-        "Most of my professional work is confidential, but here are a few things I’ve built for fun and exploration. Each project includes a concise Build Process view, so you can see how it was made.",
+        "Most of my professional work is confidential, but here are a few things I’ve built for fun and exploration. Projects hosted here include a concise Build Process view, so you can see how they were made.",
       ),
     ).toBeDefined();
+  });
+
+  it("puts Meen Dod Meen first and opens it externally in a new tab", () => {
+    render(<HomePane />);
+    const projectLinks = screen.getAllByRole("link");
+    const meenDodMeen = screen.getByRole("link", { name: /Meen Dod Meen/ });
+
+    expect(projectLinks[0]).toBe(meenDodMeen);
+    expect(meenDodMeen.getAttribute("href")).toBe("https://meendodmeen.com/");
+    expect(meenDodMeen.getAttribute("target")).toBe("_blank");
+    expect(meenDodMeen.getAttribute("rel")).toBe("noopener noreferrer");
+    expect(meenDodMeen.textContent).toContain("In progress");
+    expect(meenDodMeen.querySelector(".lucide-gamepad-2")).not.toBeNull();
+    expect(meenDodMeen.querySelector(".lucide-external-link")).not.toBeNull();
   });
 
   it("gives the Pixels card its own title and sidebar-matching icon", () => {
@@ -51,14 +65,15 @@ describe("HomePane projects", () => {
 
     const radarCard = screen.getByRole("link", { name: /Conversation Opportunity Radar/ });
     const tigerCard = screen.getByRole("link", { name: /Cursor Tiger/ });
-    const inProgressTag = screen.getByText("In progress");
+    const inProgressTags = screen.getAllByText("In progress");
     const onHoldTag = screen.getByText("On hold");
     const doneTags = screen.getAllByText("Done");
 
     expect(radarCard.textContent).toContain("In progress");
     expect(tigerCard.textContent).toContain("On hold");
-    expect(doneTags).toHaveLength(PROJECTS.length - 2);
-    expect(inProgressTag.className).toContain("bg-warning/15");
+    expect(inProgressTags).toHaveLength(2);
+    expect(doneTags).toHaveLength(PROJECTS.filter((project) => project.status === "done").length);
+    expect(inProgressTags[0].className).toContain("bg-warning/15");
     expect(onHoldTag.className).toContain("bg-neutral-500/15");
     expect(doneTags[0].className).toContain("bg-success/15");
   });

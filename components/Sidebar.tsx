@@ -1,10 +1,21 @@
 "use client";
 
-import { ChevronsLeft, ChevronsRight, CircleX, Home, Mail, PawPrint, Radar, ScanLine, Terminal } from "lucide-react";
+import {
+  ChevronsLeft,
+  ChevronsRight,
+  CircleX,
+  Gamepad2,
+  Home,
+  Mail,
+  PawPrint,
+  Radar,
+  ScanLine,
+  Terminal,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Avatar } from "./Avatar";
-import { OWNER, PROJECTS } from "@/lib/site";
+import { OWNER, PROJECTS, projectHref } from "@/lib/site";
 
 type Props = {
   collapsed: boolean;
@@ -117,7 +128,10 @@ export function Sidebar({
           <ul className="flex flex-col gap-1">
             {PROJECTS.map((project) => {
               const active = pathname === `/projects/${project.id}`;
-              const ProjectIcon = project.experience === "pixels"
+              const external = Boolean(project.externalUrl);
+              const ProjectIcon = external
+                ? Gamepad2
+                : project.experience === "pixels"
                 ? ScanLine
                 : project.experience === "radar"
                   ? Radar
@@ -127,10 +141,11 @@ export function Sidebar({
               return (
                 <li key={project.id}>
                   <Link
-                    href={`/projects/${project.id}`}
+                    href={projectHref(project)}
                     onClick={onNavigate}
+                    {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                     className={itemClass(active, collapsed)}
-                    aria-label={project.name}
+                    aria-label={external ? `${project.name} (opens in a new tab)` : project.name}
                     aria-current={active ? "page" : undefined}
                     title={collapsed ? project.name : undefined}
                   >

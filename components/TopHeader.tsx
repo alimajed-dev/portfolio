@@ -15,7 +15,7 @@ type Props = {
 export function TopHeader({ onOpenSidebar, onOpenPanel, running }: Props) {
   const pathname = usePathname();
   const projectId = pathname.match(/^\/projects\/([^/]+)/)?.[1];
-  const project = PROJECTS.find((item) => item.id === projectId);
+  const project = PROJECTS.find((item) => item.id === projectId && !item.externalUrl);
   const contact = pathname === "/contact";
   const privacy = pathname === "/privacy";
 

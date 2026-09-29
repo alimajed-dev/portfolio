@@ -9,9 +9,12 @@ import { PROJECTS } from "@/lib/site";
 import { ProjectPageClient } from "@/app/projects/[projectId]/project-page-client";
 
 const NARROW_QUERY = "max-width: 1023px";
-const PROJECT = PROJECTS[0];
+const PROJECT = PROJECTS.find(
+  (project) => project.experience === "agent" && !project.externalUrl,
+)!;
 const PROJECT_PATH = `/projects/${PROJECT.id}`;
-const PIXELS_PROJECT = PROJECTS[1];
+const PIXELS_PROJECT = PROJECTS.find((project) => project.experience === "pixels")!;
+const EXTERNAL_PROJECT = PROJECTS.find((project) => project.externalUrl)!;
 const RADAR_PROJECT = PROJECTS.find((project) => project.experience === "radar")!;
 const CURSOR_TIGER_PROJECT = PROJECTS.find((project) => project.experience === "cursor-tiger")!;
 
@@ -96,6 +99,10 @@ describe("Sidebar — real, shareable per-route URLs", () => {
     expect(screen.getByRole("link", { name: PIXELS_PROJECT.name }).getAttribute("href")).toBe(
       `/projects/${PIXELS_PROJECT.id}`,
     );
+    const externalProject = screen.getByRole("link", { name: /Meen Dod Meen/ });
+    expect(externalProject.getAttribute("href")).toBe(EXTERNAL_PROJECT.externalUrl);
+    expect(externalProject.getAttribute("target")).toBe("_blank");
+    expect(externalProject.getAttribute("rel")).toBe("noopener noreferrer");
     expect(screen.queryByRole("link", { name: "Privacy" })).toBeNull();
   });
 

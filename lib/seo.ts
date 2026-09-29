@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { OWNER, PROJECTS, SOCIAL_LINKS } from "@/lib/site";
+import { OWNER, PROJECTS, SOCIAL_LINKS, projectHref } from "@/lib/site";
 
 export const SITE_URL = "https://majedali.com";
 export const SITE_NAME = OWNER.name;
@@ -130,28 +130,36 @@ export function buildHomeJsonLd() {
           "Production software delivery",
         ],
       },
-      ...PROJECTS.map((project) => ({
-        "@type": "SoftwareApplication",
-        "@id": `${SITE_URL}/projects/${project.id}#application`,
-        name: project.name,
-        url: `${SITE_URL}/projects/${project.id}`,
-        description: project.cardBody,
-        applicationCategory: "DeveloperApplication",
-        operatingSystem: "Web",
-        author: { "@id": personId },
-        isPartOf: { "@id": websiteId },
-      })),
+      ...PROJECTS.map((project) => {
+        const url = project.externalUrl
+          ? projectHref(project)
+          : `${SITE_URL}${projectHref(project)}`;
+        return {
+          "@type": "SoftwareApplication",
+          "@id": `${url}#application`,
+          name: project.name,
+          url,
+          description: project.cardBody,
+          applicationCategory: "DeveloperApplication",
+          operatingSystem: "Web",
+          author: { "@id": personId },
+          isPartOf: { "@id": websiteId },
+        };
+      }),
     ],
   };
 }
 
 export function buildProjectJsonLd(project: (typeof PROJECTS)[number]) {
+  const url = project.externalUrl
+    ? projectHref(project)
+    : `${SITE_URL}${projectHref(project)}`;
   return {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    "@id": `${SITE_URL}/projects/${project.id}#application`,
+    "@id": `${url}#application`,
     name: project.name,
-    url: `${SITE_URL}/projects/${project.id}`,
+    url,
     description: project.cardBody,
     applicationCategory: "DeveloperApplication",
     operatingSystem: "Web",

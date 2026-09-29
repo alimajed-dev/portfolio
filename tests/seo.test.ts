@@ -11,7 +11,7 @@ import {
   serializeJsonLd,
   SITE_URL,
 } from "@/lib/seo";
-import { OWNER, PROJECTS, SOCIAL_LINKS } from "@/lib/site";
+import { OWNER, PROJECTS, SOCIAL_LINKS, projectHref } from "@/lib/site";
 
 describe("SEO discovery", () => {
   it("publishes every public HTML route once in the sitemap", () => {
@@ -21,7 +21,9 @@ describe("SEO discovery", () => {
       `${SITE_URL}/`,
       `${SITE_URL}/contact`,
       `${SITE_URL}/privacy`,
-      ...PROJECTS.map((project) => `${SITE_URL}/projects/${project.id}`),
+      ...PROJECTS.filter((project) => !project.externalUrl).map(
+        (project) => `${SITE_URL}${projectHref(project)}`,
+      ),
     ]);
     expect(new Set(urls).size).toBe(urls.length);
   });
@@ -82,7 +84,7 @@ describe("machine-readable identity", () => {
   });
 
   it("describes each project at its canonical URL", () => {
-    const project = PROJECTS[0];
+    const project = PROJECTS.find((item) => !item.externalUrl)!;
 
     expect(buildProjectJsonLd(project)).toMatchObject({
       name: project.name,
@@ -101,7 +103,9 @@ describe("machine-readable identity", () => {
     expect(llmsText).toContain(`# ${OWNER.name}`);
     expect(llmsText).toContain(`${SITE_URL}/contact`);
     for (const project of PROJECTS) {
-      expect(llmsText).toContain(`${SITE_URL}/projects/${project.id}`);
+      expect(llmsText).toContain(
+        project.externalUrl ? projectHref(project) : `${SITE_URL}${projectHref(project)}`,
+      );
     }
   });
 });

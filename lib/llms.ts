@@ -1,11 +1,15 @@
 import { HOME_DESCRIPTION, SITE_URL } from "@/lib/seo";
-import { OWNER, PROJECTS, SKILLS, SOCIAL_LINKS } from "@/lib/site";
+import { OWNER, PROJECTS, SKILLS, SOCIAL_LINKS, projectHref } from "@/lib/site";
 
 export function buildLlmsText() {
   const expertise = SKILLS.map((skill) => `- ${skill.eyebrow}: ${skill.body}`).join("\n");
   const projects = PROJECTS.map(
-    (project) =>
-      `- [${project.name}](${SITE_URL}/projects/${project.id}): ${project.cardBody}`,
+    (project) => {
+      const href = project.externalUrl
+        ? projectHref(project)
+        : `${SITE_URL}${projectHref(project)}`;
+      return `- [${project.name}](${href}): ${project.cardBody}`;
+    },
   ).join("\n");
   const profiles = SOCIAL_LINKS.filter((link) => link.href.startsWith("https://"))
     .map((link) => `- [${link.id}](${link.href})`)

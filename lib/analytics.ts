@@ -17,7 +17,7 @@ export function pageTitle(pathname: string): string {
   if (pathname === "/contact") return "Contact — Ali Majed";
   const projectId = pathname.match(/^\/projects\/([^/]+)/)?.[1];
   if (projectId) {
-    const project = PROJECTS.find((p) => p.id === projectId);
+    const project = PROJECTS.find((p) => p.id === projectId && !p.externalUrl);
     return project ? `${project.name} — Ali Majed` : "Project — Ali Majed";
   }
   return "Ali Majed — Software Engineer";

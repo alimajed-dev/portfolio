@@ -1,6 +1,14 @@
-import { ArrowRight, PawPrint, Radar, ScanLine, Terminal } from "lucide-react";
+import {
+  ArrowRight,
+  ExternalLink,
+  Gamepad2,
+  PawPrint,
+  Radar,
+  ScanLine,
+  Terminal,
+} from "lucide-react";
 import Link from "next/link";
-import { OWNER, PROJECTS, SKILLS } from "@/lib/site";
+import { OWNER, PROJECTS, SKILLS, projectHref } from "@/lib/site";
 
 export function HomePane() {
   return (
@@ -32,11 +40,14 @@ export function HomePane() {
           <div className="flex flex-col gap-2">
             <h2 className="text-xl font-semibold text-ink">Projects</h2>
             <p className="text-[13px]/[1.55] text-neutral-600 sm:text-[14px]/[1.5]">
-              Most of my professional work is confidential, but here are a few things I’ve built for fun and exploration. Each project includes a concise Build Process view, so you can see how it was made.
+              Most of my professional work is confidential, but here are a few things I’ve built for fun and exploration. Projects hosted here include a concise Build Process view, so you can see how they were made.
             </p>
           </div>
           {PROJECTS.map((project) => {
-            const ProjectIcon = project.experience === "pixels"
+            const external = Boolean(project.externalUrl);
+            const ProjectIcon = external
+              ? Gamepad2
+              : project.experience === "pixels"
               ? ScanLine
               : project.experience === "radar"
                 ? Radar
@@ -62,7 +73,8 @@ export function HomePane() {
             return (
               <Link
                 key={project.id}
-                href={`/projects/${project.id}`}
+                href={projectHref(project)}
+                {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                 className="group flex min-h-[68px] items-center gap-3 rounded-lg border border-line bg-panel p-3 shadow-[0_4px_6px_rgb(0_0_0_/_0.25)] transition-[background-color,border-color] duration-150 hover:border-line-strong hover:bg-panel-raised sm:min-h-[80px] sm:gap-4 sm:p-5"
               >
                 <span className="flex size-10 shrink-0 items-center justify-center rounded-md border-l-2 border-accent bg-panel-raised text-accent transition-transform duration-150 group-hover:scale-105">
@@ -84,7 +96,11 @@ export function HomePane() {
                   </span>
                   <span className="truncate text-[12px] text-neutral-600 sm:text-[13px]">{project.cardBody}</span>
                 </span>
-                <ArrowRight size={18} strokeWidth={1.8} aria-hidden className="shrink-0 text-neutral-600 transition-transform duration-150 group-hover:translate-x-0.5 group-hover:text-ink" />
+                {external ? (
+                  <ExternalLink size={18} strokeWidth={1.8} aria-hidden className="shrink-0 text-neutral-600 transition-colors duration-150 group-hover:text-ink" />
+                ) : (
+                  <ArrowRight size={18} strokeWidth={1.8} aria-hidden className="shrink-0 text-neutral-600 transition-transform duration-150 group-hover:translate-x-0.5 group-hover:text-ink" />
+                )}
               </Link>
             );
           })}
