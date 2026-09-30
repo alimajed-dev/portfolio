@@ -106,8 +106,8 @@ the shared palette and surfaces, not older interaction/layout details.)
   (32x32, rounded-8px, initials "AM" as fallback — **user will supply a real
   photo to replace this, leave it swappable, e.g. `/public/avatar.jpg` with
   a graceful fallback to initials if the file doesn't exist**), name "Ali
-  Majed", collapse/expand toggle button. Below: "Contact" nav item (single
-  entry). Below that, "Projects" section header + one nav item per project —
+  Majed", collapse/expand toggle button. Below: "Contact" and "Writing &
+  Media" nav items. Below that, "Projects" section header + one nav item per project —
   current projects are "Agent Orchestration Demo" and "How Pixels Create Color".
 - **Middle pane:** changes based on sidebar selection.
   - Nothing selected / default: bio + two skill cards (Agentic AI /
@@ -116,6 +116,9 @@ the shared palette and surfaces, not older interaction/layout details.)
     CTA button + link rows for email, LinkedIn (linkedin.com/in/ali-majed),
     X (x.com/AliMajed93), YouTube (youtube.com/@alimajed93), GitHub
     (github.com/alimajed-dev). Direct links only, no contact form.
+  - Writing & Media selected: featured external article + a newest-first grid
+    of YouTube videos. Content lives in `WRITING_MEDIA` in `lib/site.ts`; the
+    route is `/writing`, and every source opens in a new tab.
   - Agent demo selected: chat-style interface — message bubbles, input box at
     bottom, "Message the agent…" placeholder.
   - How Pixels Create Color selected: a full-width, scene-driven React Three

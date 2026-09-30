@@ -15,6 +15,7 @@ declare global {
  */
 export function pageTitle(pathname: string): string {
   if (pathname === "/contact") return "Contact — Ali Majed";
+  if (pathname === "/writing") return "Writing & Media — Ali Majed";
   const projectId = pathname.match(/^\/projects\/([^/]+)/)?.[1];
   if (projectId) {
     const project = PROJECTS.find((p) => p.id === projectId && !p.externalUrl);

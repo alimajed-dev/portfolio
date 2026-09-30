@@ -1,6 +1,16 @@
 "use client";
 
-import { Home, Mail, Menu, PawPrint, Radar, ScanLine, ShieldCheck, Terminal } from "lucide-react";
+import {
+  BookOpenText,
+  Home,
+  Mail,
+  Menu,
+  PawPrint,
+  Radar,
+  ScanLine,
+  ShieldCheck,
+  Terminal,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { PROJECTS } from "@/lib/site";
@@ -17,11 +27,39 @@ export function TopHeader({ onOpenSidebar, onOpenPanel, running }: Props) {
   const projectId = pathname.match(/^\/projects\/([^/]+)/)?.[1];
   const project = PROJECTS.find((item) => item.id === projectId && !item.externalUrl);
   const contact = pathname === "/contact";
+  const writing = pathname === "/writing";
   const privacy = pathname === "/privacy";
 
-  const title = project ? project.name : contact ? "workspace/contact" : privacy ? "workspace/privacy" : "workspace/home";
-  const mobileTitle = project ? project.name : contact ? "Contact" : privacy ? "Privacy" : "Portfolio";
-  const subtitle = project ? project.subtitle : contact ? "Direct channels" : privacy ? "Data use & requests" : "Overview";
+  const page = writing
+    ? {
+        title: "workspace/writing-media",
+        mobileTitle: "Writing & Media",
+        subtitle: "Articles & videos",
+        icon: BookOpenText,
+      }
+    : contact
+      ? {
+          title: "workspace/contact",
+          mobileTitle: "Contact",
+          subtitle: "Direct channels",
+          icon: Mail,
+        }
+      : privacy
+        ? {
+            title: "workspace/privacy",
+            mobileTitle: "Privacy",
+            subtitle: "Data use & requests",
+            icon: ShieldCheck,
+          }
+        : {
+            title: "workspace/home",
+            mobileTitle: "Portfolio",
+            subtitle: "Overview",
+            icon: Home,
+          };
+  const title = project?.name ?? page.title;
+  const mobileTitle = project?.name ?? page.mobileTitle;
+  const subtitle = project?.subtitle ?? page.subtitle;
   const Icon = project?.experience === "pixels"
     ? ScanLine
     : project?.experience === "radar"
@@ -30,11 +68,7 @@ export function TopHeader({ onOpenSidebar, onOpenPanel, running }: Props) {
         ? PawPrint
         : project
           ? Terminal
-          : contact
-            ? Mail
-            : privacy
-              ? ShieldCheck
-              : Home;
+          : page.icon;
 
   return (
     <header className="flex h-14 shrink-0 items-center justify-between border-b border-line bg-bg px-4 sm:px-6">

@@ -5,6 +5,7 @@ describe("pageTitle", () => {
   it("matches the browser title for each shareable page", () => {
     expect(pageTitle("/")).toBe("Ali Majed — Software Engineer");
     expect(pageTitle("/contact")).toBe("Contact — Ali Majed");
+    expect(pageTitle("/writing")).toBe("Writing & Media — Ali Majed");
     expect(pageTitle("/projects/agent-orchestration-demo")).toBe(
       "Agent Orchestration Demo — Ali Majed",
     );

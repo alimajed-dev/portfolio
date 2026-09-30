@@ -1,5 +1,12 @@
 import { HOME_DESCRIPTION, SITE_URL } from "@/lib/seo";
-import { OWNER, PROJECTS, SKILLS, SOCIAL_LINKS, projectHref } from "@/lib/site";
+import {
+  OWNER,
+  PROJECTS,
+  SKILLS,
+  SOCIAL_LINKS,
+  WRITING_MEDIA,
+  projectHref,
+} from "@/lib/site";
 
 export function buildLlmsText() {
   const expertise = SKILLS.map((skill) => `- ${skill.eyebrow}: ${skill.body}`).join("\n");
@@ -14,6 +21,9 @@ export function buildLlmsText() {
   const profiles = SOCIAL_LINKS.filter((link) => link.href.startsWith("https://"))
     .map((link) => `- [${link.id}](${link.href})`)
     .join("\n");
+  const writingMedia = WRITING_MEDIA.map(
+    (item) => `- [${item.title}](${item.href}): ${item.summary}`,
+  ).join("\n");
 
   return `# ${OWNER.name}
 
@@ -31,7 +41,12 @@ ${expertise}
 
 - [Home](${SITE_URL}/): Biography, expertise, and selected projects.
 - [Contact](${SITE_URL}/contact): Official contact details and social profiles.
+- [Writing & Media](${SITE_URL}/writing): Articles and videos about AI, software delivery, and software engineering.
 ${projects}
+
+## Writing & media
+
+${writingMedia}
 
 ## Verified profiles
 

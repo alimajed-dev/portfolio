@@ -60,6 +60,7 @@ function setViewport(size: "narrow" | "wide") {
 
 const HOME = <div>Home content</div>;
 const CONTACT = <div>Contact content</div>;
+const WRITING = <div>Writing and media content</div>;
 const PROJECT_PAGE = <ProjectPageClient project={PROJECT} />;
 
 function renderAt(pathname: string, children: React.ReactNode) {
@@ -88,11 +89,14 @@ afterEach(() => {
 describe("Sidebar — real, shareable per-route URLs", () => {
   beforeEach(() => setViewport("wide"));
 
-  it("links home, contact and every project to their own URLs", () => {
+  it("links home, contact, writing and every project to their own URLs", () => {
     renderAt("/", HOME);
 
     expect(screen.getByRole("link", { name: "Ali Majed — home" }).getAttribute("href")).toBe("/");
     expect(screen.getByRole("link", { name: "Contact" }).getAttribute("href")).toBe("/contact");
+    expect(screen.getByRole("link", { name: "Writing & Media" }).getAttribute("href")).toBe(
+      "/writing",
+    );
     expect(screen.getByRole("link", { name: PROJECT.name }).getAttribute("href")).toBe(
       PROJECT_PATH,
     );
@@ -123,6 +127,13 @@ describe("Sidebar — real, shareable per-route URLs", () => {
     expect(screen.getByRole("link", { name: "Contact" }).getAttribute("aria-current")).toBe(
       "page",
     );
+  });
+
+  it("marks Writing & Media current on /writing", () => {
+    renderAt("/writing", WRITING);
+    expect(
+      screen.getByRole("link", { name: "Writing & Media" }).getAttribute("aria-current"),
+    ).toBe("page");
   });
 });
 

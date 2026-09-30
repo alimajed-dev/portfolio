@@ -8,7 +8,7 @@ Both technical and non-technical people evaluating for freelance/contract work. 
 
 ## Site Structure
 - Modern chat-app layout (Claude-style): collapsible left sidebar nav, main content area on the right.
-- Sidebar items: **Contact** (one entry) + **Projects/Apps** (one entry per project, extensible over time). First project entry = this multi-agent demo.
+- Sidebar items: **Contact**, **Writing & Media**, and **Projects/Apps** (one entry per project, extensible over time). First project entry = this multi-agent demo.
 - Visual style: light mode, clean chat-app aesthetic (Claude/ChatGPT-style) — warm off-white background, soft muted accent colors, understated, nothing flashy or heavily saturated.
 
 ## Default View
@@ -17,9 +17,14 @@ When nothing is selected, main area shows short bio + the two core skills (agent
 ## Contact
 Sidebar entry opens contact info/CTA in the main area.
 
+## Writing & Media
+Sidebar entry opens a professional library of Ali's external articles and
+YouTube videos. Articles are featured separately from a newest-first video
+grid; all items open their original source in a new tab.
+
 ## Layout (3-pane, Claude-style)
-- **Left:** sidebar nav — Contact + Projects/Apps.
-- **Middle:** the running app (e.g. the chat input/output for the flagship demo, or the contact page).
+- **Left:** sidebar nav — Contact + Writing & Media + Projects/Apps.
+- **Middle:** the running app (e.g. the chat input/output for the flagship demo), contact page, or Writing & Media library.
 - **Right:** contextual panel, only shown for project entries, with a toggle at the top (same pattern as Claude's preview/code toggle):
   - **Live** (default while demo runs): real-time agent trace — each agent's current action + which model is handling it and why.
   - **Process**: the curated **"See the process"** case study — Requirements → Design → Implementation → Review → Deployment, naming the actual tool used at each phase.

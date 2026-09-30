@@ -68,6 +68,78 @@ export const SOCIAL_LINKS: SocialLink[] = [
   },
 ];
 
+type WritingMediaBase = {
+  id: string;
+  title: string;
+  summary: string;
+  href: string;
+  source: string;
+};
+
+export type WritingMediaItem = WritingMediaBase &
+  (
+    | { type: "article"; published: string }
+    | { type: "video"; duration: string; thumbnail: string }
+  );
+
+/** Public writing and videos, ordered newest first. */
+export const WRITING_MEDIA: WritingMediaItem[] = [
+  {
+    id: "reimagining-software-delivery-around-ai",
+    type: "article",
+    title: "Reimagining the Software Development Lifecycle Around AI",
+    summary:
+      "How redesigning the full delivery lifecycle around AI—from planning and shared context to parallel execution and controlled release—helped deliver a four-month feature in roughly two weeks.",
+    href: "https://www.gotocme.com/blog/reimagining-software-delivery-around-ai",
+    source: "CME",
+    published: "September 29, 2026",
+  },
+  {
+    id: "ai-in-dev-teams",
+    type: "video",
+    title: "How to Use AI in Dev Teams — Stop the Chaos",
+    summary:
+      "A practical system for giving a development team shared prompts, structure, and reusable context when working with AI.",
+    href: "https://www.youtube.com/watch?v=QhA3H6XrsDk",
+    source: "YouTube",
+    duration: "0:37",
+    thumbnail: "https://i.ytimg.com/vi/QhA3H6XrsDk/mqdefault.jpg",
+  },
+  {
+    id: "slow-expensive-ai-agent",
+    type: "video",
+    title: "Why Your AI Agent Is Slow & Expensive: 5 Mistakes and How to Fix Them",
+    summary:
+      "Five common design mistakes that increase agent latency and token cost, plus a focused fix for each one.",
+    href: "https://www.youtube.com/watch?v=ehaUzjtNVMA",
+    source: "YouTube",
+    duration: "0:37",
+    thumbnail: "https://i.ytimg.com/vi/ehaUzjtNVMA/mqdefault.jpg",
+  },
+  {
+    id: "junior-developers-and-ai",
+    type: "video",
+    title: "AI Changed the Rules for Junior Developers. Here's How to Win.",
+    summary:
+      "What junior developers should focus on as AI changes how software is written and engineering value is created.",
+    href: "https://www.youtube.com/watch?v=3iyQ_4dAlL0",
+    source: "YouTube",
+    duration: "0:37",
+    thumbnail: "https://i.ytimg.com/vi/3iyQ_4dAlL0/mqdefault.jpg",
+  },
+  {
+    id: "did-ai-replace-software-engineers",
+    type: "video",
+    title: "Did AI Actually Replace Software Engineers? The Truth After 3 Years.",
+    summary:
+      "A grounded look at what AI changed in software engineering, what it did not replace, and where engineers still create value.",
+    href: "https://www.youtube.com/watch?v=iK6IaX-grSY",
+    source: "YouTube",
+    duration: "6:06",
+    thumbnail: "https://i.ytimg.com/vi/iK6IaX-grSY/mqdefault.jpg",
+  },
+];
+
 export type Project = {
   id: string;
   name: string;

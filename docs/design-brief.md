@@ -4,8 +4,8 @@
 Personal portfolio proving two skills: agentic AI/orchestration, and full-lifecycle web development. Audience: technical + non-technical people evaluating for freelance/contract work. Primary CTA: contact.
 
 ## Layout — 3-pane, chat-app style (like Claude/ChatGPT)
-- **Left:** collapsible sidebar. Items: "Contact" (single entry) + "Projects" (list, first entry = "Agent Orchestration Demo", extensible).
-- **Middle:** main content — the running app (chat-style input/output) or the contact page.
+- **Left:** collapsible sidebar. Items: "Contact", "Writing & Media", and "Projects" (list, first entry = "Agent Orchestration Demo", extensible).
+- **Middle:** main content — the running app (chat-style input/output), contact page, or Writing & Media library.
 - **Right:** contextual panel, shown only for project entries, with a toggle at top:
   - **Live** (default): real-time agent trace — list of steps, each showing agent name, current action, a model badge, and a one-line reason for that model choice.
   - **Process**: curated case study with sections Requirements → Design → Implementation → Review → Deployment, naming the tool used at each phase.
@@ -19,7 +19,8 @@ Light mode. Warm off-white background (not stark white). Clean sans-serif typogr
 2. **Project — Live mode**: chat-style input in the middle; right pane shows the live agent trace, updating step by step.
 3. **Project — Process mode**: same layout, right pane swapped to the case study, with the toggle visible.
 4. **Contact view**: contact info/CTA in the middle; right pane empty.
-5. **Sidebar collapsed state**: icon-only sidebar, expandable.
+5. **Writing & Media view**: featured article followed by a newest-first video grid; right pane empty.
+6. **Sidebar collapsed state**: icon-only sidebar, expandable.
 
 ## Deliverable
-High-fidelity mockups for the 5 states above, with consistent reusable components: sidebar item, model badge, live/process toggle, buttons.
+High-fidelity mockups for the states above, with consistent reusable components: sidebar item, model badge, live/process toggle, buttons.

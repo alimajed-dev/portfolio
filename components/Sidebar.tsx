@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  BookOpenText,
   ChevronsLeft,
   ChevronsRight,
   CircleX,
@@ -38,6 +39,7 @@ export function Sidebar({
   const pathname = usePathname();
   const isHome = pathname === "/";
   const isContact = pathname === "/contact";
+  const isWriting = pathname === "/writing";
 
   const itemClass = (active: boolean, compact = false) =>
     [
@@ -116,6 +118,20 @@ export function Sidebar({
           >
             <Mail size={16} strokeWidth={1.7} aria-hidden className="shrink-0" />
             {collapsed ? <span className="sr-only">Contact</span> : <span>Contact</span>}
+          </Link>
+          <Link
+            href="/writing"
+            onClick={onNavigate}
+            className={itemClass(isWriting, collapsed)}
+            aria-current={isWriting ? "page" : undefined}
+            title={collapsed ? "Writing & Media" : undefined}
+          >
+            <BookOpenText size={16} strokeWidth={1.7} aria-hidden className="shrink-0" />
+            {collapsed ? (
+              <span className="sr-only">Writing &amp; Media</span>
+            ) : (
+              <span>Writing &amp; Media</span>
+            )}
           </Link>
 
           {collapsed ? (

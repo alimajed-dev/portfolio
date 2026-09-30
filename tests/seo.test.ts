@@ -20,6 +20,7 @@ describe("SEO discovery", () => {
     expect(urls).toEqual([
       `${SITE_URL}/`,
       `${SITE_URL}/contact`,
+      `${SITE_URL}/writing`,
       `${SITE_URL}/privacy`,
       ...PROJECTS.filter((project) => !project.externalUrl).map(
         (project) => `${SITE_URL}${projectHref(project)}`,
@@ -102,6 +103,7 @@ describe("machine-readable identity", () => {
 
     expect(llmsText).toContain(`# ${OWNER.name}`);
     expect(llmsText).toContain(`${SITE_URL}/contact`);
+    expect(llmsText).toContain(`${SITE_URL}/writing`);
     for (const project of PROJECTS) {
       expect(llmsText).toContain(
         project.externalUrl ? projectHref(project) : `${SITE_URL}${projectHref(project)}`,
